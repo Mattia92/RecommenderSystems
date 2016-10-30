@@ -48,18 +48,25 @@ prova.remove_column('interaction_type')
 prova.remove_column('created_at')
 
 item_sim_model = graphlab.item_similarity_recommender.create(train_data)
-nn = item_sim_model.get_similar_items()
+item_sim_model2 = graphlab.item_similarity_recommender.create(ratings_base_SFrame, target='interaction_type')
 
-item_sim_model2 = graphlab.item_similarity_recommender.create(train_data, user_id='user_id', item_id='item_id',
-                                                              target='interaction_type', nearest_items=nn)
-item_sim_recomm2 = item_sim_model2.recommend(users=filtered, k=5)
+nn1 = item_sim_model.get_similar_items()
+nn2 = item_sim_model.get_similar_items()
 
-
+item_sim_model_final1 = graphlab.item_similarity_recommender.create(train_data, user_id='user_id', item_id='item_id',
+                                                              target='interaction_type', nearest_items=nn1)
+item_sim_model_final2 = graphlab.item_similarity_recommender.create(ratings_base_SFrame, user_id='user_id', item_id='item_id',
+                                                              target='interaction_type', nearest_items=nn2)
+item_sim_recomm1 = item_sim_model_final1.recommend(users=filtered, k=5)
+item_sim_recomm2 = item_sim_model_final2.recommend(users=filtered, k=5)
 
 
 ###print item_sim_model.evaluate_rmse(test_data, target='interaction_type')
-print("SIMILARITY PREC RECALL")
-print item_sim_model2.evaluate_precision_recall(test_data)
+print("SIMILARITY 1 PREC RECALL")
+print item_sim_model_final1.evaluate_precision_recall(test_data)
+
+print("SIMILARITY 2 PREC RECALL")
+print item_sim_model_final2.evaluate_precision_recall(test_data)
 
 
 #Make Recommendations:
