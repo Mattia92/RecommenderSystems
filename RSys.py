@@ -8,8 +8,10 @@ import graphlab.aggregate as agg
 #Reading users file:
 users = pd.read_csv('DataSet/user_profile.csv', sep='\t', encoding='latin-1')
 
+
 #Reading items file:
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', encoding='latin-1', low_memory=False)
+
 
 #Reading the target file:
 filtered = graphlab.SFrame.read_csv('DataSet/target_users.csv')
@@ -24,68 +26,48 @@ ratings_base_SFrame = graphlab.SFrame(ratings_base)
 #Create a recommender-friendly train-test split of the provided data set
 train_data, test_data = graphlab.recommender.util.random_split_by_user(ratings_base_SFrame, max_num_users=1000,
                                                                        item_test_proportion=0.2)
+# provina = pd.read_csv('DataSet/interactions.csv', sep='\t')
+# prova = graphlab.SFrame(provina)
+# prova.remove_column('interaction_type')
+# prova.remove_column('created_at')
+#
+# item_sim_model = graphlab.item_similarity_recommender.create(train_data)
+# item_sim_model2 = graphlab.item_similarity_recommender.create(ratings_base_SFrame, target='interaction_type')
 
-##-----Popularity Recommender-----##
-#######popularity_model = graphlab.popularity_recommender.create (train_data, user_id='user_id', item_id='item_id',
-                                                           ######target='interaction_type')
 
-###print popularity_model.evaluate_rmse(test_data, target='interaction_type')
-########print("POPULARITY PREC RECALL")
-##########print popularity_model.evaluate_precision_recall(test_data)
+# m1 = graphlab.ranking_factorization_recommender.create(train_data, target='interaction_type')
+# recomm = m1.recommend(users=filtered, k=5)
+# print("SIMILARITY 1 PREC RECALL")
+# print m1.evaluate_precision_recall(test_data)
+
+m3 = graphlab.ranking_factorization_recommender.create(ratings_base_SFrame, target='interaction_type',
+                                                       ranking_regularization = 0.1, unobserved_rating_value = 1)
+m4 = graphlab.ranking_factorization_recommender.create(ratings_base_SFrame, target='interaction_type', solver = 'ials')
+
+recomm = m3.recommend(users=filtered, k=5)
+
+recomm2 = m4.recommend(users=filtered, k=5)
 
 
-#Get recommendations for first 5 users and print them
-#users = range(1,6) specifies user ID of first 5 users
-#k=5 specifies top 5 recommendations to be given
-############popularity_recomm = popularity_model.recommend(users=filtered, k=5)
-
-##-----Item Similarity Recommender-----##
-#######item_sim_model = graphlab.item_similarity_recommender.create(train_data, user_id='user_id', item_id='item_id',
-                                                             ########target='interaction_type', similarity_type='pearson')
-provina = pd.read_csv('DataSet/interactions.csv', sep='\t')
-prova = graphlab.SFrame(provina)
-prova.remove_column('interaction_type')
-prova.remove_column('created_at')
-
-item_sim_model = graphlab.item_similarity_recommender.create(train_data)
-item_sim_model2 = graphlab.item_similarity_recommender.create(ratings_base_SFrame, target='interaction_type')
-
-nn1 = item_sim_model.get_similar_items()
-nn2 = item_sim_model.get_similar_items()
-
-item_sim_model_final1 = graphlab.item_similarity_recommender.create(train_data, user_id='user_id', item_id='item_id',
-                                                              target='interaction_type', nearest_items=nn1)
-item_sim_model_final2 = graphlab.item_similarity_recommender.create(ratings_base_SFrame, user_id='user_id', item_id='item_id',
-                                                              target='interaction_type', nearest_items=nn2)
-item_sim_recomm1 = item_sim_model_final1.recommend(users=filtered, k=5)
-item_sim_recomm2 = item_sim_model_final2.recommend(users=filtered, k=5)
+# nn1 = item_sim_model.get_similar_items()
+# nn2 = item_sim_model.get_similar_items()
+#
+# item_sim_model_final1 = graphlab.item_similarity_recommender.create(train_data, user_id='user_id', item_id='item_id',
+#                                                               target='interaction_type', nearest_items=nn1)
+# item_sim_model_final2 = graphlab.item_similarity_recommender.create(ratings_base_SFrame, user_id='user_id', item_id='item_id',
+#                                                               target='interaction_type', nearest_items=nn2)
+# item_sim_recomm1 = item_sim_model_final1.recommend(users=filtered, k=5)
+# item_sim_recomm2 = item_sim_model_final2.recommend(users=filtered, k=5)
 
 
 ###print item_sim_model.evaluate_rmse(test_data, target='interaction_type')
-print("SIMILARITY 1 PREC RECALL")
-print item_sim_model_final1.evaluate_precision_recall(test_data)
-
-print("SIMILARITY 2 PREC RECALL")
-print item_sim_model_final2.evaluate_precision_recall(test_data)
-
-
-#Make Recommendations:
-##########item_sim_recomm = item_sim_model.recommend(users=filtered, k=5)
-
-#######groupedResult = popularity_recomm \
-   ####### .groupby(key_columns='user_id', operations={'recommended_items': agg.CONCAT('item_id')}) \
-    ########.sort('user_id')
-
-# def split_string(x):
-#     x = map(str, x)
-#     return ' '.join(x)
+# print("SIMILARITY 1 PREC RECALL")
+# print item_sim_model_final1.evaluate_precision_recall(test_data)
 #
-# groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
-#
-# groupedResult.export_csv('groupedResult.csv')
+# print("SIMILARITY 2 PREC RECALL")
+# print item_sim_model_final2.evaluate_precision_recall(test_data)
 
-
-groupedResult = item_sim_recomm2 \
+groupedResult = recomm \
     .groupby(key_columns='user_id', operations={'recommended_items': agg.CONCAT('item_id')}) \
     .sort('user_id')
 
@@ -95,4 +77,16 @@ def split_string(x):
 
 groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
 
-groupedResult.export_csv('groupedResult2.csv')
+groupedResult.export_csv('FactRankResult.csv')
+
+groupedResult = recomm2 \
+    .groupby(key_columns='user_id', operations={'recommended_items': agg.CONCAT('item_id')}) \
+    .sort('user_id')
+
+def split_string(x):
+    x = map(str, x)
+    return ' '.join(x)
+
+groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
+
+groupedResult.export_csv('FactRankResult2.csv')

@@ -9,14 +9,14 @@ def loadDataset():
     """
     # Recover the titles of the jobs
     jobs = {}
-    for line in open("DataSet/item_profile.csv"):
+    for line in open("DataSet/item_profileClean.csv"):
         (id, title) = line.split("\t")[0:2]
         jobs[id] = title
 
     # Load the data
     prefs = {}
     count = 0
-    for line in open("DataSet/interactions.csv"):
+    for line in open("DataSet/interactionsClean.csv"):
         (user_id, item_id, interaction_type) = line.split("\t")[0:3]
         try:
             if int(interaction_type) > 0.0:

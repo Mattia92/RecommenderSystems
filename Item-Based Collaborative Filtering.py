@@ -7,7 +7,9 @@ prefs = cfp.loadDataset()
 
 print prefs['285']
 
-for person in open("DataSet/target_users.csv"):
+for person in open("DataSet/target_usersClean.csv"):
+    print (person)
+    person.rstrip()
     #res = cfp.getRecommendations(prefs, person, similarity='sim_distance')
     res = cfp.topMatches(prefs, person, n=5)
 
