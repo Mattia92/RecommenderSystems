@@ -13,6 +13,12 @@ users = pd.read_csv('DataSet/user_profile.csv', sep='\t', encoding='latin-1')
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', encoding='latin-1', low_memory=False)
 
 
+item = graphlab.SFrame.read_csv('DataSet/item_profile.csv', sep='\t',)
+itemfiltered = item.filter_by(0, 'active_during_test', exclude=True)
+
+itemfilt = itemfiltered.remove_columns(['title', 'career_level', 'discipline_id', 'industry_id', 'country', 'region',
+                                        'latitude', 'longitude', 'employment', 'tags', 'created_at', 'active_during_test'])
+
 #Reading the target file:
 filtered = graphlab.SFrame.read_csv('DataSet/target_users.csv')
 
@@ -23,15 +29,8 @@ ratings_base = pd.read_csv('DataSet/interactions.csv', sep='\t')
 #We can use this data for training
 ratings_base_SFrame = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='\t')
 
-
-#Create a recommender-friendly train-test split of the provided data set
-# provina = pd.read_csv('DataSet/interactions.csv', sep='\t')
-# prova = graphlab.SFrame(provina)
-# prova.remove_column('interaction_type')
-# prova.remove_column('created_at')
-
 item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id')
-recomm = item_sim_model.recommend(users=filtered, k=5, random_seed=911)
+recomm = item_sim_model.recommend(users=filtered, items=itemfilt, k=5, random_seed=911)
 
 # m1 = graphlab.ranking_factorization_recommender.create(train_data, target='interaction_type')
 # recomm = m1.recommend(users=filtered, k=5)
@@ -72,5 +71,5 @@ def split_string(x):
 
 groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
 
-groupedResult.export_csv('Item_Sim_power.csv')
+groupedResult.export_csv('ItemSimOnlyActiveJobs.csv')
 
