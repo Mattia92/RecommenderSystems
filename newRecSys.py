@@ -1,6 +1,12 @@
 import numpy as np
 import pandas as pd
 
+#inizialization of the dictionaries and the counters for the mapping process
+dict_u = {}
+dict_i = {}
+count_1 = 0
+count_2 = 0
+
 header = ['user_id', 'item_id', 'interaction_type', 'created_at']
 ratings_base = pd.read_csv('DataSet/interactionsClean.csv', sep='\t', names=header)
 n_users = ratings_base.user_id.unique().shape[0]
@@ -11,13 +17,32 @@ from sklearn import cross_validation as cv
 train_data, test_data = cv.train_test_split(ratings_base, test_size=0.25)
 
 #Create two user-item matrices, one for training and another for testing
-train_data_matrix = np.zeros((n_users, n_items))
+train_data_matrix = np.zeros((n_users, n_items), dtype=np.int8)
 for line in train_data.itertuples():
-    train_data_matrix[line[1]-1, line[2]-1] = line[3]
 
-test_data_matrix = np.zeros((n_users, n_items))
+#Mapping for the users
+    if not dict_u.has_key(line[1]):
+        dict_u[line[1]] = count_1
+        count_1 = count_1 + 1
+#Mapping for the items
+    if not dict_i.has_key(line[2]):
+        dict_i[line[2]] = count_2
+        count_2 = count_2 + 1
+
+    train_data_matrix[dict_u[line[1]], dict_i[line[2]]] = line[3]
+
+test_data_matrix = np.zeros((n_users, n_items), dtype=np.int8)
 for line in test_data.itertuples():
-    test_data_matrix[line[1]-1, line[2]-1] = line[3]
+
+    if not dict_u.has_key(line[1]):
+        dict_u[line[1]] = count_1
+        count_1 = count_1 + 1
+
+    if not dict_i.has_key(line[2]):
+        dict_i[line[2]] = count_2
+        count_2 = count_2 + 1
+
+    test_data_matrix[dict_u[line[1]], dict_i[line[2]]] = line[3]
 
 from sklearn.metrics.pairwise import pairwise_distances
 user_similarity = pairwise_distances(train_data_matrix, metric='cosine')
