@@ -25,12 +25,16 @@ filtered = graphlab.SFrame.read_csv('DataSet/target_users.csv')
 #Reading the interactions file:
 ratings_base = pd.read_csv('DataSet/interactions.csv', sep='\t')
 
+#Reading the interactions file for the recommendation to remove
+interactionsToRemove = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='\t')
+interactionsToRemove.remove_columns(['interaction_type', 'created_at'])
+
 #Since we be using GraphLab, lets convert these in SFrames
 #We can use this data for training
 ratings_base_SFrame = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='\t')
 
 item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id')
-recomm = item_sim_model.recommend(users=filtered, items=itemfilt, k=5, random_seed=911)
+recomm = item_sim_model.recommend(users=filtered, items=itemfilt, k=5, exclude=interactionsToRemove, random_seed=911)
 
 # m1 = graphlab.ranking_factorization_recommender.create(train_data, target='interaction_type')
 # recomm = m1.recommend(users=filtered, k=5)
@@ -71,5 +75,5 @@ def split_string(x):
 
 groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
 
-groupedResult.export_csv('ItemSimOnlyActiveJobs.csv')
+groupedResult.export_csv('ItemSimTwoFilter.csv')
 
