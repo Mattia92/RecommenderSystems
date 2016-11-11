@@ -6,11 +6,11 @@ import graphlab.aggregate as agg
 # Column names available in the readme file
 
 #Reading users file:
-users = pd.read_csv('DataSet/user_profile.csv', sep='\t', encoding='latin-1')
+users = graphlab.SFrame.read_csv('user_profile_no_null.csv', sep='\t')
 
 
 #Reading items file:
-items = pd.read_csv('DataSet/item_profile.csv', sep='\t', encoding='latin-1', low_memory=False)
+items = graphlab.SFrame.read_csv('item_profile_no_null.csv', sep='\t')
 
 
 item = graphlab.SFrame.read_csv('DataSet/item_profile.csv', sep='\t',)
