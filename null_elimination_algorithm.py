@@ -59,6 +59,6 @@ for column in items:
             if math.isnan(x[1]):
                 items.set_value(x[0], column, r)
 
-users.apply(convert).to_csv(path_or_buf = 'user_profile_no_null.csv', sep = '\t')
+users.apply(convert).to_csv(path_or_buf = 'user_profile_no_null.csv', sep = '\t', index=False)
 
-items.to_csv(path_or_buf = 'item_profile_no_null.csv', sep = '\t')
+items.to_csv(path_or_buf = 'item_profile_no_null.csv', sep = '\t', index=False)

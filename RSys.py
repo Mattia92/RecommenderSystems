@@ -33,7 +33,8 @@ interactionsToRemove.remove_columns(['interaction_type', 'created_at'])
 #We can use this data for training
 ratings_base_SFrame = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='\t')
 
-item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id')
+item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id',
+                                                             user_data=users, item_data=items)
 recomm = item_sim_model.recommend(users=filtered, items=itemfilt, k=5, exclude=interactionsToRemove, random_seed=911)
 
 # m1 = graphlab.ranking_factorization_recommender.create(train_data, target='interaction_type')
@@ -75,5 +76,5 @@ def split_string(x):
 
 groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
 
-groupedResult.export_csv('ItemSimTwoFilter.csv')
+groupedResult.export_csv('SimilarityWithAddInfo.csv')
 
