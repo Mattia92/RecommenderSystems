@@ -33,38 +33,12 @@ interactionsToRemove.remove_columns(['interaction_type', 'created_at'])
 #We can use this data for training
 ratings_base_SFrame = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='\t')
 
+knn_sim_items_model = graphlab.item_content_recommender.create(items, item_id='item_id')
+knn_sim_items = knn_sim_items_model.get_similar_items()
+
 item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id',
-                                                             user_data=users, item_data=items)
+                                                             nearest_items=knn_sim_items)
 recomm = item_sim_model.recommend(users=filtered, items=itemfilt, k=5, exclude=interactionsToRemove, random_seed=911)
-
-# m1 = graphlab.ranking_factorization_recommender.create(train_data, target='interaction_type')
-# recomm = m1.recommend(users=filtered, k=5)
-# print("SIMILARITY 1 PREC RECALL")
-# print m1.evaluate_precision_recall(test_data)
-
-#m3 = graphlab.ranking_factorization_recommender.create(ratings_base_SFrame, target='interaction_type',
-                                                       #ranking_regularization = 0.1, unobserved_rating_value = 1)
-#m3 = graphlab.ranking_factorization_recommender.create(ratings_base_SFrame, target='rating', solver = 'ials')
-
-#recomm = m3.recommend(users=filtered, k=5)
-
-# nn1 = item_sim_model.get_similar_items()
-# nn2 = item_sim_model.get_similar_items()
-#
-# item_sim_model_final1 = graphlab.item_similarity_recommender.create(train_data, user_id='user_id', item_id='item_id',
-#                                                               target='interaction_type', nearest_items=nn1)
-# item_sim_model_final2 = graphlab.item_similarity_recommender.create(ratings_base_SFrame, user_id='user_id', item_id='item_id',
-#                                                               target='interaction_type', nearest_items=nn2)
-# item_sim_recomm1 = item_sim_model_final1.recommend(users=filtered, k=5)
-# item_sim_recomm2 = item_sim_model_final2.recommend(users=filtered, k=5)
-
-
-###print item_sim_model.evaluate_rmse(test_data, target='interaction_type')
-# print("SIMILARITY 1 PREC RECALL")
-# print item_sim_model_final1.evaluate_precision_recall(test_data)
-#
-# print("SIMILARITY 2 PREC RECALL")
-# print item_sim_model_final2.evaluate_precision_recall(test_data)
 
 groupedResult = recomm \
     .groupby(key_columns='user_id', operations={'recommended_items': agg.CONCAT('item_id')}) \
@@ -76,5 +50,4 @@ def split_string(x):
 
 groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
 
-groupedResult.export_csv('SimilarityWithAddInfo.csv')
-
+groupedResult.export_csv('Results/SimilarityWithKNNSimilarItems.csv')
