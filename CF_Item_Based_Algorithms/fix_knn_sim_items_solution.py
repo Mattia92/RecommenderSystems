@@ -1,5 +1,5 @@
 import pandas as pd
-import string
+import graphlab
 
 # Reading the target file:
 result = pd.read_csv('../Results/Result_NOT_Submit.csv', sep=',')
@@ -19,4 +19,10 @@ for index,row in result.iterrows():
     line = row[1]
     # Split the element of the string into a list
     line = line.split()
-    print (len(line))
+    if (len(line)<5):
+        result = result.drop(index)
+        result = result.append(addElements.loc[addElements['user_id'] == row[0]])
+
+result = result.sort_values(by='user_id')
+groupedResult = graphlab.SFrame(result)
+groupedResult.export_csv('../Results/Result_speriamo.csv')
