@@ -61,9 +61,9 @@ for index,y in result.iterrows():
     if us == None or not y[0] == us:
         count = 0
         us = y[0]
-    elif y[0] == us and count < 5:
+    elif y[0] == us and count < 4:
         count = count + 1
-    elif y[0] == us and count >= 5:
+    elif y[0] == us and count >= 4:
         result = result.drop(index)
 
 #Grouping the recommended items, hoping this is the correct operation :D
