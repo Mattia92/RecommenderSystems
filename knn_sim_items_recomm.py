@@ -57,16 +57,15 @@ result = result.drop('score', 1)
 
 us = None
 # Selecting only the first five items to reccomend dropping the others
-for y in result.iterrows():
-    if us == None or not y[1] == us:
+for index,y in result.iterrows():
+    if us == None or not y[0] == us:
         count = 0
-        us = y[1]
-    elif y[1] == us and count < 5:
+        us = y[0]
+    elif y[0] == us and count < 5:
         count = count + 1
-    elif y[1] == us and count >= 5:
-        result = result.drop(y, 0)
+    elif y[0] == us and count >= 5:
+        result = result.drop(index)
 
-print result
 #Grouping the recommended items, hoping this is the correct operation :D
 result.groupby(by='user_id', operations={'recommended_items': agg.CONCAT('sim_item')})
 result.export_csv('newSimilarity.csv')
