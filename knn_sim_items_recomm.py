@@ -17,14 +17,19 @@ similaritems = similaritems[similaritems['item_id'].isin(items_active['item_id']
 # Consider only active similar items from the similar items file
 similaritems = similaritems[similaritems['sim_item'].isin(items_active['item_id'])]
 # Delete the item itself from its similar items
+#----Non so se questa cosa è giusta perchè forse per ogni item_id cancella tutti i sim_item, non solo il suo
 similaritems = similaritems[similaritems['item_id'] != similaritems['sim_item']]
 
 # Reading interactions file:
 interactions = pd.read_table('DataSet/interactionsClean.csv', usecols=[0, 1], names=['user_id', 'item_id'])
 interactions_sorted_by_users = interactions.sort_values(by='user_id')
+interactions_sorted_by_target_users = interactions_sorted_by_users[interactions_sorted_by_users['user_id'].
+                                                                    isin(target_users['user_id'])]
 
 # TODO:
-# per ogni user in target_users si devono prendere gli items da interactions_sorted_by_users
-# ordinare la lista in base al punteggio
-# per ogni user prendere i 5 items con punteggio più alto
-# scrivere il file csv finale
+# Per ogni user in interactions_sorted_by_target_users prendere l'item con cui interagisce e andare
+# a prendere i suoi similar items in similaritems con punteggio
+# Raggruppare gli user e nella lista di similar item fare un ordinamento secondo il punteggio
+# Prendere i top 5 similar items
+# Scrivere il file csv finale
+# PREGARE CHE TUTTO FUNZIONI E VENGA FUORI UN PUNTEGGIO DECENTE!!!!
