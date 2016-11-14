@@ -28,6 +28,11 @@ interactions_sorted_by_users = interactions.sort_values(by='user_id')
 interactions_sorted_by_target_users = interactions_sorted_by_users[interactions_sorted_by_users['user_id'].
                                                                     isin(target_users['user_id'])]
 
+result = pd.merge(left=interactions_sorted_by_target_users, right=similaritems, on='item_id')
+result = result.drop('item_id', 1)
+result = result.sort(['user_id', 'score'], ascending=[True, False])
+result = result.drop_duplicates()
+result = result.drop('score', 1)
 # d = pd.DataFrame(columns=['user_id', 'item_id', 'score'])
 #
 # for index, row in interactions_sorted_by_target_users.iterrows():
@@ -39,29 +44,32 @@ interactions_sorted_by_target_users = interactions_sorted_by_users[interactions_
 #
 # d.to_csv(path_or_buf = 'users_sim_items.csv', sep = '\t', index=False)
 
-# Reading the new csv file created
-df = pd.read_csv('users_sim_items.csv', sep='\t')
-# Dropping the score column
-df.drop('score', 1)
 
-#Dropping the items tih wich the user has interacted
-for x in df.iterrows():
-    if interactions_to_remove.isin(x):
-        df.drop(x)
+# # Reading the new csv file created
+# df = pd.read_csv('users_sim_items.csv', sep='\t')
+# # Dropping the score column
+# df.drop('score', 1)
+#
+# #Dropping the items tih wich the user has interacted
+# for x in result.iterrows():
+#     if interactions_to_remove.isin(x):
+#         result = result.drop(x)
 
 us = None
 # Selecting only the first five items to reccomend dropping the others
-for y in df.iterrows():
-    if us == None or not y['user_id'] == us:
+for y in result.iterrows():
+    if us == None or not y[1] == us:
         count = 0
-        us = y['user_id']
-    elif y['user_id'] == us and count < 5:
+        us = y[1]
+    elif y[1] == us and count < 5:
         count = count + 1
-    elif y['user_id'] == us and count >= 5:
-        df.drop(y)
+    elif y[1] == us and count >= 5:
+        result = result.drop(y, 0)
 
+print result
 #Grouping the recommended items, hoping this is the correct operation :D
-df.groupby(key_columns='user_id', operations={'recommended_items': agg.CONCAT('item_id')})
+result.groupby(by='user_id', operations={'recommended_items': agg.CONCAT('sim_item')})
+result.export_csv('newSimilarity.csv')
 
 # TODO:
 # Per ogni user in interactions_sorted_by_target_users prendere l'item con cui interagisce e andare
