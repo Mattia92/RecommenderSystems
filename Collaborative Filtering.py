@@ -1,14 +1,44 @@
-import graphlab
 import pandas as pd
 import numpy as np
 import math
 
 # Importing all the files needed
-interactions = pd.read_csv('DataSet/interactions.csv', sep='\t')
+cols = ['user_id', 'item_id', 'interaction', 'create_at']
+interactions = pd.read_csv('DataSet/interactionsClean.csv', sep='\t', names=cols)
+# Sort interactions by time of creation in ascending order
+# This is done because in dictionary when duplicate keys encountered during assignment, the last assignment wins
+interactions = interactions.sort_values(by='create_at')
+interactions = interactions.drop('create_at', axis=1)
+
 items = pd.read_csv('Dataset/item_profile.csv', sep='\t')
 users = pd.read_csv('Dataset/user_profile.csv', sep='\t')
 # Sorting the users by user_id
 users = users.sort_values(by='user_id')
+
+user_items_dictionary = {}
+item_users_dictionary = {}
+
+# Create the dictionaries needed to compute the similarity between users
+# Dictionary is a list of elements, each element is defined as following
+# dict {user -> (list of {item -> interaction})}
+for user, item, interaction in interactions.values:
+    user_items_dictionary.setdefault(user, {})[item] = interaction
+
+# dict {item -> (list of {user -> interaction})}
+for user, item, interaction in interactions.values:
+    item_users_dictionary.setdefault(item, {})[user] = interaction
+
+# Create the dictionary for the user_user similarity
+# dict {user -> (list of {user -> similarity})}
+user_user_similarity_dictionary = {}
+# For each user in the dictionary
+for user in user_items_dictionary:
+    # Get the dictionary pointed by the user, containing the items with which the user has interact
+    interacted_items = user_items_dictionary.get(user)
+    # For each item in the dictionary pointed by the user
+    for item in interacted_items:
+        # Get the dictionary pointed by the item, containing the users which have interact with the item
+        interacted_users = item_users_dictionary.get(item)
 
 # Create the dictionary needed to correctly indexing the matrix
 # count_1 corresponds to the total number of users
