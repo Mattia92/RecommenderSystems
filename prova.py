@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import graphlab
 # header = ['user_id', 'item_id', 'interaction_type', 'created_at']
 # ratings_base = pd.read_csv('DataSet/interactionsClean.csv', sep='\t', names=header)
 # n_users = ratings_base.user_id.unique().shape[0]
@@ -21,9 +21,9 @@ import pandas as pd
 #     if not dict_i.has_key(line[2]):
 #         dict_i[line[2]] = count_2
 #         count_2 = count_2 + 1
-target_users = pd.read_csv('DataSet/target_usersClean.csv')
-interactions = pd.read_csv('DataSet/interactionsClean.csv')
-interactions_sorted_by_users = interactions.sort_values(by='user_id')
-interactions_sorted_by_target_users = interactions_sorted_by_users[interactions_sorted_by_users['user_id'].
-                                                                    isin(target_users['user_id'])]
-print interactions_sorted_by_target_users
+items = graphlab.SFrame.read_csv('item_profile_no_null.csv', sep='\t')
+
+items['title'] = items['title'].apply(lambda x: x.split())
+items['tags'] = items['tags'].apply(lambda x: x.split())
+
+print items

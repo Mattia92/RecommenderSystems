@@ -11,7 +11,8 @@ users = graphlab.SFrame.read_csv('user_profile_no_null.csv', sep='\t')
 
 #Reading items file:
 items = graphlab.SFrame.read_csv('item_profile_no_null.csv', sep='\t')
-
+items['title'] = items['title'].apply(lambda x: x.split())
+items['tags'] = items['tags'].apply(lambda x: x.split())
 
 item = graphlab.SFrame.read_csv('DataSet/item_profile.csv', sep='\t',)
 itemfiltered = item.filter_by(0, 'active_during_test', exclude=True)
@@ -34,6 +35,7 @@ interactionsToRemove.remove_columns(['interaction_type', 'created_at'])
 ratings_base_SFrame = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='\t')
 
 knn_sim_items_model = graphlab.item_content_recommender.create(items, item_id='item_id')
+knn_sim_items_model.save(location='Models')
 knn_sim_items = knn_sim_items_model.get_similar_items()
 
 item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id',
