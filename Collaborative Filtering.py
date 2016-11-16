@@ -11,6 +11,7 @@ import math
 import pickle as p
 from collections import OrderedDict
 from operator import itemgetter
+import graphlab
 
 # Importing all the files needed
 cols = ['user_id', 'item_id', 'interaction', 'create_at']
@@ -112,19 +113,40 @@ for user in users_prediction_dictionary_num:
         users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
                                                   (users_prediction_dictionary_den[user][item] + shrink)
 
-user_prediction_DF = pd.DataFrame(columns=['user_id', 'recommended_items'])
+# user_prediction_DF = pd.DataFrame(columns=['user_id', 'recommended_items'])
 print ("Create DataFrame for KNN =" + str(KNN))
+
+out_file = open("CF_User_Based.csv","w")
+
 for user in users_prediction_dictionary:
-    count = 0
-    users_prediction_dictionary[user] = OrderedDict(
-        sorted(users_prediction_dictionary[user].items(), key=lambda t: t[1]))
-    #for item in users_prediction_dictionary[user]:
-    users_prediction_dictionary[user] = users_prediction_dictionary[user].keys().head(5)
-        # if (count >= 5):
-        #     break
-        # user_prediction_DF.append(user, item.keys)
-        # count = count + 1
+    if len(users_prediction_dictionary[user].keys()) > 0:
+        users_prediction_dictionary[user] = OrderedDict(
+            sorted(users_prediction_dictionary[user].items(), key=lambda t: -t[1]))
+    x = users_prediction_dictionary[user].keys()
+    x = map(str,x)
+    out_file.write(str(user) + ',' + ' '.join(x[:min(len(x),5)]) + '\n')
+    # print str(user) + ',' + ' '.join(x[:min(len(x),5)])
+    # for item in users_prediction_dictionary[user]:
+    #     if (count >= 5):
+    #         break
+    #     user_prediction_DF = user_prediction_DF.append([user, item])
+    #     count = count + 1
 
+out_file.close()
+#
+# recomm = graphlab.SFrame(user_prediction_DF)
+#
+# print user_prediction_DF
 
-print (users_prediction_dictionary)
+# groupedResult = recomm \
+#     .groupby(key_columns='user_id', operations={'recommended_items': agg.CONCAT('item_id')}) \
+#     .sort('user_id')
+#
+# def split_string(x):
+#     x = map(str, x)
+#     return ' '.join(x)
+#
+# groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
+#
+# groupedResult.export_csv('Results/CF_UserBased.csv')
 #p.dump(users_prediction_dictionary, open("prediction.p", "wb"))
