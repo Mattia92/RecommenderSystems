@@ -8,19 +8,29 @@
 import pandas as pd
 import numpy as np
 import math
+import pickle as p
+from collections import OrderedDict
+from operator import itemgetter
 
 # Importing all the files needed
 cols = ['user_id', 'item_id', 'interaction', 'create_at']
-interactions = pd.read_csv('DataSet/interactionsClean.csv', sep='\t', names=cols)
+interactions = pd.read_csv('DataSet/interactions.csv', sep='\t', names=cols)
 # Sort interactions by time of creation in ascending order
 # This is done because in dictionary when duplicate keys encountered during assignment, the last assignment wins
 interactions = interactions.sort_values(by='create_at')
 interactions = interactions.drop('create_at', axis=1)
 
 items = pd.read_csv('Dataset/item_profile.csv', sep='\t')
+active_items = items[(items.active_during_test == 1)]
+active_items_idx = active_items['item_id']
+
 users = pd.read_csv('Dataset/user_profile.csv', sep='\t')
+target_users = pd.read_csv('Dataset/target_users.csv')
+
 # Sorting the users by user_id
 users = users.sort_values(by='user_id')
+
+shrink = 10
 
 user_items_dictionary = {}
 item_users_dictionary = {}
@@ -47,58 +57,60 @@ for user in user_items_dictionary:
     for item in interacted_items:
         # Get the dictionary pointed by the item, containing the users which have interact with the item
         interacted_users = item_users_dictionary.get(item)
+        # Get list of users which have interacted with the same item of the first user
         user_list = interacted_users.keys()
+        # Instantiate the similarity dictionary
+        # dict {user -> (dict2)}
+        # dict2 will be {similar_user -> similarity}
         user_user_similarity_dictionary.setdefault(user, {})
         for list_element in user_list:
+            # If similar_user is already in dict2 create the sum of product of ratings
             if (user_user_similarity_dictionary[user].has_key(list_element)):
                 user_user_similarity_dictionary[user][list_element] += 1
+            # Else the product of ratings is set to 1
             else:
                 user_user_similarity_dictionary.setdefault(user, {})[list_element] = 1
+    # Remove from similar_users the user itself
     if (user_user_similarity_dictionary[user].has_key(user)):
         del user_user_similarity_dictionary[user][user]
+    # Calculate the value of similarity
+    for sim in user_user_similarity_dictionary[user]:
+        user_user_similarity_dictionary[user][sim] /= (math.sqrt(len(interacted_items))*math.sqrt(len(user_items_dictionary.get(sim))))
+
+#TODO: ordinare dizionario in base al valore delle similarity
+#TODO: considerare solo KNN most similar users
+
+# Create the dictionary for users prediction
+# dict {user -> (list of {item -> prediction})}
+users_prediction_dictionary = {}
+users_prediction_dictionary_num = {}
+users_prediction_dictionary_den = {}
+# For each target user
+for user in target_users['user_id']:
+    print (user)
+    users_prediction_dictionary_num[user] = {}
+    users_prediction_dictionary_den[user] = {}
+    # If user has similar users
+    if (user_user_similarity_dictionary.has_key(user)):
+        # Get list of similar users
+        uus_list = user_user_similarity_dictionary[user]
+        # For each similar user
+        for user2 in uus_list:
+            u2_item_list = user_items_dictionary[user2]
+            for i in u2_item_list:
+                if not (users_prediction_dictionary_num[user].has_key(i)):
+                    users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
+                    users_prediction_dictionary_den[user][i] = uus_list[user2]
+                else:
+                    users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
+                    users_prediction_dictionary_den[user][i] += uus_list[user2]
+
+for user in users_prediction_dictionary_num:
+    users_prediction_dictionary[user] = {}
+    for item in users_prediction_dictionary_num[user]:
+        users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+                                                  (users_prediction_dictionary_den[user][item] + shrink)
 
 
-print (user_user_similarity_dictionary)
-# # Create the dictionary needed to correctly indexing the matrix
-# # count_1 corresponds to the total number of users
-# # count_2 corresponds to the total numbers of items
-# # dict:u and dict_i correspond to the two dictionaries
-# dict_u = {}
-# dict_i = {}
-# count_1 = 0
-# count_2 = 0
-# for index,row in users.iterrows():
-#     if not dict_u.has_key(row[0]):
-#         dict_u[row[0]] = count_1
-#         count_1 = count_1 + 1
-# for index,row in items.iterrows():
-#     if not dict_i.has_key(row[0]):
-#         dict_i[row[0]] = count_2
-#         count_2 = count_2 + 1
-#
-# # Inizializing the User Matrix Ratings which contains all the interactions of the users. For now the matrix contains only 0 values
-# user_matrix_ratings = np.zeros((count_1,count_2), dtype=np.int32)
-# # Populating the User Matrix Ratings. There is no distinction between the interaction_type;
-# # all the interactions are treated as 1 (as the prof said to the lesson)
-# for index,row in interactions.iterrows():
-#     user_matrix_ratings[dict_u[row[0]]][dict_i[row[1]]] = 1
-#
-# # Inizializing the Similarity matrix of users with all 0 values
-# similarity_users = np.zeros((count_1,count_1), dtype=np.int32)
-# # Populating the Similarity matrix of users with the formula seen in the lesson.
-# # sum corresponds to the numbers of items both users has interacted with
-# # u_1 corresponds to the number of items user_1 has interacted with
-# # u_2 corresponds to the number of items user_2 has interacted with
-# # c1 and c2 are used to iterate over the whole users(remember that count_1 is the number of users)
-# for c1 in range(0,count_1):
-#     for c2 in range(0,count_1):
-#         sum = 0
-#         u_1 = 0
-#         u_2 = 0
-#         if not c1 == c2:
-#             for c3 in range(0, count_2):
-#                 sum = sum + (user_matrix_ratings[c1][c3]*user_matrix_ratings[c2][c3])
-#                 u_1 = u_1 + user_matrix_ratings[c1][c3]
-#                 u_2 = u_2 + user_matrix_ratings[c2][c3]
-#         if not sum == 0:
-#             similarity_users[c1][c2] = sum/(math.sqrt(u_1)*math.sqrt(u_2))
+p.dump(users_prediction_dictionary, open("prediction.p", "wb"))
+user_prediction = p.load( open( "prediction.p", "rb" ) )
