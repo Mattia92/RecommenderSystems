@@ -117,7 +117,7 @@ for user in users_prediction_dictionary_num:
 print ("Create DataFrame for KNN =" + str(KNN))
 
 out_file = open("CF_User_Based.csv","w")
-
+out_file.write('user_id,recommended_items\n')
 for user in users_prediction_dictionary:
     if len(users_prediction_dictionary[user].keys()) > 0:
         users_prediction_dictionary[user] = OrderedDict(
