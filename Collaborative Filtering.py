@@ -1,3 +1,10 @@
+# coding=utf-8
+# NOTE IMPORTANTI:
+# In Collaborative filtering non interessano gli attributi di user e item, interessano solo le interazioni/ratings
+# Input principare del CF è User-Rating-Matrix
+# In Content Based si devono usare le info (attributi) di users e items
+# Input principale del CBF è Item-Content-Matrix
+
 import pandas as pd
 import numpy as np
 import math
@@ -19,6 +26,7 @@ user_items_dictionary = {}
 item_users_dictionary = {}
 
 # Create the dictionaries needed to compute the similarity between users
+# It is the User Rating Matrix build with dictionaries
 # Dictionary is a list of elements, each element is defined as following
 # dict {user -> (list of {item -> interaction})}
 for user, item, interaction in interactions.values:
@@ -39,6 +47,7 @@ for user in user_items_dictionary:
     for item in interacted_items:
         # Get the dictionary pointed by the item, containing the users which have interact with the item
         interacted_users = item_users_dictionary.get(item)
+        
 
 # Create the dictionary needed to correctly indexing the matrix
 # count_1 corresponds to the total number of users
