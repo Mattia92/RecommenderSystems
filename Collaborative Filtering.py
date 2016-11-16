@@ -31,6 +31,7 @@ target_users = pd.read_csv('Dataset/target_users.csv')
 users = users.sort_values(by='user_id')
 
 shrink = 10
+KNN = 10
 
 user_items_dictionary = {}
 item_users_dictionary = {}
@@ -39,6 +40,7 @@ item_users_dictionary = {}
 # It is the User Rating Matrix build with dictionaries
 # Dictionary is a list of elements, each element is defined as following
 # dict {user -> (list of {item -> interaction})}
+print ("Create dictionaries for users and items")
 for user, item, interaction in interactions.values:
     user_items_dictionary.setdefault(user, {})[item] = interaction
 
@@ -49,6 +51,7 @@ for user, item, interaction in interactions.values:
 # Create the dictionary for the user_user similarity
 # dict {user -> (list of {user -> similarity})}
 user_user_similarity_dictionary = {}
+print ("Create dictionaries for user-user similarity")
 # For each user in the dictionary
 for user in user_items_dictionary:
     # Get the dictionary pointed by the user, containing the items with which the user has interact
@@ -77,9 +80,7 @@ for user in user_items_dictionary:
     for sim in user_user_similarity_dictionary[user]:
         user_user_similarity_dictionary[user][sim] /= (math.sqrt(len(interacted_items))*math.sqrt(len(user_items_dictionary.get(sim))))
 
-#TODO: ordinare dizionario in base al valore delle similarity
-#TODO: considerare solo KNN most similar users
-
+print ("Create dictionaries for user predictions")
 # Create the dictionary for users prediction
 # dict {user -> (list of {item -> prediction})}
 users_prediction_dictionary = {}
@@ -87,7 +88,6 @@ users_prediction_dictionary_num = {}
 users_prediction_dictionary_den = {}
 # For each target user
 for user in target_users['user_id']:
-    print (user)
     users_prediction_dictionary_num[user] = {}
     users_prediction_dictionary_den[user] = {}
     # If user has similar users
@@ -105,12 +105,26 @@ for user in target_users['user_id']:
                     users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
                     users_prediction_dictionary_den[user][i] += uus_list[user2]
 
+print ("Ratings estimate:")
 for user in users_prediction_dictionary_num:
     users_prediction_dictionary[user] = {}
     for item in users_prediction_dictionary_num[user]:
         users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
                                                   (users_prediction_dictionary_den[user][item] + shrink)
 
+user_prediction_DF = pd.DataFrame(columns=['user_id', 'recommended_items'])
+print ("Create DataFrame for KNN =" + str(KNN))
+for user in users_prediction_dictionary:
+    count = 0
+    users_prediction_dictionary[user] = OrderedDict(
+        sorted(users_prediction_dictionary[user].items(), key=lambda t: t[1]))
+    #for item in users_prediction_dictionary[user]:
+    users_prediction_dictionary[user] = users_prediction_dictionary[user].keys().head(5)
+        # if (count >= 5):
+        #     break
+        # user_prediction_DF.append(user, item.keys)
+        # count = count + 1
 
-p.dump(users_prediction_dictionary, open("prediction.p", "wb"))
-user_prediction = p.load( open( "prediction.p", "rb" ) )
+
+print (users_prediction_dictionary)
+#p.dump(users_prediction_dictionary, open("prediction.p", "wb"))
