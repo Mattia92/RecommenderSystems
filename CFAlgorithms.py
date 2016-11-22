@@ -9,7 +9,7 @@ def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarit
     user_user_similarity_dictionary_num = {}
     user_user_similarity_dictionary_den1 = {}
     user_user_similarity_dictionary_den2 = {}
-    print ("Create dictionaries for user-user similarity")
+    print ("Create dictionaries for CF user-user similarity")
     # For each user in the dictionary
     for user in user_items_dictionary:
         # Get the dictionary pointed by the user, containing the items with which the user has interact
@@ -48,7 +48,7 @@ def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarit
             del user_user_similarity_dictionary_den1[user][user]
             del user_user_similarity_dictionary_den2[user][user]
 
-    print ("RSimilarities estimate:")
+    print ("Similarities estimate:")
     # For each user (user_user_similarity_dictionary_num contains all users which have at least one interaction)
     for user in user_user_similarity_dictionary_num:
         user_user_similarity_dictionary[user] = {}
@@ -66,7 +66,7 @@ def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarit
 
 # Function to create the recommendations
 def CFPredictRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, prediction_shrink):
-    print ("Create dictionaries for user predictions")
+    print ("Create dictionaries for CF user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
     users_prediction_dictionary = {}

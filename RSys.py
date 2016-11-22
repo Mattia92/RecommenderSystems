@@ -6,11 +6,11 @@ import graphlab.aggregate as agg
 # Column names available in the readme file
 
 #Reading users file:
-users = graphlab.SFrame.read_csv('user_profile_no_null.csv', sep='\t')
+users = graphlab.SFrame.read_csv('DataSet/user_profile_no_null.csv', sep='\t')
 
 
 #Reading items file:
-items = graphlab.SFrame.read_csv('item_profile_no_null.csv', sep='\t')
+items = graphlab.SFrame.read_csv('DataSet/item_profile_no_null.csv', sep='\t')
 items['title'] = items['title'].apply(lambda x: x.split())
 items['tags'] = items['tags'].apply(lambda x: x.split())
 
@@ -34,12 +34,16 @@ interactionsToRemove.remove_columns(['interaction_type', 'created_at'])
 #We can use this data for training
 ratings_base_SFrame = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='\t')
 
-knn_sim_items_model = graphlab.item_content_recommender.create(items, item_id='item_id')
-knn_sim_items_model.save(location='Models')
-knn_sim_items = knn_sim_items_model.get_similar_items()
+#knn_sim_items_model = graphlab.item_content_recommender.create(items, item_id='item_id')
+#knn_sim_items_model.save(location='Models')
+#knn_sim_items = knn_sim_items_model.get_similar_items()
 
-item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id',
-                                                             nearest_items=knn_sim_items)
+item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id')
+user_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, user_id='item_id', item_id='user_id')
+
+print (item_sim_model.get_similar_items())
+print (user_sim_model.get_similar_items())
+
 recomm = item_sim_model.recommend(users=filtered, items=itemfilt, k=5, exclude=interactionsToRemove, random_seed=911)
 
 groupedResult = recomm \
@@ -52,4 +56,4 @@ def split_string(x):
 
 groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
 
-groupedResult.export_csv('Results/SimilarityWithKNNSimilarItems.csv')
+groupedResult.export_csv('Result.csv')
