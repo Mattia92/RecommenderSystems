@@ -40,20 +40,21 @@ ratings_base_SFrame = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='
 
 item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id')
 user_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, user_id='item_id', item_id='user_id')
+knn_items = item_sim_model.get_similar_items()
+knn_users = user_sim_model.get_similar_items()
+knn_items.export_csv("graphlab_sim_items.csv")
+knn_users.export_csv("graphlab_sim_users.csv")
 
-print (item_sim_model.get_similar_items())
-print (user_sim_model.get_similar_items())
-
-recomm = item_sim_model.recommend(users=filtered, items=itemfilt, k=5, exclude=interactionsToRemove, random_seed=911)
-
-groupedResult = recomm \
-    .groupby(key_columns='user_id', operations={'recommended_items': agg.CONCAT('item_id')}) \
-    .sort('user_id')
-
-def split_string(x):
-    x = map(str, x)
-    return ' '.join(x)
-
-groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
-
-groupedResult.export_csv('Result.csv')
+# recomm = item_sim_model.recommend_from_interactions(users=filtered, items=itemfilt, k=5, exclude=interactionsToRemove, random_seed=911)
+#
+# groupedResult = recomm \
+#     .groupby(key_columns='user_id', operations={'recommended_items': agg.CONCAT('item_id')}) \
+#     .sort('user_id')
+#
+# def split_string(x):
+#     x = map(str, x)
+#     return ' '.join(x)
+#
+# groupedResult['recommended_items'] = groupedResult['recommended_items'].apply(split_string)
+#
+# groupedResult.export_csv('Result.csv')
