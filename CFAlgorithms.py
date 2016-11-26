@@ -162,7 +162,8 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
         # For each item predicted for the user
         for item in users_prediction_dictionary_num[user]:
             # Evaluate the prediction of that item for that user
-            users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+            if not (item in user_items_dictionary[user]):
+                users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
                                                       (users_prediction_dictionary_den[user][item] + prediction_shrink)
 
     return users_prediction_dictionary
@@ -205,7 +206,8 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
         # For each item predicted for the user
         for item in users_prediction_dictionary_num[user]:
             # Evaluate the prediction of that item for that user
-            users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+            if not (item in user_items_dictionary[user]):
+                users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
                                                   (users_prediction_dictionary_den[user][item] + prediction_shrink)
 
     return users_prediction_dictionary
