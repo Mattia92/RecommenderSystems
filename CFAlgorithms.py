@@ -214,6 +214,7 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
 
 # Function to write the final result of recommendation
 def CFWriteResult(output_filename, users_prediction_dictionary):
+    sum = 0
     print ("Writing result on " + output_filename)
     out_file = open(output_filename, "w")
     out_file.write('user_id,recommended_items\n')
@@ -224,5 +225,7 @@ def CFWriteResult(output_filename, users_prediction_dictionary):
         x = users_prediction_dictionary[user].keys()
         x = map(str, x)
         out_file.write(str(user) + ',' + ' '.join(x[:min(len(x), 5)]) + '\n')
-
+        sum += min(len(x), 5)
+    left = 50000 - sum
+    print(str(left) + " item(s) left in the result")
     out_file.close()
