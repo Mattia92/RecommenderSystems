@@ -21,7 +21,7 @@ target_users = pd.read_csv('DataSet/target_users.csv')
 CFOutput = "CF_User_Based.csv"
 
 similarity_shrink = 0
-prediction_shrink = 0
+prediction_shrink = 10
 
 # Dictionaries for Content Based Algorithms
 CB_user_items_dictionary = {}
@@ -37,11 +37,11 @@ CF_item_users_dictionary = {}
 # dict {user -> (list of {item -> interaction})}
 print ("Create dictionaries for users and items")
 for user, item, interaction in interactions.values:
-    CF_user_items_dictionary.setdefault(user, {})[item] = int(interaction)
+    CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
-    CF_item_users_dictionary.setdefault(item, {})[user] = int(interaction)
+    CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
 
 CF_user_user_similarity_dictionary = CFAlgorithms.CFUserUserSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
                                                                     similarity_shrink)
