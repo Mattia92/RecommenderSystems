@@ -216,6 +216,54 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
 
     return users_prediction_dictionary
 
+def CFHybridPredictRecommendation(user_based_users_prediction, item_based_users_predictions):
+    users_prediction_dictionary = {}
+    for user in user_based_users_prediction:
+        users_prediction_dictionary[user] = {}
+        for item in user_based_users_prediction[user]:
+            users_prediction_dictionary[user][item] = user_based_users_prediction[user][item] * 0.6
+
+    for user in item_based_users_predictions:
+        for item in item_based_users_predictions[user]:
+            if (users_prediction_dictionary[user].has_key(item)):
+                users_prediction_dictionary[user][item] += item_based_users_predictions[user][item] * 0.4
+            else:
+                users_prediction_dictionary[user][item] = item_based_users_predictions[user][item] * 0.4
+    return users_prediction_dictionary
+
+def CFHybridRankPredictReccomendation(items_to_consider,user_based_users_prediction, item_based_users_predictions):
+    users_prediction_dictionary = {}
+    for user in user_based_users_prediction:
+        if len(user_based_users_prediction[user].keys()) > 0:
+            user_based_users_prediction[user] = OrderedDict(
+            sorted(user_based_users_prediction[user].items(), key=lambda t: -t[1]))
+    for user in item_based_users_predictions:
+        if len(item_based_users_predictions[user].keys()) > 0:
+            item_based_users_predictions[user] = OrderedDict(
+            sorted(item_based_users_predictions[user].items(), key=lambda t: -t[1]))
+    for user in user_based_users_prediction:
+        points = items_to_consider
+        users_prediction_dictionary[user] = {}
+        for item in user_based_users_prediction[user]:
+            if (points > 0):
+                users_prediction_dictionary[user][item] = points
+                points = points - 1
+            else:
+                break
+    for user in item_based_users_predictions:
+        points = items_to_consider
+        for item in item_based_users_predictions[user]:
+            if (points > 0):
+                if (users_prediction_dictionary[user].has_key(item)):
+                    users_prediction_dictionary[user][item] += points
+                    points = points - 1
+                else:
+                    users_prediction_dictionary[user][item] = points
+                    points = points - 1
+            else:
+                break
+    return users_prediction_dictionary
+
 # Function to write the final result of recommendation
 def CFWriteResult(output_filename, users_prediction_dictionary):
     sum = 0
