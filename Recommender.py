@@ -12,7 +12,12 @@ interactions = interactions.drop('create_at', axis=1)
 
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
-active_items_idx = active_items['item_id']
+active_items_idx = active_items[['item_id', 'active_during_test']]
+# Dictionary with only active items
+active_items_to_recommend = {}
+for item, state in active_items_idx.values:
+    active_items_to_recommend[item] = state
+
 
 items = pd.read_csv('DataSet/user_profile.csv', sep='\t', header=0)
 
@@ -52,7 +57,8 @@ CF_user_user_similarity_dictionary = CFAlgorithms.CFUserUserSimilarity(CF_user_i
                                                                        CF_UB_similarity_shrink)
 # Compute the Prediction for Collaborative Filtering User Based
 CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictRecommendation(target_users, CF_user_user_similarity_dictionary,
-                                                                                  CF_user_items_dictionary, CF_UB_prediction_shrink)
+                                                                                  CF_user_items_dictionary, active_items_to_recommend,
+                                                                                  CF_UB_prediction_shrink)
 # Write the final Result for Collaborative Filtering User Based
 CFAlgorithms.CFWriteResult(CFOutput1, CF_UB_users_prediction_dictionary)
 
@@ -61,6 +67,7 @@ CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_i
                                                                        CF_IB_similarity_shrink)
 # Compute the Prediction for Collaborative Filtering Item Based
 CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_item_item_similarity_dictionary,
-                                                                                  CF_user_items_dictionary, CF_IB_prediction_shrink)
+                                                                                  CF_user_items_dictionary, active_items_to_recommend,
+                                                                                  CF_IB_prediction_shrink)
 # Write the final Result for Collaborative Filtering Item Based
 CFAlgorithms.CFWriteResult(CFOutput2, CF_IB_users_prediction_dictionary)

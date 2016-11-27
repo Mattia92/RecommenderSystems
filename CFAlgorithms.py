@@ -125,7 +125,8 @@ def CFItemItemSimilarity(user_items_dictionary, item_users_dictionary, similarit
     return item_item_similarity_dictionary
 
 # Function to create the recommendations for User_Based
-def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, prediction_shrink):
+def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
+                                     prediction_shrink):
     print ("Create dictionaries for CF User Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -163,13 +164,15 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
         for item in users_prediction_dictionary_num[user]:
             # Evaluate the prediction of that item for that user
             if not (item in user_items_dictionary[user]):
-                users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
-                                                      (users_prediction_dictionary_den[user][item] + prediction_shrink)
+                if (active_items_to_recommend.has_key(item)):
+                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+                                                              (users_prediction_dictionary_den[user][item] + prediction_shrink)
 
     return users_prediction_dictionary
 
 # Function to create the recommendations for Item_Based
-def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary, prediction_shrink):
+def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
+                                     prediction_shrink):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -207,8 +210,9 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
         for item in users_prediction_dictionary_num[user]:
             # Evaluate the prediction of that item for that user
             if not (item in user_items_dictionary[user]):
-                users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
-                                                  (users_prediction_dictionary_den[user][item] + prediction_shrink)
+                if (active_items_to_recommend.has_key(item)):
+                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+                                                              (users_prediction_dictionary_den[user][item] + prediction_shrink)
 
     return users_prediction_dictionary
 
