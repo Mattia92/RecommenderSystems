@@ -216,22 +216,33 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
 
     return users_prediction_dictionary
 
-def CFHybridPredictRecommendation(user_based_users_prediction, item_based_users_predictions):
+# Function to create the recommendations for Hybrid Weighted
+def CFHybridWeightedPredictRecommendation(user_based_users_prediction, item_based_users_predictions, weight):
     users_prediction_dictionary = {}
+    # For each user in the User_Based Prediction
     for user in user_based_users_prediction:
         users_prediction_dictionary[user] = {}
+        # For each item in the User_Based Prediction
         for item in user_based_users_prediction[user]:
-            users_prediction_dictionary[user][item] = user_based_users_prediction[user][item] * 0.6
+            # Compute the weighted prediction value
+            users_prediction_dictionary[user][item] = user_based_users_prediction[user][item] * weight
 
+    # For each user in the Item_Based Prediction
     for user in item_based_users_predictions:
+        # For each item in the Item_Based Prediction
         for item in item_based_users_predictions[user]:
+            # If the item was already predicted for that user in the User_Based Algorithm
             if (users_prediction_dictionary[user].has_key(item)):
-                users_prediction_dictionary[user][item] += item_based_users_predictions[user][item] * 0.4
+                # Compute the weighted prediction value adding the prediction value computed by the Item_Based Algorithm
+                users_prediction_dictionary[user][item] += item_based_users_predictions[user][item] * (1 - weight)
             else:
-                users_prediction_dictionary[user][item] = item_based_users_predictions[user][item] * 0.4
+                # Compute the weighted prediction value
+                users_prediction_dictionary[user][item] = item_based_users_predictions[user][item] * (1 - weight)
+
     return users_prediction_dictionary
 
-def CFHybridRankPredictReccomendation(items_to_consider,user_based_users_prediction, item_based_users_predictions):
+# Function to create the recommendations for Hybrid Rank
+def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_users_predictions, items_to_consider):
     users_prediction_dictionary = {}
     for user in user_based_users_prediction:
         if len(user_based_users_prediction[user].keys()) > 0:

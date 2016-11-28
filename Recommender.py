@@ -25,14 +25,17 @@ target_users = pd.read_csv('DataSet/target_users.csv')
 
 CFOutput1 = "CF_User_Based.csv"
 CFOutput2 = "CF_Item_Based.csv"
-CF_hybrid_output = "CF_Hybrid.csv"
-CF_hybrid_output_2 = "CF_Hybrid_2.csv"
+CF_Hybrid_Output = "CF_Hybrid.csv"
+CF_Hybrid_Output_2 = "CF_Hybrid_2.csv"
 
 CF_UB_similarity_shrink = 0
 CF_UB_prediction_shrink = 10
 
 CF_IB_similarity_shrink = 0
 CF_IB_prediction_shrink = 10
+
+CF_Hybrid_Weight = 0.6
+CF_Hybrid_KNN = 10
 
 # Dictionaries for Content Based Algorithms
 CB_user_items_dictionary = {}
@@ -74,12 +77,16 @@ CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendatio
 # Write the final Result for Collaborative Filtering Item Based
 #CFAlgorithms.CFWriteResult(CFOutput2, CF_IB_users_prediction_dictionary)
 
-CF_HB_users_prediction_dictionary = CFAlgorithms.CFHybridPredictRecommendation(CF_UB_users_prediction_dictionary,
-                                                                               CF_IB_users_prediction_dictionary)
+# Compute the Prediction for Collaborative Filtering Hybrid Weighted
+CF_HB_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
+                                                                               CF_IB_users_prediction_dictionary, CF_Hybrid_Weight)
 
-CFAlgorithms.CFWriteResult(CF_hybrid_output, CF_HB_users_prediction_dictionary)
+# Write the final Result for Collaborative Filtering Hybrid Weighted
+CFAlgorithms.CFWriteResult(CF_Hybrid_Output, CF_HB_users_prediction_dictionary)
 
-CF_HB_2_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictReccomendation(10, CF_UB_users_prediction_dictionary,
-                                                                                     CF_IB_users_prediction_dictionary)
+# Compute the Prediction for Collaborative Filtering Hybrid Rank
+CF_HB_2_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
+                                                                                     CF_IB_users_prediction_dictionary, CF_Hybrid_KNN)
 
-CFAlgorithms.CFWriteResult(CF_hybrid_output_2, CF_HB_2_users_prediction_dictionary)
+# Write the final Result for Collaborative Filtering Hybrid Rank
+CFAlgorithms.CFWriteResult(CF_Hybrid_Output_2, CF_HB_2_users_prediction_dictionary)
