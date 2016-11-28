@@ -7,6 +7,8 @@ import graphlab.aggregate as agg
 
 #Reading users file:
 users = graphlab.SFrame.read_csv('DataSet/user_profile_no_null.csv', sep='\t')
+users['jobroles'] = users['jobroles'].apply(lambda x: x.split())
+users['edu_fieldofstudies'] = users['edu_fieldofstudies'].apply(lambda x: x.split())
 
 
 #Reading items file:
@@ -34,16 +36,17 @@ interactionsToRemove.remove_columns(['interaction_type', 'created_at'])
 #We can use this data for training
 ratings_base_SFrame = graphlab.SFrame.read_csv('DataSet/interactions.csv', sep='\t')
 
-#knn_sim_items_model = graphlab.item_content_recommender.create(items, item_id='item_id')
+knn_sim_users_model = graphlab.item_content_recommender.create(users, item_id='user_id')
 #knn_sim_items_model.save(location='Models')
-#knn_sim_items = knn_sim_items_model.get_similar_items()
+knn_sim_users = knn_sim_users_model.get_similar_items(k=50)
+knn_sim_users.export_csv("graphlab_sim_users_CB_KNN=50.csv")
 
-item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id')
-user_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, user_id='item_id', item_id='user_id')
-knn_items = item_sim_model.get_similar_items()
-knn_users = user_sim_model.get_similar_items()
-knn_items.export_csv("graphlab_sim_items.csv")
-knn_users.export_csv("graphlab_sim_users.csv")
+#item_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, item_id='item_id', user_id='user_id')
+#user_sim_model = graphlab.item_similarity_recommender.create(ratings_base_SFrame, user_id='item_id', item_id='user_id')
+#knn_items = item_sim_model.get_similar_items()
+#knn_users = user_sim_model.get_similar_items()
+#knn_items.export_csv("graphlab_sim_items.csv")
+#knn_users.export_csv("graphlab_sim_users.csv")
 
 # recomm = item_sim_model.recommend_from_interactions(users=filtered, items=itemfilt, k=5, exclude=interactionsToRemove, random_seed=911)
 #
