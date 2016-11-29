@@ -253,8 +253,8 @@ def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_us
         for item in user_based_users_prediction[user]:
             # if the position of the item is less than the number of items to consider assign the value to the new dictionary
             if (k < items_to_consider):
-                users_prediction_dictionary[user][item] = user_based_weight * ( 1 - (
-                                                          k / len(user_based_users_prediction[user]) ) )
+                users_prediction_dictionary[user][item] = user_based_weight * ( 1 - ( k / \
+                                                          min(len(user_based_users_prediction[user]), items_to_consider) ) )
                 k += 1
             else:
                 break
@@ -266,13 +266,13 @@ def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_us
             if (k < items_to_consider):
                 # if the item is already present in the user predictions sum the two values
                 if (users_prediction_dictionary[user].has_key(item)):
-                    users_prediction_dictionary[user][item] += item_based_weight * ( 1 - (
-                                                               k / len(item_based_users_predictions[user]) ) )
+                    users_prediction_dictionary[user][item] += item_based_weight * ( 1 - ( k / \
+                                                                min(len(item_based_users_predictions[user]), items_to_consider) ) )
                     k += 1
                 # else assign the value to the item
                 else:
-                    users_prediction_dictionary[user][item] = item_based_weight * ( 1 - (
-                                                               k / len(item_based_users_predictions[user]) ) )
+                    users_prediction_dictionary[user][item] = item_based_weight * ( 1 - ( k / \
+                                                            min(len(item_based_users_predictions[user]), items_to_consider) ) )
                     k += 1
             else:
                 break
