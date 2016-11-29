@@ -1,3 +1,4 @@
+from __future__ import division
 import math
 from collections import OrderedDict
 
@@ -7,8 +8,7 @@ def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarit
     # dict {user -> (list of {user -> similarity})}
     user_user_similarity_dictionary = {}
     user_user_similarity_dictionary_num = {}
-    user_user_similarity_dictionary_den1 = {}
-    user_user_similarity_dictionary_den2 = {}
+    user_similarity_dictionary_norm = {}
     print ("Create dictionaries for CF user-user similarity")
     # For each user in the dictionary
     for user in user_items_dictionary:
@@ -24,29 +24,26 @@ def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarit
             # dict {user -> (dict2)}
             # dict2 will be {similar_user -> similarity}
             user_user_similarity_dictionary_num[user] = {}
-            user_user_similarity_dictionary_den1[user] = {}
-            user_user_similarity_dictionary_den2[user] = {}
             # For each user in the list of users
             for list_element in user_list:
                 # If similar_user is already in dict2 create the sum of product of ratings
                 if (user_user_similarity_dictionary_num[user].has_key(list_element)):
                     user_user_similarity_dictionary_num[user][list_element] += interacted_items[item] * \
                                                                                user_items_dictionary[list_element][item]
-                    user_user_similarity_dictionary_den1[user][list_element] += math.pow(interacted_items[item], 2)
-                    user_user_similarity_dictionary_den2[user][list_element] += math.pow(
-                        user_items_dictionary[list_element][item], 2)
                 # Else the similar_user and the product of ratings are added to dict2
                 else:
                     user_user_similarity_dictionary_num[user][list_element] = interacted_items[item] * \
                                                                               user_items_dictionary[list_element][item]
-                    user_user_similarity_dictionary_den1[user][list_element] = math.pow(interacted_items[item], 2)
-                    user_user_similarity_dictionary_den2[user][list_element] = math.pow(
-                        user_items_dictionary[list_element][item], 2)
         # Remove from similar_users the user itself
         if (user_user_similarity_dictionary_num[user].has_key(user)):
             del user_user_similarity_dictionary_num[user][user]
-            del user_user_similarity_dictionary_den1[user][user]
-            del user_user_similarity_dictionary_den2[user][user]
+
+    # For each user in the dictionary
+    for user in user_items_dictionary:
+        # Get the dictionary pointed by the user, containing the items with which the user has interact
+        interacted_items = user_items_dictionary[user]
+        user_similarity_dictionary_norm[user] = math.sqrt(len(interacted_items))
+
 
     print ("Similarities estimate:")
     # For each user (user_user_similarity_dictionary_num contains all users which have at least one interaction)
@@ -56,10 +53,7 @@ def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarit
         for user2 in user_user_similarity_dictionary_num[user]:
             # Evaluate the similarity between user and user2
             user_user_similarity_dictionary[user][user2] = user_user_similarity_dictionary_num[user][user2] / \
-                                                           ((math.sqrt(
-                                                               user_user_similarity_dictionary_den1[user][user2]) *
-                                                             math.sqrt(
-                                                                 user_user_similarity_dictionary_den2[user][user2])) +
+                                                           ((user_similarity_dictionary_norm[user] * user_similarity_dictionary_norm[user2]) +
                                                             similarity_shrink)
 
     return user_user_similarity_dictionary
@@ -70,8 +64,7 @@ def CFItemItemSimilarity(user_items_dictionary, item_users_dictionary, similarit
     # dict {user -> (list of {user -> similarity})}
     item_item_similarity_dictionary = {}
     item_item_similarity_dictionary_num = {}
-    item_item_similarity_dictionary_den1 = {}
-    item_item_similarity_dictionary_den2 = {}
+    item_similarity_dictionary_norm = {}
     print ("Create dictionaries for CF item-item similarity")
     # For each item in the dictionary
     for item in item_users_dictionary:
@@ -87,25 +80,23 @@ def CFItemItemSimilarity(user_items_dictionary, item_users_dictionary, similarit
             # dict {item -> (dict2)}
             # dict2 will be {similar_item -> similarity}
             item_item_similarity_dictionary_num[item] = {}
-            item_item_similarity_dictionary_den1[item] = {}
-            item_item_similarity_dictionary_den2[item] = {}
             # For each item in the list of items
             for list_element in item_list:
                 # If similar_item is already in dict2 create the sum of product of ratings
                 if (item_item_similarity_dictionary_num[item].has_key(list_element)):
                     item_item_similarity_dictionary_num[item][list_element] += interacting_users[user] * interacted_items[list_element]
-                    item_item_similarity_dictionary_den1[item][list_element] += math.pow(interacting_users[user], 2)
-                    item_item_similarity_dictionary_den2[item][list_element] += math.pow(interacted_items[list_element], 2)
                 # Else the similar_item is added to dict2 and the product of ratings is set to 1
                 else:
                     item_item_similarity_dictionary_num[item][list_element] = interacting_users[user] * interacted_items[list_element]
-                    item_item_similarity_dictionary_den1[item][list_element] = math.pow(interacting_users[user], 2)
-                    item_item_similarity_dictionary_den2[item][list_element] = math.pow(interacted_items[list_element], 2)
         # Remove from similar_items the item itself
         if (item_item_similarity_dictionary_num[item].has_key(item)):
             del item_item_similarity_dictionary_num[item][item]
-            del item_item_similarity_dictionary_den1[item][item]
-            del item_item_similarity_dictionary_den2[item][item]
+
+    # For each user in the dictionary
+    for item in item_users_dictionary:
+        # Get the dictionary pointed by the user, containing the items with which the user has interact
+        interact_users = item_users_dictionary[item]
+        item_similarity_dictionary_norm[item] = math.sqrt(len(interact_users))
 
     print ("Similarities estimate:")
     # For each item (item_item_similarity_dictionary_num contains all items which have at least one interaction)
@@ -116,10 +107,7 @@ def CFItemItemSimilarity(user_items_dictionary, item_users_dictionary, similarit
         for item2 in item_item_similarity_dictionary_num[item]:
             # Evaluate the similarity between item and item2
             item_item_similarity_dictionary[item][item2] = item_item_similarity_dictionary_num[item][item2] / \
-                                                           ((math.sqrt(
-                                                               item_item_similarity_dictionary_den1[item][item2]) *
-                                                             math.sqrt(
-                                                                 item_item_similarity_dictionary_den2[item][item2])) +
+                                                           ((item_similarity_dictionary_norm[item] * item_similarity_dictionary_norm[item2]) +
                                                             similarity_shrink)
 
     return item_item_similarity_dictionary
@@ -165,8 +153,8 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
             # Evaluate the prediction of that item for that user
             if not (item in user_items_dictionary[user]):
                 if (active_items_to_recommend.has_key(item)):
-                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
-                                                              (users_prediction_dictionary_den[user][item] + prediction_shrink)
+                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] #/ \
+                                                              #(users_prediction_dictionary_den[user][item] + prediction_shrink)
 
     return users_prediction_dictionary
 
@@ -211,8 +199,8 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
             # Evaluate the prediction of that item for that user
             if not (item in user_items_dictionary[user]):
                 if (active_items_to_recommend.has_key(item)):
-                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
-                                                              (users_prediction_dictionary_den[user][item] + prediction_shrink)
+                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] #/ \
+                                                              #(users_prediction_dictionary_den[user][item] + prediction_shrink)
 
     return users_prediction_dictionary
 

@@ -28,10 +28,10 @@ CFOutput2 = "CF_Item_Based.csv"
 CF_Hybrid_Output = "CF_Hybrid.csv"
 CF_Hybrid_Output_2 = "CF_Hybrid_2.csv"
 
-CF_UB_similarity_shrink = 0
+CF_UB_similarity_shrink = 10
 CF_UB_prediction_shrink = 10
 
-CF_IB_similarity_shrink = 0
+CF_IB_similarity_shrink = 10
 CF_IB_prediction_shrink = 10
 
 CF_Hybrid_Weight = 0.6
@@ -64,29 +64,31 @@ CF_user_user_similarity_dictionary = CFAlgorithms.CFUserUserSimilarity(CF_user_i
 CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictRecommendation(target_users, CF_user_user_similarity_dictionary,
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
                                                                                   CF_UB_prediction_shrink)
+
 # Write the final Result for Collaborative Filtering User Based
-#CFAlgorithms.CFWriteResult(CFOutput1, CF_UB_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CFOutput1, CF_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Collaborative Filtering Item Based
-CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
-                                                                       CF_IB_similarity_shrink)
+#CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
+#                                                                       CF_IB_similarity_shrink)
+
 # Compute the Prediction for Collaborative Filtering Item Based
-CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_item_item_similarity_dictionary,
-                                                                                  CF_user_items_dictionary, active_items_to_recommend,
-                                                                                  CF_IB_prediction_shrink)
+#CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_item_item_similarity_dictionary,
+#                                                                                  CF_user_items_dictionary, active_items_to_recommend,
+#                                                                                  CF_IB_prediction_shrink)
 # Write the final Result for Collaborative Filtering Item Based
 #CFAlgorithms.CFWriteResult(CFOutput2, CF_IB_users_prediction_dictionary)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Weighted
-CF_HB_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
-                                                                               CF_IB_users_prediction_dictionary, CF_Hybrid_Weight)
+#CF_HB_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
+#                                                                               CF_IB_users_prediction_dictionary, CF_Hybrid_Weight)
 
 # Write the final Result for Collaborative Filtering Hybrid Weighted
-CFAlgorithms.CFWriteResult(CF_Hybrid_Output, CF_HB_users_prediction_dictionary)
+#CFAlgorithms.CFWriteResult(CF_Hybrid_Output, CF_HB_users_prediction_dictionary)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Rank
-CF_HB_2_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
-                                                                                     CF_IB_users_prediction_dictionary, CF_Hybrid_KNN)
+#CF_HB_2_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
+#                                                                                     CF_IB_users_prediction_dictionary, CF_Hybrid_KNN)
 
 # Write the final Result for Collaborative Filtering Hybrid Rank
-CFAlgorithms.CFWriteResult(CF_Hybrid_Output_2, CF_HB_2_users_prediction_dictionary)
+#CFAlgorithms.CFWriteResult(CF_Hybrid_Output_2, CF_HB_2_users_prediction_dictionary)
