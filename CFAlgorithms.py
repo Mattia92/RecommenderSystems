@@ -230,37 +230,53 @@ def CFHybridWeightedPredictRecommendation(user_based_users_prediction, item_base
     return users_prediction_dictionary
 
 # Function to create the recommendations for Hybrid Rank
-def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_users_predictions, items_to_consider):
+def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_users_predictions, items_to_consider,
+                                      user_based_weight, item_based_weight):
     users_prediction_dictionary = {}
+    #for each user in User Based prediction
     for user in user_based_users_prediction:
+        # if there is at least one prediction for the user sort the predictions
         if len(user_based_users_prediction[user].keys()) > 0:
             user_based_users_prediction[user] = OrderedDict(
             sorted(user_based_users_prediction[user].items(), key=lambda t: -t[1]))
+    #for each user in Item Based prediction
     for user in item_based_users_predictions:
+        # if there is at least one prediction for the user sort the predictions
         if len(item_based_users_predictions[user].keys()) > 0:
             item_based_users_predictions[user] = OrderedDict(
             sorted(item_based_users_predictions[user].items(), key=lambda t: -t[1]))
+    # for each user in the User based prediction
     for user in user_based_users_prediction:
-        points = items_to_consider
+        k = 0   # k represent the rank position of the item in the user predictions
         users_prediction_dictionary[user] = {}
+        # for each item in the User based prediction
         for item in user_based_users_prediction[user]:
-            if (points > 0):
-                users_prediction_dictionary[user][item] = points
-                points = points - 1
+            # if the position of the item is less than the number of items to consider assign the value to the new dictionary
+            if (k < items_to_consider):
+                users_prediction_dictionary[user][item] = user_based_weight * ( 1 - (
+                                                          k / len(user_based_users_prediction[user]) ) )
+                k += 1
             else:
                 break
+    # for each user in the Item based prediction
     for user in item_based_users_predictions:
-        points = items_to_consider
+        k = 0   # k reprensents the rank position of the item in the user predictions
         for item in item_based_users_predictions[user]:
-            if (points > 0):
+            # if the position of the item is less than the number of items to consider assign the value to the dictionary
+            if (k < items_to_consider):
+                # if the item is already present in the user predictions sum the two values
                 if (users_prediction_dictionary[user].has_key(item)):
-                    users_prediction_dictionary[user][item] += points
-                    points = points - 1
+                    users_prediction_dictionary[user][item] += item_based_weight * ( 1 - (
+                                                               k / len(item_based_users_predictions[user]) ) )
+                    k += 1
+                # else assign the value to the item
                 else:
-                    users_prediction_dictionary[user][item] = points
-                    points = points - 1
+                    users_prediction_dictionary[user][item] = item_based_weight * ( 1 - (
+                                                               k / len(item_based_users_predictions[user]) ) )
+                    k += 1
             else:
                 break
+
     return users_prediction_dictionary
 
 # Function to write the final result of recommendation
