@@ -29,10 +29,15 @@ CF_Hybrid_Output = "CF_Hybrid.csv"
 CF_Hybrid_Output_2 = "CF_Hybrid_2.csv"
 
 CF_UB_similarity_shrink = 10
-CF_UB_prediction_shrink = 10
+CF_UB_prediction_shrink = 0
 
-CF_IB_similarity_shrink = 10
-CF_IB_prediction_shrink = 10
+CF_IB_similarity_shrink = 20
+CF_IB_prediction_shrink = 0
+
+CF_User_Rank_Weight = 3
+CF_Item_Rank_Weight = 4
+
+Prendere solo 30 predizioni per ogni utente
 
 CF_Hybrid_Weight = 0.6
 CF_Hybrid_KNN = 10
