@@ -147,7 +147,7 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
         # Get the dictionary pointed by the user, containing the similar users
         sim_users = user_user_similarity_dictionary[user]
         for other_user in sim_users:
-            users_prediction_dictionary_norm[user] += user_user_similarity_dictionary[user][other_user]
+            users_prediction_dictionary_norm[user] += sim_users[other_user]
 
     print ("Ratings estimate:")
     # For each target user (users_prediction_dictionary_num contains all target users)
@@ -194,11 +194,12 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
 
     # For each user in the dictionary
     for item in item_item_similarity_dictionary:
+
         users_prediction_dictionary_norm[item] = 0
         # Get the dictionary pointed by the item, containing the similar items
         sim_items = item_item_similarity_dictionary[item]
         for other_item in sim_items:
-            users_prediction_dictionary_norm[item] += item_item_similarity_dictionary[item][other_item]
+            users_prediction_dictionary_norm[item] += sim_items[other_item]
 
     print ("Ratings estimate:")
     # For each target user (users_prediction_dictionary_num contains all target users)
@@ -209,7 +210,8 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
             # Evaluate the prediction of that item for that user
             if not (item in user_items_dictionary[user]):
                 if (active_items_to_recommend.has_key(item)):
-                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+                    if not (users_prediction_dictionary_norm[item] == 0):
+                        users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
                                                               (users_prediction_dictionary_norm[item] + prediction_shrink)
 
     return users_prediction_dictionary

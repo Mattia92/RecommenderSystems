@@ -26,7 +26,7 @@ target_users = pd.read_csv('DataSet/target_users.csv')
 CFOutput1 = "CF_User_Based.csv"
 CFOutput2 = "CF_Item_Based.csv"
 CF_Hybrid_Output = "CF_Hybrid.csv"
-CF_Hybrid_Output_2 = "CF_Hybrid_rank_2.csv"
+CF_Hybrid_Output_2 = "CF_Hybrid_rank_3.csv"
 
 CF_UB_similarity_shrink = 10
 CF_UB_prediction_shrink = 0
