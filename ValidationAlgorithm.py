@@ -18,8 +18,8 @@ def apk(actual, predicted, k=5):
     score : double
             The average precision at k over the input lists
     """
-    if len(predicted)>k:
-        predicted = predicted[:k]
+    #if len(predicted)>k:
+    #    predicted = predicted[:k]
 
     score = 0.0
     num_hits = 0.0

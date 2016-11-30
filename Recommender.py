@@ -19,7 +19,7 @@ for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
 
-items = pd.read_csv('DataSet/user_profile.csv', sep='\t', header=0)
+users = pd.read_csv('DataSet/user_profile.csv', sep='\t', header=0)
 
 target_users = pd.read_csv('DataSet/target_users.csv')
 
