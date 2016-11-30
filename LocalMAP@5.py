@@ -7,6 +7,10 @@ import ValidationAlgorithm as va
 cols = ['user_id', 'item_id', 'interaction']
 interactions = pd.read_csv('TestDataSet/trainingSet.csv', sep='\t', names=cols, header=0)
 
+users_interactions = pd.read_csv("DataSet/interactions.csv", sep='\t', header = 0)
+users_interactions = users_interactions[['user_id', 'item_id']]
+users_interactions = users_interactions.drop_duplicates()
+
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
 active_items_idx = active_items[['item_id', 'active_during_test']]
@@ -27,6 +31,8 @@ CF_User_Rank_Weight = 3
 CF_Item_Rank_Weight = 4
 
 CF_Hybrid_KNN = 30
+
+users_interactions_dictionary = {}
 
 # Dictionaries for Content Based Algorithms
 CB_user_items_dictionary = {}
@@ -98,12 +104,16 @@ for user, items in result.values:
     item = str(items)
     result_dictionary[user] = item.split()
 
+#create the dictionary user -> number of different items with which the user has interacted
+for user, item in users_interactions.values:
+    if users_interactions_dictionary.has_key(user):
+        users_interactions_dictionary[user] += 1
+    else:
+        users_interactions_dictionary[user] = 1
+
 map = 0
-count = 0
 for user in result_dictionary:
     if (validation_dictionary.has_key(user)):
-        map +=va.apk(validation_dictionary[user], result_dictionary[user], 5)
-    count += 1
-mean = map / count
+        map +=va.apk(validation_dictionary[user], result_dictionary[user], 5, users_interactions_dictionary[user])
+mean = map / len(result_dictionary)
 print mean
-print count
