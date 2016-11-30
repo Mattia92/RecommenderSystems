@@ -120,11 +120,10 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
     # dict {user -> (list of {item -> prediction})}
     users_prediction_dictionary = {}
     users_prediction_dictionary_num = {}
-    users_prediction_dictionary_den = {}
+    users_prediction_dictionary_norm = {}
     # For each target user
     for user in target_users['user_id']:
         users_prediction_dictionary_num[user] = {}
-        users_prediction_dictionary_den[user] = {}
         # If user has similar users
         if (user_user_similarity_dictionary.has_key(user)):
             # Get dictionary of similar users and the value of similarity
@@ -138,11 +137,17 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
                     # If the item was not predicted yet for the user, add it
                     if not (users_prediction_dictionary_num[user].has_key(i)):
                         users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
-                        users_prediction_dictionary_den[user][i] = uus_list[user2]
                     # Else Evaluate its contribution
                     else:
                         users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
-                        users_prediction_dictionary_den[user][i] += uus_list[user2]
+
+    # For each user in the dictionary
+    for user in user_user_similarity_dictionary:
+        users_prediction_dictionary_norm[user] = 0
+        # Get the dictionary pointed by the user, containing the similar users
+        sim_users = user_user_similarity_dictionary[user]
+        for other_user in sim_users:
+            users_prediction_dictionary_norm[user] += user_user_similarity_dictionary[user][other_user]
 
     print ("Ratings estimate:")
     # For each target user (users_prediction_dictionary_num contains all target users)
@@ -153,8 +158,8 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
             # Evaluate the prediction of that item for that user
             if not (item in user_items_dictionary[user]):
                 if (active_items_to_recommend.has_key(item)):
-                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] #/ \
-                                                              #(users_prediction_dictionary_den[user][item] + prediction_shrink)
+                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+                                                              (users_prediction_dictionary_norm[user] + prediction_shrink)
 
     return users_prediction_dictionary
 
@@ -166,11 +171,10 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
     # dict {user -> (list of {item -> prediction})}
     users_prediction_dictionary = {}
     users_prediction_dictionary_num = {}
-    users_prediction_dictionary_den = {}
+    users_prediction_dictionary_norm = {}
     # For each target user
     for user in target_users['user_id']:
         users_prediction_dictionary_num[user] = {}
-        users_prediction_dictionary_den[user] = {}
         # If user has interact with at least one item
         if (user_items_dictionary.has_key(user)):
             # Get dictionary of items with which the user has interact
@@ -184,11 +188,17 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
                     # If the item was not predicted yet for the user, add it
                     if not (users_prediction_dictionary_num[user].has_key(item2)):
                         users_prediction_dictionary_num[user][item2] = iis_list[item2] * i_list[item]
-                        users_prediction_dictionary_den[user][item2] = iis_list[item2]
                     # Else Evaluate its contribution
                     else:
                         users_prediction_dictionary_num[user][item2] += iis_list[item2] * i_list[item]
-                        users_prediction_dictionary_den[user][item2] += iis_list[item2]
+
+    # For each user in the dictionary
+    for item in item_item_similarity_dictionary:
+        users_prediction_dictionary_norm[item] = 0
+        # Get the dictionary pointed by the item, containing the similar items
+        sim_items = item_item_similarity_dictionary[item]
+        for other_item in sim_items:
+            users_prediction_dictionary_norm[item] += item_item_similarity_dictionary[item][other_item]
 
     print ("Ratings estimate:")
     # For each target user (users_prediction_dictionary_num contains all target users)
@@ -199,8 +209,8 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
             # Evaluate the prediction of that item for that user
             if not (item in user_items_dictionary[user]):
                 if (active_items_to_recommend.has_key(item)):
-                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] #/ \
-                                                              #(users_prediction_dictionary_den[user][item] + prediction_shrink)
+                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+                                                              (users_prediction_dictionary_norm[item] + prediction_shrink)
 
     return users_prediction_dictionary
 
@@ -248,31 +258,30 @@ def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_us
     # for each user in the User based prediction
     for user in user_based_users_prediction:
         k = 0   # k represent the rank position of the item in the user predictions
+        UB_size = min(len(user_based_users_prediction[user]), items_to_consider)
         users_prediction_dictionary[user] = {}
         # for each item in the User based prediction
         for item in user_based_users_prediction[user]:
             # if the position of the item is less than the number of items to consider assign the value to the new dictionary
             if (k < items_to_consider):
-                users_prediction_dictionary[user][item] = user_based_weight * ( 1 - ( k / \
-                                                          min(len(user_based_users_prediction[user]), items_to_consider) ) )
+                users_prediction_dictionary[user][item] = user_based_weight * ( 1 - ( k / UB_size ) )
                 k += 1
             else:
                 break
     # for each user in the Item based prediction
     for user in item_based_users_predictions:
-        k = 0   # k reprensents the rank position of the item in the user predictions
+        k = 0   # k represents the rank position of the item in the user predictions
+        IB_size = min(len(item_based_users_predictions[user]), items_to_consider)
         for item in item_based_users_predictions[user]:
             # if the position of the item is less than the number of items to consider assign the value to the dictionary
             if (k < items_to_consider):
                 # if the item is already present in the user predictions sum the two values
                 if (users_prediction_dictionary[user].has_key(item)):
-                    users_prediction_dictionary[user][item] += item_based_weight * ( 1 - ( k / \
-                                                                min(len(item_based_users_predictions[user]), items_to_consider) ) )
+                    users_prediction_dictionary[user][item] += item_based_weight * ( 1 - ( k / IB_size ) )
                     k += 1
                 # else assign the value to the item
                 else:
-                    users_prediction_dictionary[user][item] = item_based_weight * ( 1 - ( k / \
-                                                            min(len(item_based_users_predictions[user]), items_to_consider) ) )
+                    users_prediction_dictionary[user][item] = item_based_weight * ( 1 - ( k / IB_size ) )
                     k += 1
             else:
                 break
