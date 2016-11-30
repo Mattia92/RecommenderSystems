@@ -1,6 +1,6 @@
 import numpy as np
 
-def apk(actual, predicted, k=5):
+def apk(actual, predicted, k):
     """
     Computes the average precision at k.
     This function computes the average precision at k between two lists of

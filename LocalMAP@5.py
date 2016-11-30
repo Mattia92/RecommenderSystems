@@ -1,6 +1,7 @@
 import pandas as pd
 import CFAlgorithms
 import CBAlgorithms
+import ValidationAlgorithm as va
 
 # Importing all the files needed
 cols = ['user_id', 'item_id', 'interaction']
@@ -88,7 +89,6 @@ validation_dictionary = {}
 result_dictionary = {}
 validation = pd.read_csv('TestDataSet/validationSet.csv', sep=',', header=0)
 result = pd.read_csv('TestDataSet/rank_3_MAP_test.csv', sep=',', header=0)
-print (result)
 
 print ("Create dictionaries for validation and result")
 for user, items in validation.values:
@@ -98,11 +98,12 @@ for user, items in result.values:
     item = str(items)
     result_dictionary[user] = item.split()
 
+map = 0
+count = 0
 for user in result_dictionary:
     if (validation_dictionary.has_key(user)):
-        for i, p in enumerate(result_dictionary[user]):
-            print (i)
-            print (p)
-        #apk(validation_dictionary[user], result_dictionary[user])
-    else:
-        precision = 0
+        map +=va.apk(validation_dictionary[user], result_dictionary[user], 5)
+    count += 1
+mean = map / count
+print mean
+print count
