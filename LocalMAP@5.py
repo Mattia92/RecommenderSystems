@@ -8,12 +8,6 @@ import ValidationAlgorithm as va
 cols = ['user_id', 'item_id', 'interaction']
 interactions = pd.read_csv('TestDataSet/trainingSet.csv', sep='\t', names=cols, header=0)
 
-# users_interactions = pd.read_csv("DataSet/interactions.csv", sep='\t', header = 0)
-# users_interactions = users_interactions[['user_id', 'item_id']]
-# users_interactions = users_interactions.drop_duplicates()
-
-target_users = pd.read_csv('DataSet/target_users.csv', sep='\t', header=0)
-
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
 active_items_idx = active_items[['item_id', 'active_during_test']]
@@ -26,15 +20,16 @@ for item, state in active_items_idx.values:
 target_users = pd.read_csv('DataSet/target_users.csv')
 
 CF_UB_similarity_shrink = 10
-CF_UB_prediction_shrink = 0
+CF_UB_prediction_shrink = 10
 
 CF_IB_similarity_shrink = 20
-CF_IB_prediction_shrink = 0
+CF_IB_prediction_shrink = 10
 
-CF_User_Rank_Weight = 3
+CF_User_Rank_Weight = 0.5
 CF_Item_Rank_Weight = 4
 
 CF_Hybrid_KNN = 30
+CF_Hybrid_Weight = 0.4
 
 users_interactions_dictionary = {}
 
@@ -78,27 +73,27 @@ CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendatio
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
                                                                                   CF_IB_prediction_shrink)
 # Write the final Result for Collaborative Filtering Item Based
-CFAlgorithms.CFWriteResult("TestDataSet/item_based_Map.csv", CF_IB_users_prediction_dictionary)
+#CFAlgorithms.CFWriteResult("TestDataSet/item_based_Map.csv", CF_IB_users_prediction_dictionary)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Weighted
 #CF_HB_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
 #                                                                               CF_IB_users_prediction_dictionary, CF_Hybrid_Weight)
 
 # Write the final Result for Collaborative Filtering Hybrid Weighted
-#CFAlgorithms.CFWriteResult(CF_Hybrid_Output, CF_HB_users_prediction_dictionary)
+#CFAlgorithms.CFWriteResult("TestDataSet/weight_Map.csv", CF_HB_users_prediction_dictionary)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Rank
-#CF_HB_2_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
-#                                                                                     CF_IB_users_prediction_dictionary, CF_Hybrid_KNN,
-#                                                                                     CF_User_Rank_Weight, CF_Item_Rank_Weight)
+CF_HB_2_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
+                                                                                     CF_IB_users_prediction_dictionary, CF_Hybrid_KNN,
+                                                                                     CF_User_Rank_Weight, CF_Item_Rank_Weight)
 
 # Write the final Result for Collaborative Filtering Hybrid Rank
-#CFAlgorithms.CFWriteResult("TestDataSet/rank_3_MAP_test.csv", CF_HB_2_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult("TestDataSet/rank_Map.csv", CF_HB_2_users_prediction_dictionary)
 
 validation_dictionary = {}
 result_dictionary = {}
 validation = pd.read_csv('TestDataSet/validationSet.csv', sep=',', header=0)
-result = pd.read_csv("TestDataSet/item_based_Map.csv", sep=',', header=0)
+result = pd.read_csv("TestDataSet/rank_Map.csv", sep=',', header=0)
 
 print ("Create dictionaries for validation and result")
 for user, items in validation.values:
@@ -111,15 +106,6 @@ for user, items in result.values:
     else:
         item = str(items)
         result_dictionary[user] = item.split()
-
-#create the dictionary user -> number of different items with which the user has interacted
-# for user, item in users_interactions.values:
-#     if users_interactions_dictionary.has_key(user):
-#         users_interactions_dictionary[user] += 1
-#     else:
-#         users_interactions_dictionary[user] = 1
-
-#map_5 = va.MeanAveragePrecision(validation_dictionary, result_dictionary, 5)
 
 map = 0
 av_prec = 0

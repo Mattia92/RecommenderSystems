@@ -67,46 +67,43 @@ def CFItemItemSimilarity(user_items_dictionary, item_users_dictionary, similarit
     item_similarity_dictionary_norm = {}
     print ("Create dictionaries for CF item-item similarity")
     # For each item in the dictionary
-    for item in item_users_dictionary:
+    for ii in item_users_dictionary:
         # Get the dictionary pointed by the item, containing the users which has interact with that item
-        interacting_users = item_users_dictionary[item]
+        u_r_dict = item_users_dictionary[ii]
             # Instantiate the similarity dictionary
             # dict {item -> (dict2)}
             # dict2 will be {similar_item -> similarity}
-        item_item_similarity_dictionary_num[item] = {}
+        item_item_similarity_dictionary_num[ii] = {}
         # For each user in the dictionary pointed by the item
-        for user in interacting_users:
+        for u in u_r_dict:
             # Get the dictionary pointed by the user, containing the items with which the user has interact
-            interacted_items = user_items_dictionary[user]
-            # Get list of items with which this user has interact
-            item_list = interacted_items.keys()
+            i_r_dict = user_items_dictionary[u]
             # For each item in the list of items
-            for list_element in item_list:
+            for ij in i_r_dict:
+                if (ij == ii):
+                    continue
                 # If similar_item is already in dict2 create the sum of product of ratings
-                if (item_item_similarity_dictionary_num[item].has_key(list_element)):
-                    item_item_similarity_dictionary_num[item][list_element] += interacting_users[user] * interacted_items[list_element]
+                if (item_item_similarity_dictionary_num[ii].has_key(ij)):
+                    item_item_similarity_dictionary_num[ii][ij] += i_r_dict[ii] * i_r_dict[ij]
                 # Else the similar_item is added to dict2 and the product of ratings is set to 1
                 else:
-                    item_item_similarity_dictionary_num[item][list_element] = interacting_users[user] * interacted_items[list_element]
-        # Remove from similar_items the item itself
-        if (item_item_similarity_dictionary_num[item].has_key(item)):
-            del item_item_similarity_dictionary_num[item][item]
+                    item_item_similarity_dictionary_num[ii][ij] = i_r_dict[ii] * i_r_dict[ij]
     # For each user in the dictionary
-    for item in item_users_dictionary:
+    for i in item_users_dictionary:
         # Get the dictionary pointed by the user, containing the items with which the user has interact
-        interact_users = item_users_dictionary[item]
-        item_similarity_dictionary_norm[item] = math.sqrt(len(interact_users))
+        u_r_dict = item_users_dictionary[i]
+        item_similarity_dictionary_norm[i] = math.sqrt(len(u_r_dict))
 
     print ("Similarities estimate:")
     # For each item (item_item_similarity_dictionary_num contains all items which have at least one interaction)
     # Evaluate the value of similarity
-    for item in item_item_similarity_dictionary_num:
-        item_item_similarity_dictionary[item] = {}
+    for ii in item_item_similarity_dictionary_num:
+        item_item_similarity_dictionary[ii] = {}
         # For each similar item for the item
-        for item2 in item_item_similarity_dictionary_num[item]:
+        for ij in item_item_similarity_dictionary_num[ii]:
             # Evaluate the similarity between item and item2
-            item_item_similarity_dictionary[item][item2] = item_item_similarity_dictionary_num[item][item2] / \
-                                                           ((item_similarity_dictionary_norm[item] * item_similarity_dictionary_norm[item2]) +
+            item_item_similarity_dictionary[ii][ij] = item_item_similarity_dictionary_num[ii][ij] / \
+                                                           ((item_similarity_dictionary_norm[ii] * item_similarity_dictionary_norm[ij]) +
                                                             similarity_shrink)
 
     return item_item_similarity_dictionary
@@ -170,48 +167,42 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
     # dict {user -> (list of {item -> prediction})}
     users_prediction_dictionary = {}
     users_prediction_dictionary_num = {}
-    users_prediction_dictionary_norm = {}
+    users_prediction_dictionary_den = {}
     # For each target user
-    for user in target_users['user_id']:
-        users_prediction_dictionary_num[user] = {}
+    for uu in target_users['user_id']:
+        users_prediction_dictionary_num[uu] = {}
+        users_prediction_dictionary_den[uu] = {}
         # If user has interact with at least one item
-        if (user_items_dictionary.has_key(user)):
+        if (user_items_dictionary.has_key(uu)):
             # Get dictionary of items with which the user has interact
-            i_list = user_items_dictionary[user]
+            i_r_dict = user_items_dictionary[uu]
             # For each item in this dictionary
-            for item in i_list:
+            for ij in i_r_dict:
                 # Get the dictionary of similar items and the value of similarity
-                iis_list = item_item_similarity_dictionary[item]
+                ij_s_dict = item_item_similarity_dictionary[ij]
                 # For each similar item in the dictionary
-                for item2 in iis_list:
+                for ii in ij_s_dict:
+                    if (i_r_dict.has_key(ii)):
+                        continue
                     # If the item was not predicted yet for the user, add it
-                    if not (users_prediction_dictionary_num[user].has_key(item2)):
-                        users_prediction_dictionary_num[user][item2] = iis_list[item2] * i_list[item]
+                    if not (users_prediction_dictionary_num[uu].has_key(ii)):
+                        users_prediction_dictionary_num[uu][ii] = i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
                     # Else Evaluate its contribution
                     else:
-                        users_prediction_dictionary_num[user][item2] += iis_list[item2] * i_list[item]
-
-    # For each user in the dictionary
-    for item in item_item_similarity_dictionary:
-
-        users_prediction_dictionary_norm[item] = 0
-        # Get the dictionary pointed by the item, containing the similar items
-        sim_items = item_item_similarity_dictionary[item]
-        for other_item in sim_items:
-            users_prediction_dictionary_norm[item] += sim_items[other_item]
+                        users_prediction_dictionary_num[uu][ii] += i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate:")
     # For each target user (users_prediction_dictionary_num contains all target users)
-    for user in users_prediction_dictionary_num:
-        users_prediction_dictionary[user] = {}
+    for uu in users_prediction_dictionary_num:
+        users_prediction_dictionary[uu] = {}
         # For each item predicted for the user
-        for item in users_prediction_dictionary_num[user]:
+        for ii in users_prediction_dictionary_num[uu]:
             # Evaluate the prediction of that item for that user
-            if not (item in user_items_dictionary[user]):
-                if (active_items_to_recommend.has_key(item)):
-                    if not (users_prediction_dictionary_norm[item] == 0):
-                        users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
-                                                              (users_prediction_dictionary_norm[item] + prediction_shrink)
+            if (active_items_to_recommend.has_key(ii)):
+                users_prediction_dictionary[uu][ii] = users_prediction_dictionary_num[uu][ii] / \
+                                                      (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
 
     return users_prediction_dictionary
 

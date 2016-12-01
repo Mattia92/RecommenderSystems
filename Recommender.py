@@ -18,24 +18,21 @@ active_items_to_recommend = {}
 for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
-
-users = pd.read_csv('DataSet/user_profile.csv', sep='\t', header=0)
-
 target_users = pd.read_csv('DataSet/target_users.csv')
 
 CFOutput1 = "CF_User_Based.csv"
 CFOutput2 = "CF_Item_Based.csv"
 CF_Hybrid_Output = "CF_Hybrid.csv"
-CF_Hybrid_Output_2 = "CF_Hybrid_rank_3.csv"
+CF_Hybrid_Output_2 = "CF_Hybrid_rank_power.csv"
 
 CF_UB_similarity_shrink = 10
-CF_UB_prediction_shrink = 0
+CF_UB_prediction_shrink = 10
 
 CF_IB_similarity_shrink = 20
-CF_IB_prediction_shrink = 0
+CF_IB_prediction_shrink = 10
 
-CF_User_Rank_Weight = 3
-CF_Item_Rank_Weight = 4
+CF_User_Rank_Weight = 0.99
+CF_Item_Rank_Weight = 1
 
 #Prendere solo 30 predizioni per ogni utente
 
