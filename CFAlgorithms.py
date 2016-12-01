@@ -14,16 +14,16 @@ def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarit
     for user in user_items_dictionary:
         # Get the dictionary pointed by the user, containing the items with which the user has interact
         interacted_items = user_items_dictionary[user]
+            # Instantiate the similarity dictionary
+            # dict {user -> (dict2)}
+            # dict2 will be {similar_user -> similarity}
+        user_user_similarity_dictionary_num[user] = {}
         # For each item in the dictionary pointed by the user
         for item in interacted_items:
             # Get the dictionary pointed by the item, containing the users which have interact with the item
             interacted_users = item_users_dictionary[item]
             # Get list of users which have interacted with the same item of the first user
             user_list = interacted_users.keys()
-            # Instantiate the similarity dictionary
-            # dict {user -> (dict2)}
-            # dict2 will be {similar_user -> similarity}
-            user_user_similarity_dictionary_num[user] = {}
             # For each user in the list of users
             for list_element in user_list:
                 # If similar_user is already in dict2 create the sum of product of ratings
@@ -70,16 +70,16 @@ def CFItemItemSimilarity(user_items_dictionary, item_users_dictionary, similarit
     for item in item_users_dictionary:
         # Get the dictionary pointed by the item, containing the users which has interact with that item
         interacting_users = item_users_dictionary[item]
+            # Instantiate the similarity dictionary
+            # dict {item -> (dict2)}
+            # dict2 will be {similar_item -> similarity}
+        item_item_similarity_dictionary_num[item] = {}
         # For each user in the dictionary pointed by the item
         for user in interacting_users:
             # Get the dictionary pointed by the user, containing the items with which the user has interact
             interacted_items = user_items_dictionary[user]
             # Get list of items with which this user has interact
             item_list = interacted_items.keys()
-            # Instantiate the similarity dictionary
-            # dict {item -> (dict2)}
-            # dict2 will be {similar_item -> similarity}
-            item_item_similarity_dictionary_num[item] = {}
             # For each item in the list of items
             for list_element in item_list:
                 # If similar_item is already in dict2 create the sum of product of ratings
@@ -91,7 +91,6 @@ def CFItemItemSimilarity(user_items_dictionary, item_users_dictionary, similarit
         # Remove from similar_items the item itself
         if (item_item_similarity_dictionary_num[item].has_key(item)):
             del item_item_similarity_dictionary_num[item][item]
-
     # For each user in the dictionary
     for item in item_users_dictionary:
         # Get the dictionary pointed by the user, containing the items with which the user has interact

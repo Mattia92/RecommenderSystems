@@ -67,7 +67,7 @@ CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictRecommendatio
                                                                                   CF_UB_prediction_shrink)
 
 # Write the final Result for Collaborative Filtering User Based
-#CFAlgorithms.CFWriteResult(CFOutput1, CF_UB_users_prediction_dictionary)
+#CFAlgorithms.CFWriteResult('TestDataSet/user_based_map.csv', CF_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Collaborative Filtering Item Based
 CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
@@ -98,7 +98,7 @@ CFAlgorithms.CFWriteResult("TestDataSet/item_based_Map.csv", CF_IB_users_predict
 validation_dictionary = {}
 result_dictionary = {}
 validation = pd.read_csv('TestDataSet/validationSet.csv', sep=',', header=0)
-result = pd.read_csv('TestDataSet/rank_3_MAP_test.csv', sep=',', header=0)
+result = pd.read_csv("TestDataSet/item_based_Map.csv", sep=',', header=0)
 
 print ("Create dictionaries for validation and result")
 for user, items in validation.values:
