@@ -22,13 +22,13 @@ def apk(actual, predicted, k):
     #    predicted = predicted[:k]
 
     #inizialize all the variables needed
-    sum = 0
+    sum = 0.0
     prec = 0.0
     rec_old = 0.0
     rec_new = 0.0
     k1 = min(min(k, len(predicted)), len(actual))
     # for i from 1 to 5(lenght of the predicted list if it is lass than 5)
-    for i in range(1, k1):
+    for i in range(1, k1+1):
         good_pred = 0 #numbers of correct predictions
         #for all the predictions to consider at point k find the number of good predictions
         for p in predicted[:i]:
@@ -36,10 +36,9 @@ def apk(actual, predicted, k):
                 good_pred += 1
         prec = good_pred / i   #precision variable
         rec_old = rec_new      #recall at time k-1
-        rec_new = good_pred / k1  #recall at time k
+        rec_new = good_pred / len(actual)  #recall at time k
         sum += prec * (rec_new - rec_old)   #summarization
 
-    print (sum)
     return sum
 
     # score = 0.0
