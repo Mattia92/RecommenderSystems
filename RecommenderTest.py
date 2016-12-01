@@ -9,8 +9,8 @@ interactions = pd.read_csv('DataSet/interactions.csv', sep='\t', names=cols, hea
 # Sort interactions by time of creation in ascending order
 # This is done because in dictionary when duplicate keys encountered during assignment, the last assignment wins
 interactions = interactions.sort_values(by=['user_id', 'create_at'], ascending=[True, False])
+interactions = interactions.drop_duplicates(subset=['user_id', 'item_id'])
 interactions = interactions.drop('create_at', axis=1)
-interactions = interactions.drop_duplicates()
 
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
@@ -20,21 +20,21 @@ active_items_to_recommend = {}
 for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
-interact_dictionary = {}
+print ("Create interact dictionary")
+interact_dictionary = dict.fromkeys(set(interactions['user_id']), [])
 for user, item, interaction in interactions.values:
-    interact_dictionary.setdefault(user, {})[item] = int(interaction)
+    interact_dictionary[user].append(item)
 
+print ("Create validation and training dictionary")
 training_dictionary = {}
 validation_dictionary = {}
+i = 0
 for user in interact_dictionary:
-    validation_dictionary[user] = {}
-    if (len(interact_dictionary[user]) > 5):
-        training_dictionary[user] = {}
-    for item in interact_dictionary[user]:
-        if (len(validation_dictionary[user]) < 5):
-            validation_dictionary[user][item] = 1
-        else:
-            training_dictionary[user][item] = 1
+    print (i)
+    i = i + 1
+    validation_dictionary[user] = dict.fromkeys(interact_dictionary[user][:5], 1)
+    if(len(interact_dictionary[user]) > 5):
+        training_dictionary[user] = dict.fromkeys(interact_dictionary[user][5:], 1)
 
 print ("Writing result ")
 out_file = open("TestDataSet/validationSet.csv", "w")

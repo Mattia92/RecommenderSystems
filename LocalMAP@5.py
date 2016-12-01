@@ -1,3 +1,4 @@
+from __future__ import division
 import pandas as pd
 import CFAlgorithms
 import CBAlgorithms
@@ -7,13 +8,14 @@ import ValidationAlgorithm as va
 cols = ['user_id', 'item_id', 'interaction']
 interactions = pd.read_csv('TestDataSet/trainingSet.csv', sep='\t', names=cols, header=0)
 
-users_interactions = pd.read_csv("DataSet/interactions.csv", sep='\t', header = 0)
-users_interactions = users_interactions[['user_id', 'item_id']]
-users_interactions = users_interactions.drop_duplicates()
+# users_interactions = pd.read_csv("DataSet/interactions.csv", sep='\t', header = 0)
+# users_interactions = users_interactions[['user_id', 'item_id']]
+# users_interactions = users_interactions.drop_duplicates()
 
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
 active_items_idx = active_items[['item_id', 'active_during_test']]
+
 # Dictionary with only active items
 active_items_to_recommend = {}
 for item, state in active_items_idx.values:
@@ -101,19 +103,28 @@ for user, items in validation.values:
     validation_dictionary[user] = items.split()
 
 for user, items in result.values:
-    item = str(items)
-    result_dictionary[user] = item.split()
+    if (pd.isnull(items)):
+        result_dictionary[user] = []
+    else:
+        item = str(items)
+        result_dictionary[user] = item.split()
 
 #create the dictionary user -> number of different items with which the user has interacted
-for user, item in users_interactions.values:
-    if users_interactions_dictionary.has_key(user):
-        users_interactions_dictionary[user] += 1
-    else:
-        users_interactions_dictionary[user] = 1
+# for user, item in users_interactions.values:
+#     if users_interactions_dictionary.has_key(user):
+#         users_interactions_dictionary[user] += 1
+#     else:
+#         users_interactions_dictionary[user] = 1
+
+#map_5 = va.MeanAveragePrecision(validation_dictionary, result_dictionary, 5)
 
 map = 0
-for user in result_dictionary:
-    if (validation_dictionary.has_key(user)):
-        map +=va.apk(validation_dictionary[user], result_dictionary[user], 5, users_interactions_dictionary[user])
-mean = map / len(result_dictionary)
-print mean
+av_prec = 0
+for user in validation_dictionary:
+    if not result_dictionary.has_key(user):
+        continue
+    av_prec += va.apk(validation_dictionary[user], result_dictionary[user], 5)
+
+map_at = av_prec / len(validation_dictionary)
+
+print map_at
