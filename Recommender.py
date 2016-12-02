@@ -13,30 +13,35 @@ interactions = interactions.drop('create_at', axis=1)
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
 active_items_idx = active_items[['item_id', 'active_during_test']]
+
+target_users = pd.read_csv('DataSet/target_users.csv')
+
 # Dictionary with only active items
 active_items_to_recommend = {}
 for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
-target_users = pd.read_csv('DataSet/target_users.csv')
+CF_UB_Output = "Results/CF_User_Based.csv"
+CF_IB_Output = "Results/CF_Item_Based.csv"
+CF_Hybrid_Weighted_Output = "Results/CF_Hybrid_Weighted.csv"
+CF_Hybrid_Ranked_Output = "Results/CF_Hybrid_Ranked.csv"
 
-CFOutput1 = "CF_User_Based.csv"
-CFOutput2 = "CF_Item_Based.csv"
-CF_Hybrid_Output = "CF_Hybrid.csv"
-CF_Hybrid_Output_2 = "CF_Hybrid_rank_power.csv"
-
+# Shrink values for Collaborative Filtering User Based
 CF_UB_similarity_shrink = 10
 CF_UB_prediction_shrink = 10
 
+# Shrink values for Collaborative Filtering Item Based
 CF_IB_similarity_shrink = 20
 CF_IB_prediction_shrink = 10
 
+# Weight values for Collaborative Filtering Hybrid Ranking
 CF_User_Rank_Weight = 0.99
 CF_Item_Rank_Weight = 1
 
-#Prendere solo 30 predizioni per ogni utente
+# Weight values for Collaborative Filtering Hybrid Weighted
+CF_Hybrid_Weight = 0.4
 
-CF_Hybrid_Weight = 0.6
+# Values of KNN for Ranked Prediction
 CF_Hybrid_KNN = 30
 
 # Dictionaries for Content Based Algorithms
@@ -68,7 +73,7 @@ CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictRecommendatio
                                                                                   CF_UB_prediction_shrink)
 
 # Write the final Result for Collaborative Filtering User Based
-#CFAlgorithms.CFWriteResult(CFOutput1, CF_UB_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_UB_Output, CF_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Collaborative Filtering Item Based
 CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
@@ -79,19 +84,19 @@ CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendatio
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
                                                                                   CF_IB_prediction_shrink)
 # Write the final Result for Collaborative Filtering Item Based
-#CFAlgorithms.CFWriteResult(CFOutput2, CF_IB_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_IB_Output, CF_IB_users_prediction_dictionary)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Weighted
-#CF_HB_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
-#                                                                               CF_IB_users_prediction_dictionary, CF_Hybrid_Weight)
+CF_HB_Weighted_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
+                                                                               CF_IB_users_prediction_dictionary, CF_Hybrid_Weight)
 
 # Write the final Result for Collaborative Filtering Hybrid Weighted
-#CFAlgorithms.CFWriteResult(CF_Hybrid_Output, CF_HB_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_Hybrid_Weighted_Output, CF_HB_Weighted_users_prediction_dictionary)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Rank
-CF_HB_2_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
+CF_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
                                                                                      CF_IB_users_prediction_dictionary, CF_Hybrid_KNN,
                                                                                      CF_User_Rank_Weight, CF_Item_Rank_Weight)
 
 # Write the final Result for Collaborative Filtering Hybrid Rank
-CFAlgorithms.CFWriteResult(CF_Hybrid_Output_2, CF_HB_2_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_Output, CF_HB_Ranked_users_prediction_dictionary)

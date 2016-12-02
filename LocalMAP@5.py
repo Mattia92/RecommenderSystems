@@ -12,26 +12,38 @@ items = pd.read_csv('DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
 active_items_idx = active_items[['item_id', 'active_during_test']]
 
+target_users = pd.read_csv('DataSet/target_users.csv')
+
+validation = pd.read_csv('TestDataSet/validationSet.csv', sep=',', header=0)
+
 # Dictionary with only active items
 active_items_to_recommend = {}
 for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
-target_users = pd.read_csv('DataSet/target_users.csv')
+# Filename for the output result
+CF_UB_MAP_Output = "TestDataSet/CF_MAP_User_Based.csv"
+CF_IB_MAP_Output = "TestDataSet/CF_MAP_Item_Based.csv"
+CF_Hybrid_Weighted_MAP_Output = "TestDataSet/CF_MAP_Hybrid_Weighted.csv"
+CF_Hybrid_Ranked_MAP_Output = "TestDataSet/CF_MAP_Hybrid_Ranked.csv"
 
+# Shrink values for Collaborative Filtering User Based
 CF_UB_similarity_shrink = 10
 CF_UB_prediction_shrink = 10
 
+# Shrink values for Collaborative Filtering Item Based
 CF_IB_similarity_shrink = 20
 CF_IB_prediction_shrink = 10
 
+# Weight values for Collaborative Filtering Hybrid Ranking
 CF_User_Rank_Weight = 0.5
 CF_Item_Rank_Weight = 4
 
-CF_Hybrid_KNN = 30
+# Weight values for Collaborative Filtering Hybrid Weighted
 CF_Hybrid_Weight = 0.4
 
-users_interactions_dictionary = {}
+# Values of KNN for Ranked Prediction
+CF_Hybrid_KNN = 30
 
 # Dictionaries for Content Based Algorithms
 CB_user_items_dictionary = {}
@@ -62,7 +74,7 @@ CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictRecommendatio
                                                                                   CF_UB_prediction_shrink)
 
 # Write the final Result for Collaborative Filtering User Based
-#CFAlgorithms.CFWriteResult('TestDataSet/user_based_map.csv', CF_UB_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_UB_MAP_Output, CF_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Collaborative Filtering Item Based
 CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
@@ -72,48 +84,26 @@ CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_i
 CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_item_item_similarity_dictionary,
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
                                                                                   CF_IB_prediction_shrink)
+
 # Write the final Result for Collaborative Filtering Item Based
-#CFAlgorithms.CFWriteResult("TestDataSet/item_based_Map.csv", CF_IB_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_IB_MAP_Output, CF_IB_users_prediction_dictionary)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Weighted
-#CF_HB_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
-#                                                                               CF_IB_users_prediction_dictionary, CF_Hybrid_Weight)
+CF_HB_Weighted_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
+                                                                               CF_IB_users_prediction_dictionary, CF_Hybrid_Weight)
 
 # Write the final Result for Collaborative Filtering Hybrid Weighted
-#CFAlgorithms.CFWriteResult("TestDataSet/weight_Map.csv", CF_HB_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_Hybrid_Weighted_MAP_Output, CF_HB_Weighted_users_prediction_dictionary)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Rank
-CF_HB_2_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
+CF_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
                                                                                      CF_IB_users_prediction_dictionary, CF_Hybrid_KNN,
                                                                                      CF_User_Rank_Weight, CF_Item_Rank_Weight)
 
 # Write the final Result for Collaborative Filtering Hybrid Rank
-CFAlgorithms.CFWriteResult("TestDataSet/rank_Map.csv", CF_HB_2_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_MAP_Output, CF_HB_Ranked_users_prediction_dictionary)
 
-validation_dictionary = {}
-result_dictionary = {}
-validation = pd.read_csv('TestDataSet/validationSet.csv', sep=',', header=0)
-result = pd.read_csv("TestDataSet/rank_Map.csv", sep=',', header=0)
-
-print ("Create dictionaries for validation and result")
-for user, items in validation.values:
-    if user in target_users['user_id'].values:
-        validation_dictionary[user] = items.split()
-
-for user, items in result.values:
-    if (pd.isnull(items)):
-        result_dictionary[user] = []
-    else:
-        item = str(items)
-        result_dictionary[user] = item.split()
-
-map = 0
-av_prec = 0
-for user in validation_dictionary:
-    if not result_dictionary.has_key(user):
-        continue
-    av_prec += va.apk(validation_dictionary[user], result_dictionary[user], 5)
-
-map_at = av_prec / len(validation_dictionary)
-map_at = round(map_at,5)
-print map_at * 100000
+va.MAP(target_users, validation, CF_UB_MAP_Output)
+va.MAP(target_users, validation, CF_IB_MAP_Output)
+va.MAP(target_users, validation, CF_Hybrid_Weighted_MAP_Output)
+va.MAP(target_users, validation, CF_Hybrid_Ranked_MAP_Output)
