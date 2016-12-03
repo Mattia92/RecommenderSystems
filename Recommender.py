@@ -41,6 +41,10 @@ CF_Item_Rank_Weight = 1
 # Weight values for Collaborative Filtering Hybrid Weighted
 CF_Hybrid_Weight = 0.4
 
+# Values of KNN for CF Similarities, KNN = 0 means to not use the KNN technique
+CF_UB_KNN = 110
+CF_IB_KNN = 0
+
 # Values of KNN for Ranked Prediction
 CF_Hybrid_KNN = 30
 
@@ -66,7 +70,7 @@ for user, item, interaction in interactions.values:
 
 # Compute the User-User Similarity for Collaborative Filtering User Based
 CF_user_user_similarity_dictionary = CFAlgorithms.CFUserUserSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
-                                                                       CF_UB_similarity_shrink)
+                                                                       CF_UB_similarity_shrink, CF_UB_KNN)
 # Compute the Prediction for Collaborative Filtering User Based
 CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictRecommendation(target_users, CF_user_user_similarity_dictionary,
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
@@ -77,7 +81,7 @@ CFAlgorithms.CFWriteResult(CF_UB_Output, CF_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Collaborative Filtering Item Based
 CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
-                                                                       CF_IB_similarity_shrink)
+                                                                       CF_IB_similarity_shrink, CF_IB_KNN)
 
 # Compute the Prediction for Collaborative Filtering Item Based
 CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_item_item_similarity_dictionary,
