@@ -15,9 +15,9 @@ def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarit
     for user in user_items_dictionary:
         # Get the dictionary pointed by the user, containing the items with which the user has interact
         interacted_items = user_items_dictionary[user]
-            # Instantiate the similarity dictionary
-            # dict {user -> (dict2)}
-            # dict2 will be {similar_user -> similarity}
+        # Instantiate the similarity dictionary
+        # dict {user -> (dict2)}
+        # dict2 will be {similar_user -> similarity}
         user_user_similarity_dictionary_num[user] = {}
         # For each item in the dictionary pointed by the user
         for item in interacted_items:
@@ -83,9 +83,9 @@ def CFItemItemSimilarity(user_items_dictionary, item_users_dictionary, similarit
     for ii in item_users_dictionary:
         # Get the dictionary pointed by the item, containing the users which has interact with that item
         u_r_dict = item_users_dictionary[ii]
-            # Instantiate the similarity dictionary
-            # dict {item -> (dict2)}
-            # dict2 will be {similar_item -> similarity}
+        # Instantiate the similarity dictionary
+        # dict {item -> (dict2)}
+        # dict2 will be {similar_item -> similarity}
         item_item_similarity_dictionary_num[ii] = {}
         # For each user in the dictionary pointed by the item
         for u in u_r_dict:
@@ -153,14 +153,15 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
             for user2 in uus_list:
                 # Get the dictionary of items with which this user has interact
                 u2_item_list = user_items_dictionary[user2]
-                # For each item in the dictionary
-                for i in u2_item_list:
-                    # If the item was not predicted yet for the user, add it
-                    if not (users_prediction_dictionary_num[user].has_key(i)):
-                        users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
-                    # Else Evaluate its contribution
-                    else:
-                        users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
+                if (user in user_user_similarity_dictionary[user2]):
+                    # For each item in the dictionary
+                    for i in u2_item_list:
+                        # If the item was not predicted yet for the user, add it
+                        if not (users_prediction_dictionary_num[user].has_key(i)):
+                            users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
+                        # Else Evaluate its contribution
+                        else:
+                            users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
 
     # For each user in the dictionary
     for user in user_user_similarity_dictionary:
@@ -186,7 +187,7 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
 
 # Function to create the recommendations for Item_Based
 def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
-                                     prediction_shrink):
+                                     prediction_shrink, CF_IB_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -211,11 +212,11 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
                         continue
                     # If the item was not predicted yet for the user, add it
                     if not (users_prediction_dictionary_num[uu].has_key(ii)):
-                        users_prediction_dictionary_num[uu][ii] = i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] = math.log10(546864 / CF_IB_IDF[ij]) * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
                     # Else Evaluate its contribution
                     else:
-                        users_prediction_dictionary_num[uu][ii] += i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] += math.log10(546864 / CF_IB_IDF[ij]) * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate:")
@@ -304,6 +305,14 @@ def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_us
                 break
 
     return users_prediction_dictionary
+
+# Function to fill with Top Popular Items
+def Top_Popular_Filling(users_prediction_dictionary, CF_IB_IDF):
+    TopPopular_items = dict(sorted(CF_IB_IDF.iteritems(), key=operator.itemgetter(1), reverse=True)[:5])
+    for user in users_prediction_dictionary:
+        for top_pop in TopPopular_items:
+            if (len(users_prediction_dictionary[user]) < 5):
+                users_prediction_dictionary[user][top_pop] = 0
 
 # Function to write the final result of recommendation
 def CFWriteResult(output_filename, users_prediction_dictionary):

@@ -41,8 +41,8 @@ CF_IB_similarity_shrink = 20
 CF_IB_prediction_shrink = 10
 
 # Weight values for Collaborative Filtering Hybrid Ranking
-CF_User_Rank_Weight = 0.99
-CF_Item_Rank_Weight = 1
+CF_User_Rank_Weight = 0.5
+CF_Item_Rank_Weight = 4
 
 # Weight values for Collaborative Filtering Hybrid Weighted
 CF_Hybrid_Weight = 0.4
@@ -62,6 +62,9 @@ CB_item_users_dictionary = {}
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 
+# Dictionary for using IDF in Collaborative Filtering Item Based
+CF_IB_IDF = {}
+
 # Create the dictionaries needed to compute the similarity between users or items
 # It is the User Rating Matrix build with dictionaries
 # Dictionary is a list of elements, each element is defined as following
@@ -73,6 +76,12 @@ for user, item, interaction in interactions.values:
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
+
+print ("Create dictionary for CF_IDF")
+for user, item, interaction in interactions.values:
+    CF_IB_IDF[item] = 0
+for user, item, interaction in interactions.values:
+    CF_IB_IDF[item] += 1
 
 print("Create dictionaries for content based algorithm")
 # Create the dictionary needed to compute the similarity between users
@@ -175,7 +184,7 @@ CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_i
 # Compute the Prediction for Collaborative Filtering Item Based
 CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_item_item_similarity_dictionary,
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
-                                                                                  CF_IB_prediction_shrink)
+                                                                                  CF_IB_prediction_shrink, CF_IB_IDF)
 # Write the final Result for Collaborative Filtering Item Based
 CFAlgorithms.CFWriteResult(CF_IB_Output, CF_IB_users_prediction_dictionary)
 
@@ -190,6 +199,9 @@ CFAlgorithms.CFWriteResult(CF_Hybrid_Weighted_Output, CF_HB_Weighted_users_predi
 CF_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictRecommendation(CF_UB_users_prediction_dictionary,
                                                                                      CF_IB_users_prediction_dictionary, CF_Hybrid_KNN,
                                                                                      CF_User_Rank_Weight, CF_Item_Rank_Weight)
+
+# Fill recommendations using Top Popular Algorithm
+CFAlgorithms.Top_Popular_Filling(CF_HB_Ranked_users_prediction_dictionary, CF_IB_IDF)
 
 # Write the final Result for Collaborative Filtering Hybrid Rank
 CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_Output, CF_HB_Ranked_users_prediction_dictionary)
