@@ -63,7 +63,7 @@ CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 
 # Dictionary for using IDF in Collaborative Filtering Item Based
-CF_IB_IDF = {}
+CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
 
 # Create the dictionaries needed to compute the similarity between users or items
 # It is the User Rating Matrix build with dictionaries
@@ -76,12 +76,6 @@ for user, item, interaction in interactions.values:
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
-
-print ("Create dictionary for CF_IDF")
-for user, item, interaction in interactions.values:
-    CF_IB_IDF[item] = 0
-for user, item, interaction in interactions.values:
-    CF_IB_IDF[item] += 1
 
 print("Create dictionaries for content based algorithm")
 # Create the dictionary needed to compute the similarity between users

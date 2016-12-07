@@ -70,7 +70,7 @@ CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 
 # Dictionary for using IDF in Collaborative Filtering Item Based
-CF_IB_IDF = {}
+CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
 
 # Dictionaries for Content User Based Algorithms
 # Create the dictionary needed to compute the similarity between users
@@ -97,12 +97,6 @@ for user, item, interaction in interactions.values:
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
-
-print ("Create dictionary for CF_IDF")
-for user, item, interaction in interactions.values:
-    CF_IB_IDF[item] = 0
-for user, item, interaction in interactions.values:
-    CF_IB_IDF[item] += 1
 
 # Compute the User-User Similarity for Content User Based
 CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users, CB_user_attributes_dictionary,

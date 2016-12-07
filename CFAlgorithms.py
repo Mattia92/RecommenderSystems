@@ -3,6 +3,20 @@ import math
 import operator
 from collections import OrderedDict
 
+# Function to compute Items IDF
+def CF_IDF(interactions):
+    print ("Create dictionary for CF_IDF")
+    CF_IB_IDF = {}
+    item_num_interactions = {}
+    for user, item, interaction in interactions.values:
+        item_num_interactions[item] = 0
+    for user, item, interaction in interactions.values:
+        item_num_interactions[item] += 1
+    for user, item, interaction in interactions.values:
+        CF_IB_IDF[item] = math.log10(len(interactions) / item_num_interactions[item])
+
+    return CF_IB_IDF
+
 # Function to build the User-User Similarity Dictionary
 def CFUserUserSimilarity(user_items_dictionary, item_users_dictionary, similarity_shrink, KNN):
     # Create the dictionary for the user_user similarity
@@ -212,11 +226,11 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
                         continue
                     # If the item was not predicted yet for the user, add it
                     if not (users_prediction_dictionary_num[uu].has_key(ii)):
-                        users_prediction_dictionary_num[uu][ii] = math.log10(546864 / CF_IB_IDF[ij]) * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] = CF_IB_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
                     # Else Evaluate its contribution
                     else:
-                        users_prediction_dictionary_num[uu][ii] += math.log10(546864 / CF_IB_IDF[ij]) * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] += CF_IB_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate:")

@@ -163,11 +163,11 @@ def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_us
         i = i + 1
         # Calculate the similarity only for the target users
         #######if user in target_users['user_id'].unique():
-        user_att = user_attributes_dictionary[user] #dictionary of all the attributes of the user
+        user_att = user_attributes_dictionary[user] # dictionary of all the attributes of the user
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
         for att in user_att:
-            user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
+            user_list = attributes_users_dictionary[att].keys() # list of users that has this attribute
             # for first 10 users
             for u in user_list[:10]:
                 # Don't consider the similarity between the same users
