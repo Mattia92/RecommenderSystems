@@ -1,8 +1,8 @@
 from __future__ import division
 import math
 import numpy
-import operator
 from collections import OrderedDict
+from collections import Counter
 
 #Function to initialize users_attributes and attributes_users dictionaries
 def InitializeDictionaries(user_profile, user_cols):
@@ -137,23 +137,29 @@ def ComputeTF_IDF(users_attributes, attributes_users):
     # modify each attribute value including tf-idf
     for user in users_attributes.keys():
         for attribute in users_attributes[user].keys():
-            users_attributes[user][attribute] *= users_tf[user] * attributes_idf[attribute]
-            attributes_users[attribute][user] *= users_tf[user] * attributes_idf[attribute]
-    # sort the dictionary by attribute values
+            users_attributes[user][attribute] = users_tf[user] * attributes_idf[attribute]
     for attribute in attributes_users.keys():
-        attributes_users[attribute] = OrderedDict(
-            sorted(attributes_users[attribute].items(), key=lambda t: -t[1]))
+        for user in attributes_users[attribute].keys():
+            attributes_users[attribute][user] = users_tf[user] * attributes_idf[attribute]
+    # sort the dictionary by attribute values
+    users_top_attributes = {}
+    for user in users_attributes.keys():
+        users_attributes[user] = OrderedDict(
+            sorted(users_attributes[user].items(), key=lambda t: -t[1]))
+        users_attributes[user] = Counter(users_attributes[user]).most_common(10)
+        users_top_attributes[user] = {}
+        for el in users_attributes[user]:
+            users_top_attributes[user][el[0]] = el[1]
 
-    return users_attributes, attributes_users
+    return users_top_attributes, attributes_users
 
 # Function to build the User-User Similarity Dictionary
-def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
+def CBUserUserSimilarity(user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
     # Create the dictionary for the user_user similarity
     # dict {user -> (list of {user -> similarity})}
     user_user_similarity_dictionary = {}
     user_user_similarity_dictionary_num = {}
     user_similarity_dictionary_norm = {}
-
     print ("Create dictionaries for CB user-user similarity")
     # For each user in the dictionary
     i = 1
@@ -161,60 +167,68 @@ def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_us
     for user in user_attributes_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
-        # Calculate the similarity only for the target users
-        #######if user in target_users['user_id'].unique():
-        user_att = user_attributes_dictionary[user] # dictionary of all the attributes of the user
+        # Dictionary of all attributes of the user
+        user_att = user_attributes_dictionary[user]
+        # Instantiate the similarity dictionary
+        # dict {user -> (dict2)}
+        # dict2 will be {similar_user -> similarity}
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
         for att in user_att:
-            user_list = attributes_users_dictionary[att].keys() # list of users that has this attribute
-            # for first 10 users
-            for u in user_list[:10]:
-                # Don't consider the similarity between the same users
-                if u == user:
-                    continue
-                else:
-                    # Create the dictionary containing the numerator of the similarity
-                    if(user_user_similarity_dictionary_num[user].has_key(u)):
-                        user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
-                                                                        user_attributes_dictionary[u][att]
+            # List of users that have this attribute
+            user_list = attributes_users_dictionary[att]
+            # For each users
+            for u in user_list:
+                if (user_attributes_dictionary[u].has_key(att)):
+                    # Don't consider the similarity between the same users
+                    if u == user:
+                        continue
                     else:
-                        user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] *\
+                        # Create the dictionary containing the numerator of the similarity
+                        if(user_user_similarity_dictionary_num[user].has_key(u)):
+                            user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
+                                                                        user_attributes_dictionary[u][att]
+                        else:
+                            user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] *\
                                                                         user_attributes_dictionary[u][att]
     # For each user in the dictionary
     for user in user_attributes_dictionary:
+        u_att = user_attributes_dictionary[user]
         # For each attribute of the user
-        for attribute in user_attributes_dictionary[user]:
+        for attribute in u_att:
             # Calculate the norm of the vector corresponding to the user attributes
             if (user_similarity_dictionary_norm.has_key(user)):
-                user_similarity_dictionary_norm[user] += math.exp(user_attributes_dictionary[user][attribute])
+                user_similarity_dictionary_norm[user] += math.pow(user_attributes_dictionary[user][attribute], 2)
             else:
-                user_similarity_dictionary_norm[user] = math.exp(user_attributes_dictionary[user][attribute])
+                user_similarity_dictionary_norm[user] = math.pow(user_attributes_dictionary[user][attribute], 2)
+
         user_similarity_dictionary_norm[user] = math.sqrt(user_similarity_dictionary_norm[user])
 
     print ("Similarities estimate:")
-    # For each user in the dictionary
+    # For each user (user_user_similarity_dictionary_num contains all users which have at least one interaction)
     for user in user_user_similarity_dictionary_num:
         user_user_similarity_dictionary[user] = {}
-        # Calculate the user-user similarity
-        for user_j in user_user_similarity_dictionary_num[user]:
-            user_user_similarity_dictionary[user][user_j] = user_user_similarity_dictionary_num[user][user_j] / \
-                                                            (user_similarity_dictionary_norm[user] *
-                                                             user_similarity_dictionary_norm[user_j] + similarity_shrink)
+        # For each similar user for the user
+        for user2 in user_user_similarity_dictionary_num[user]:
+            # Evaluate the similarity between user and user2
+            user_user_similarity_dictionary[user][user2] = user_user_similarity_dictionary_num[user][user2] / \
+                                                           ((user_similarity_dictionary_norm[user] *
+                                                             user_similarity_dictionary_norm[user2]) +
+                                                            similarity_shrink)
+    #if (KNN == 0):
 
-    if (KNN == 0):
-        return user_user_similarity_dictionary
-    else:
-        user_user_KNN_similarity_dictionary = {}
-        for user in user_user_similarity_dictionary:
-            user_user_KNN_similarity_dictionary[user] = {}
-            KNN_sim_users = sorted(user_user_similarity_dictionary[user].items(), key=operator.itemgetter(1))
-            KNN_sim_users_desc = sorted(KNN_sim_users, key=lambda tup: -tup[1])
-            for sim_user in KNN_sim_users_desc:
-                if (len(user_user_KNN_similarity_dictionary[user]) < KNN):
-                    user_user_KNN_similarity_dictionary[user][sim_user[0]] = user_user_similarity_dictionary[user][sim_user[0]]
-
-        return user_user_KNN_similarity_dictionary
+    return user_user_similarity_dictionary
+    # else:
+    #     user_user_KNN_similarity_dictionary = {}
+    #     for user in user_user_similarity_dictionary:
+    #         user_user_KNN_similarity_dictionary[user] = {}
+    #         KNN_sim_users = sorted(user_user_similarity_dictionary[user].items(), key=operator.itemgetter(1))
+    #         KNN_sim_users_desc = sorted(KNN_sim_users, key=lambda tup: -tup[1])
+    #         for sim_user in KNN_sim_users_desc:
+    #             if (len(user_user_KNN_similarity_dictionary[user]) < KNN):
+    #                 user_user_KNN_similarity_dictionary[user][sim_user[0]] = user_user_similarity_dictionary[user][sim_user[0]]
+    #
+    #     return user_user_KNN_similarity_dictionary
 
 # Function to create the recommendations for User_Based
 def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
@@ -228,24 +242,22 @@ def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
     # For each target user
     for user in target_users['user_id']:
         users_prediction_dictionary_num[user] = {}
-        # If user has similar users
-        if (user_user_similarity_dictionary.has_key(user)):
-            # Get dictionary of similar users and the value of similarity
-            uus_list = user_user_similarity_dictionary[user]
-            # For each similar user in the dictionary
-            for user2 in uus_list:
-                if(user_items_dictionary.has_key(user2)):
-                    # Get the dictionary of items with which this user has interact
-                    u2_item_list = user_items_dictionary[user2]
-                    if (user in user_user_similarity_dictionary[user2]):
-                        # For each item in the dictionary
-                        for i in u2_item_list:
-                            # If the item was not predicted yet for the user, add it
-                            if not (users_prediction_dictionary_num[user].has_key(i)):
-                                users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
-                            # Else Evaluate its contribution
-                            else:
-                                users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
+        # Get dictionary of similar users and the value of similarity
+        uus_list = user_user_similarity_dictionary[user]
+        # For each similar user in the dictionary
+        for user2 in uus_list:
+            if(user_items_dictionary.has_key(user2)):
+                # Get the dictionary of items with which this user has interact
+                u2_item_list = user_items_dictionary[user2]
+                if (user in user_user_similarity_dictionary[user2]):
+                    # For each item in the dictionary
+                    for i in u2_item_list:
+                        # If the item was not predicted yet for the user, add it
+                        if not (users_prediction_dictionary_num[user].has_key(i)):
+                            users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
+                        # Else Evaluate its contribution
+                        else:
+                            users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
 
     # For each user in the dictionary
     for user in user_user_similarity_dictionary:

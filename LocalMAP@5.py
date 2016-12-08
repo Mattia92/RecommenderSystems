@@ -99,8 +99,8 @@ for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
 
 # Compute the User-User Similarity for Content User Based
-CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users, CB_user_attributes_dictionary,
-                                                                       CB_attribute_users_dictionary, CB_UB_similarity_shrink, CB_UB_KNN)
+CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(CB_user_attributes_dictionary, CB_attribute_users_dictionary,
+                                                                       CB_UB_similarity_shrink, CB_UB_KNN)
 
 # Compute the Prediction for Content User Based
 CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendation(target_users, CB_user_user_similarity_dictionary,
