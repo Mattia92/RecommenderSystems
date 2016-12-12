@@ -18,7 +18,18 @@ user_profile = pd.read_csv('DataSet/user_profile.csv', sep='\t', names=user_cols
 
 target_users = pd.read_csv('DataSet/target_users.csv')
 
+interacted_users = pd.read_csv('DataSet/interactions.csv', sep='\t', header=0)
+
 validation = pd.read_csv('TestDataSet/validationSet.csv', sep=',', header=0)
+
+#Dictionary of users which has at least one interaction
+interacted_users_dictionary = {}
+for i, row in interacted_users.iterrows():
+    if not (interacted_users_dictionary.has_key(row['user_id'])):
+        interacted_users_dictionary[row['user_id']] = 0
+for i, row in target_users.iterrows():
+    if not (interacted_users_dictionary.has_key(row['user_id'])):
+        interacted_users_dictionary[row['user_id']] = 0
 
 # Dictionary with only active items
 active_items_to_recommend = {}
@@ -98,12 +109,14 @@ for user, item, interaction in interactions.values:
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
 
+print ("Create dictionary of user-user similarity")
 # Compute the User-User Similarity for Content User Based
-CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(CB_user_attributes_dictionary, CB_attribute_users_dictionary,
+#CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(CB_user_attributes_dictionary, CB_attribute_users_dictionary,
+#                                                                       interacted_users_dictionary, CB_UB_similarity_shrink, CB_UB_KNN)
+CB_user_user_similarity_dictionary = CBAlgorithms.CBSIM(CB_user_attributes_dictionary, CB_attribute_users_dictionary,
                                                                        CB_UB_similarity_shrink, CB_UB_KNN)
-#CB_user_user_similarity_dictionary = CBAlgorithms.CBSIM(CB_user_attributes_dictionary, CB_attribute_users_dictionary,
-#                                                                       CB_UB_similarity_shrink, CB_UB_KNN)
 # Compute the Prediction for Content User Based
+print ("content user based recommendations")
 CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendation(target_users, CB_user_user_similarity_dictionary,
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
                                                                                   CB_UB_prediction_shrink)

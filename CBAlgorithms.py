@@ -147,7 +147,7 @@ def ComputeTF_IDF(users_attributes, attributes_users):
     for user in users_attributes.keys():
         users_attributes[user] = OrderedDict(
             sorted(users_attributes[user].items(), key=lambda t: -t[1]))
-        users_attributes[user] = Counter(users_attributes[user]).most_common(10)
+        users_attributes[user] = Counter(users_attributes[user]).most_common(5)
         users_top_attributes[user] = {}
         for el in users_attributes[user]:
             attributes_top_users[el[0]] = {}
@@ -170,22 +170,29 @@ def CBSIM(user_attributes_dictionary, attributes_users_dictionary, similarity_sh
     for att in attributes_users_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
-        att_users = attributes_users_dictionary[att]
+        att_users = attributes_users_dictionary[att].keys()
+        j = 1
         for user in att_users:
             user_user_similarity_dictionary_num[user] = {}
             #if (user_attributes_dictionary[user].has_key(att)):
-            for user2 in att_users:
-                if user2 == user:
-                    continue
+            if (j == len(att_users)):
+                break
+            for user2 in att_users[j:]:
+                if not(user_user_similarity_dictionary_num.has_key(user2)):
+                    user_user_similarity_dictionary_num[user2] = {}
+                    #if (user_attributes_dictionary[user2].has_key(att)):
+                        # Create the dictionary containing the numerator of the similarity
+                if (user_user_similarity_dictionary_num[user].has_key(user2)):
+                    user_user_similarity_dictionary_num[user][user2] += user_attributes_dictionary[user][att] * \
+                                                                    user_attributes_dictionary[user2][att]
                 else:
-                        #if (user_attributes_dictionary[user2].has_key(att)):
-                            # Create the dictionary containing the numerator of the similarity
-                    if (user_user_similarity_dictionary_num[user].has_key(user2)):
-                        user_user_similarity_dictionary_num[user][user2] += user_attributes_dictionary[user][att] * \
-                                                                        user_attributes_dictionary[user2][att]
-                    else:
-                        user_user_similarity_dictionary_num[user][user2] = user_attributes_dictionary[user][att] * \
-                                                                       user_attributes_dictionary[user2][att]
+                    user_user_similarity_dictionary_num[user][user2] = user_attributes_dictionary[user][att] * \
+                                                                   user_attributes_dictionary[user2][att]
+                if (user_user_similarity_dictionary_num[user2].has_key(user)):
+                    user_user_similarity_dictionary_num[user2][user] += user_user_similarity_dictionary_num[user][user2]
+                else:
+                    user_user_similarity_dictionary_num[user2][user] = user_user_similarity_dictionary_num[user][user2]
+            j += 1
     # For each user in the dictionary
     for user in user_attributes_dictionary:
         u_att = user_attributes_dictionary[user]
@@ -216,7 +223,7 @@ def CBSIM(user_attributes_dictionary, attributes_users_dictionary, similarity_sh
     return user_user_similarity_dictionary
 
 # Function to build the User-User Similarity Dictionary
-def CBUserUserSimilarity(user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
+def CBUserUserSimilarity(user_attributes_dictionary, attributes_users_dictionary, interacted_users_dictionary, similarity_shrink, KNN):
     # Create the dictionary for the user_user similarity
     # dict {user -> (list of {user -> similarity})}
     user_user_similarity_dictionary = {}
@@ -225,8 +232,8 @@ def CBUserUserSimilarity(user_attributes_dictionary, attributes_users_dictionary
     print ("Create dictionaries for CB user-user similarity")
     # For each user in the dictionary
     i = 1
-    size = len(user_attributes_dictionary)
-    for user in user_attributes_dictionary:
+    size = len(interacted_users_dictionary)
+    for user in interacted_users_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
         # Dictionary of all attributes of the user
@@ -241,7 +248,6 @@ def CBUserUserSimilarity(user_attributes_dictionary, attributes_users_dictionary
             user_list = attributes_users_dictionary[att]
             # For each users
             for u in user_list:
-                if (user_attributes_dictionary[u].has_key(att)):
                     # Don't consider the similarity between the same users
                     if u == user:
                         continue
