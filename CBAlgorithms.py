@@ -97,7 +97,7 @@ def InitializeDictionaries(user_profile, user_cols):
                         if not attributes_users.has_key(att + '_' + str(row[att])):
                             attributes_users[att + '_' + str(row[att])] = {}
                         attributes_users[att + '_' + str(row[att])][row['user']] = 1
-                        # if the attribute is one of the following consider them only if they are not equal to 0
+                # if the attribute is one of the following consider them only if they are not equal to 0
                 elif (att == 'career' or att == 'exp_years' or att == 'exp_years_current'):
                     if not (row[att] == 0):
                         if not attributes_users.has_key(att + '_' + str(row[att])):
@@ -121,6 +121,91 @@ def InitializeDictionaries(user_profile, user_cols):
                     attributes_users[att + '_' + str(row[att])][row['user']] = 1
 
     return users_attributes, attributes_users
+
+#Function to initialize users_attributes and attributes_users dictionaries
+def InitializeDictionaries_item(item_profile, item_cols):
+    # Create the dictionary needed to compute the similarity between items
+    # It is the item content matrix build with dictionaries
+    # Dictionary is a list of elements, each element is defined as following
+    # dict {item -> (list of {attribute -> value})}
+    print ("Create items_attributes dictionary")
+    items_attributes = {}
+    # for each row of the item_profile csv
+    for i, row in item_profile.iterrows():
+        # initialize the dictionary of the user
+        items_attributes[row['item']] = {}
+        # for each attribute of the item
+        for att in item_cols:
+            if not (att == 'item'):
+                # if the attribute is title or tag then split the string obtaining the various jobs and insert them in the dictionary
+                # if the value of the attribute is 0 insert nothing
+                if (att == 'title' or att == 'tags'):
+                    if not (row[att] == '0'):
+                        titles = str(row[att]).split(",")
+                        for t in titles:
+                            items_attributes[row['item']][att + '_' + str(t)] = 1
+                # if the attribute is one of the following consider them only if they are not equal to 0
+                elif (att == 'career' or att == 'employ'):
+                    if not (row[att] == 0):
+                        items_attributes[row['item']][att + '_' + str(row[att])] = 1
+                # if the attribute is country don't consider float values
+                elif (att == 'country'):
+                    if type(row[att]) == str:
+                        items_attributes[row['item']][att + '_' + str(row[att])] = 1
+                # only the item having country equal to de has this attribute
+                elif (att == 'region'):
+                    if (row['country'] == 'de'):
+                        items_attributes[row['item']][att + '_' + str(row[att])] = 1
+                # if the column type is int or float discard Null values
+                elif (item_profile[att].dtype == numpy.int64 or item_profile[att].dtype == numpy.float64):
+                    if not (math.isnan(row[att])):
+                        items_attributes[row['item']][att + '_' + str(row[att])] = 1
+
+    # Create the dictionary containing for each attribute the list of users which have it
+    # Dictionary is a list of elements, each element is defined as following
+    # dict {attribute -> (list of {user -> value})}
+    print ("Create attributes_users dictionary")
+    attributes_items = {}
+    # for each row of the user_profile csv
+    for i, row in item_profile.iterrows():
+        # for each attribute of the user
+        for att in item_cols:
+            if not (att == 'item'):
+                # if the attribute is title or tag then split the string obtaining the various jobs and insert them in the dictionary
+                # if the value of the attribute is 0 insert nothing
+                if (att == 'title' or att == 'tags'):
+                    if not (row[att] == '0'):
+                        titles = str(row[att]).split(",")
+                        for t in titles:
+                            # if the dictionary is not already initialized do it
+                            if not attributes_items.has_key(att + '_' + str(t)):
+                                attributes_items[att + '_' + str(t)] = {}
+                            attributes_items[att + '_' + str(t)][row['item']] = 1
+                # if the attribute is one of the following consider them only if they are not equal to 0
+                elif (att == 'career' or att == 'employ'):
+                    if not (row[att] == 0):
+                        if not attributes_items.has_key(att + '_' + str(row[att])):
+                            attributes_items[att + '_' + str(row[att])] = {}
+                        attributes_items[att + '_' + str(row[att])][row['item']] = 1
+                # if the attribute is country don't consider float values
+                elif (att == 'country'):
+                    if type(row[att]) == str:
+                        if not attributes_items.has_key(att + '_' + str(row[att])):
+                            attributes_items[att + '_' + str(row[att])] = {}
+                        attributes_items[att + '_' + str(row[att])][row['item']] = 1
+                # only the user user having country equal to de has this attribute
+                elif (att == 'region'):
+                    if (row['country'] == 'de'):
+                        if not attributes_items.has_key(att + '_' + str(row[att])):
+                            attributes_items[att + '_' + str(row[att])] = {}
+                        attributes_items[att + '_' + str(row[att])][row['item']] = 1
+                # if the column type is int or float discard Null values
+                elif (item_profile[att].dtype == numpy.int64 or item_profile[att].dtype == numpy.float64):
+                    if not (math.isnan(row[att])):
+                        if not attributes_items.has_key(att + '_' + str(row[att])):
+                            attributes_items[att + '_' + str(row[att])] = {}
+                        attributes_items[att + '_' + str(row[att])][row['item']] = 1
+    return items_attributes, attributes_items
 
 # Function to compute TF and IDF
 def ComputeTF_IDF(users_attributes, attributes_users):

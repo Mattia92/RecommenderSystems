@@ -16,6 +16,11 @@ user_cols = ['user', 'job', 'career', 'discipline', 'industry', 'country', 'regi
              'edu_deg', 'edu_fiel']
 user_profile = pd.read_csv('DataSet/user_profile.csv', sep='\t', names=user_cols, header=0)
 
+item_cols = ['item', 'title', 'career',	'discipline', 'industry', 'country', 'region', 'latitude', 'longitude',
+            'employ', 'tags', 'created_at', 'active_during_test']
+item_profile = pd.read_csv('DataSet/item_profile.csv', sep='\t', names=item_cols, header=0)
+item_profile = item_profile.drop(['created_at', 'active_during_test'], 1)
+
 target_users = pd.read_csv('DataSet/target_users.csv')
 
 interacted_users = pd.read_csv('DataSet/interactions.csv', sep='\t', header=0)
@@ -92,6 +97,9 @@ CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
 # Dictionary is a list of elements, each element is defined as following
 # dict {attribute -> (list of {user -> value})}
 CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.InitializeDictionaries(user_profile, user_cols)
+
+# Dictionaries for Content Item Based Algorithms
+CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.InitializeDictionaries_item(item_profile, item_cols)
 
 # Compute TF and IDF
 print ("Computing TF and IDF")
