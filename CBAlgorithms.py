@@ -147,7 +147,7 @@ def ComputeTF_IDF(users_attributes, attributes_users):
     for user in users_attributes.keys():
         users_attributes[user] = OrderedDict(
             sorted(users_attributes[user].items(), key=lambda t: -t[1]))
-        users_attributes[user] = Counter(users_attributes[user]).most_common(5)
+        users_attributes[user] = Counter(users_attributes[user]).most_common(8)
         users_top_attributes[user] = {}
         for el in users_attributes[user]:
             attributes_top_users[el[0]] = {}
@@ -317,15 +317,15 @@ def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
             if(user_items_dictionary.has_key(user2)):
                 # Get the dictionary of items with which this user has interact
                 u2_item_list = user_items_dictionary[user2]
-                if (user in user_user_similarity_dictionary[user2]):
+                #if (user in user_user_similarity_dictionary[user2]):
                     # For each item in the dictionary
-                    for i in u2_item_list:
-                        # If the item was not predicted yet for the user, add it
-                        if not (users_prediction_dictionary_num[user].has_key(i)):
-                            users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
-                        # Else Evaluate its contribution
-                        else:
-                            users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
+                for i in u2_item_list:
+                    # If the item was not predicted yet for the user, add it
+                    if not (users_prediction_dictionary_num[user].has_key(i)):
+                        users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
+                    # Else Evaluate its contribution
+                    else:
+                        users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
 
     # For each user in the dictionary
     for user in user_user_similarity_dictionary:

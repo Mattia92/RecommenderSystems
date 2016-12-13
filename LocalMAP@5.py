@@ -115,12 +115,15 @@ print ("Create dictionary of user-user similarity")
 #                                                                       interacted_users_dictionary, CB_UB_similarity_shrink, CB_UB_KNN)
 CB_user_user_similarity_dictionary = CBAlgorithms.CBSIM(CB_user_attributes_dictionary, CB_attribute_users_dictionary,
                                                                        CB_UB_similarity_shrink, CB_UB_KNN)
+
+
 # Compute the Prediction for Content User Based
 print ("content user based recommendations")
 CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendation(target_users, CB_user_user_similarity_dictionary,
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
                                                                                   CB_UB_prediction_shrink)
 
+#print (CB_UB_users_prediction_dictionary)
 # Write the final Result for Collaborative Filtering User Based
 CBAlgorithms.CBWriteResult(CB_UB_MAP_Output, CB_UB_users_prediction_dictionary)
 
