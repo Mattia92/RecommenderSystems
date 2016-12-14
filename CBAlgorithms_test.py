@@ -223,14 +223,14 @@ def ComputeTF_IDF(users_attributes, attributes_users):
     for user in users_attributes.keys():
         for attribute in users_attributes[user].keys():
             val = users_tf[user] * attributes_idf[attribute]
-            if (val < 0.07375):
+            if (val < 0.01):#if (val < 0.07375):
                 users_attributes[user].pop(attribute)
             else:
                 users_attributes[user][attribute] = val
     for attribute in attributes_users.keys():
         for user in attributes_users[attribute].keys():
             val = users_tf[user] * attributes_idf[attribute]
-            if (val < 0.07375):
+            if (val < 0.01):#if (val < 0.07375):
                 attributes_users[attribute].pop(user)
             else:
                 attributes_users[attribute][user] = val
@@ -240,7 +240,7 @@ def ComputeTF_IDF(users_attributes, attributes_users):
     for user in users_attributes.keys():
         users_attributes[user] = OrderedDict(
             sorted(users_attributes[user].items(), key=lambda t: -t[1]))
-        users_attributes[user] = Counter(users_attributes[user]).most_common(8)
+        users_attributes[user] = Counter(users_attributes[user]).most_common(15)
         users_top_attributes[user] = {}
         for el in users_attributes[user]:
             attributes_top_users[el[0]] = {}
