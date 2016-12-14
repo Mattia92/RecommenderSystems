@@ -248,6 +248,7 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
 
 # Function to create the recommendations for Hybrid Weighted
 def CFHybridWeightedPredictRecommendation(user_based_users_prediction, item_based_users_predictions, weight):
+    print("Prediction for Hybrid Weighted Algorithm")
     users_prediction_dictionary = {}
     # For each user in the User_Based Prediction
     for user in user_based_users_prediction:
@@ -275,6 +276,7 @@ def CFHybridWeightedPredictRecommendation(user_based_users_prediction, item_base
 def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_users_predictions, items_to_consider,
                                       user_based_weight, item_based_weight):
     users_prediction_dictionary = {}
+    print("Sorting predictions for Hybrid Ranked Algorithm")
     #for each user in User Based prediction
     for user in user_based_users_prediction:
         # if there is at least one prediction for the user sort the predictions
@@ -287,6 +289,7 @@ def CFHybridRankPredictRecommendation(user_based_users_prediction, item_based_us
         if len(item_based_users_predictions[user].keys()) > 0:
             item_based_users_predictions[user] = OrderedDict(
             sorted(item_based_users_predictions[user].items(), key=lambda t: -t[1]))
+    print("Combine predictions for Hybrid Ranked Algorithm")
     # for each user in the User based prediction
     for user in user_based_users_prediction:
         k = 0   # k represent the rank position of the item in the user predictions
