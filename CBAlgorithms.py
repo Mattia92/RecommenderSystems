@@ -300,6 +300,54 @@ def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_us
     #                user_user_KNN_similarity_dictionary[user][sim_user[0]] = user_user_similarity_dictionary[user][sim_user[0]]
     #     return user_user_KNN_similarity_dictionary
 
+def CBItemItemSimilarity(active_items_dictionary, item_attribute_dictionary, attribute_items_dictionary, similarity_shrink):
+    item_item_similarity_dictionary = {}
+    item_item_similarity_dictionary_num = {}
+    item_similarity_dictionary_norm = {}
+
+    print ("Create dictionaries for CB item-item similarity")
+
+    i = 1
+    size = len(active_items_dictionary)
+    for item in active_items_dictionary:
+        print (str(i) + "/" + str(size))
+        i = i + 1
+        item_att = item_attribute_dictionary[item].keys()
+        item_item_similarity_dictionary_num[item] = {}
+        for att in item_att[:6]:
+            item_list = attribute_items_dictionary[att].keys()
+            for ij in item_list[:200]:
+                if ij == item:
+                    continue
+                else:
+                    if(item_item_similarity_dictionary_num[item].has_key(ij)):
+                        item_item_similarity_dictionary_num[item][ij] += item_attribute_dictionary[item][att] *\
+                                                                         item_attribute_dictionary[ij][att]
+                    else:
+                        item_item_similarity_dictionary_num[item][ij] = item_attribute_dictionary[item][att] *\
+                                                                        item_attribute_dictionary[ij][att]
+    for item in item_attribute_dictionary:
+        for attribute in item_attribute_dictionary[item]:
+            if (item_similarity_dictionary_norm.has_key(item)):
+                item_similarity_dictionary_norm[item] += math.pow(item_attribute_dictionary[item][attribute], 2)
+            else:
+                item_similarity_dictionary_norm[item] = math.pow(item_attribute_dictionary[item][attribute], 2)
+        item_similarity_dictionary_norm[item] = math.sqrt(item_similarity_dictionary_norm[item])
+
+    print ("Similarities estimate:")
+    i = 1
+    size = len(item_item_similarity_dictionary_num)
+    for item in item_item_similarity_dictionary_num:
+        print (str(i) + "/" + str(size))
+        i = i + 1
+        item_item_similarity_dictionary[item] = {}
+        for item_j in item_item_similarity_dictionary_num[item]:
+            item_item_similarity_dictionary[item][item_j] = item_item_similarity_dictionary_num[item][item_j] / \
+                                                            (item_similarity_dictionary_norm[item] *
+                                                             item_similarity_dictionary_norm[item_j] + similarity_shrink)
+
+    return item_item_similarity_dictionary
+
 # Function to create the recommendations for User_Based
 def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
                                      prediction_shrink):
@@ -353,6 +401,53 @@ def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
                 if (active_items_to_recommend.has_key(item)):
                     users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
                                                               (users_prediction_dictionary_norm[user] + prediction_shrink)
+
+    return users_prediction_dictionary
+
+def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similarity_dictionary, user_items_dictionary, target_users_dictionary,
+                                     prediction_shrink):
+    print ("Create dictionaries for CF Item Based user predictions")
+    # Create the dictionary for users prediction
+    # dict {user -> (list of {item -> prediction})}
+    users_prediction_dictionary = {}
+    users_prediction_dictionary_num = {}
+    users_prediction_dictionary_den = {}
+    # For each target user
+    for uu in target_users_dictionary:
+        users_prediction_dictionary_num[uu] = {}
+        users_prediction_dictionary_den[uu] = {}
+        # If user has interact with at least one item
+        if (user_items_dictionary.has_key(uu)):
+            # Get dictionary of items with which the user has interact
+            i_r_dict = user_items_dictionary[uu]
+            # For each item in this dictionary
+            for ij in i_r_dict:
+                # Get the dictionary of similar items and the value of similarity
+                if (ij in active_items_dictionary):
+                    ij_s_dict = item_item_similarity_dictionary[ij]
+                    # For each similar item in the dictionary
+                    for ii in ij_s_dict:
+                        if (i_r_dict.has_key(ii)):
+                            continue
+                        # If the item was not predicted yet for the user, add it
+                        if not (users_prediction_dictionary_num[uu].has_key(ii)):
+                            users_prediction_dictionary_num[uu][ii] = i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
+                        # Else Evaluate its contribution
+                        else:
+                            users_prediction_dictionary_num[uu][ii] += i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
+
+    print ("Ratings estimate:")
+    # For each target user (users_prediction_dictionary_num contains all target users)
+    for uu in users_prediction_dictionary_num:
+        users_prediction_dictionary[uu] = {}
+        # For each item predicted for the user
+        for ii in users_prediction_dictionary_num[uu]:
+            # Evaluate the prediction of that item for that user
+            if (active_items_dictionary.has_key(ii)):
+                users_prediction_dictionary[uu][ii] = users_prediction_dictionary_num[uu][ii] / \
+                                                      (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
 
     return users_prediction_dictionary
 

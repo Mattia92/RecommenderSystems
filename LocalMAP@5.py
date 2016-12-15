@@ -43,6 +43,7 @@ for item, state in active_items_idx.values:
 
 # Filename for the output result
 CB_UB_MAP_Output = "TestDataSet/CB_MAP_User_Based.csv"
+CB_IB_MAP_Output = "TestDataSet/CB_MAP_Item_Based.csv"
 CF_UB_MAP_Output = "TestDataSet/CF_MAP_User_Based.csv"
 CF_IB_MAP_Output = "TestDataSet/CF_MAP_Item_Based.csv"
 CF_Hybrid_Weighted_MAP_Output = "TestDataSet/CF_MAP_Hybrid_Weighted.csv"
@@ -51,6 +52,10 @@ CF_Hybrid_Ranked_MAP_Output = "TestDataSet/CF_MAP_Hybrid_Ranked.csv"
 # Shrink values for Content User Based
 CB_UB_similarity_shrink = 10
 CB_UB_prediction_shrink = 10
+
+# Shrink values for Collaborative Filtering Item Based
+CF_IB_similarity_shrink = 20
+CF_IB_prediction_shrink = 10
 
 # Shrink values for Collaborative Filtering User Based
 CF_UB_similarity_shrink = 10
@@ -98,12 +103,12 @@ CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
 CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.InitializeDictionaries_user(user_profile, user_cols)
 
 # Dictionaries for Content Item Based Algorithms
-CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.InitializeDictionaries_item(item_profile, item_cols)
+#CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.InitializeDictionaries_item(item_profile, item_cols)
 
 # Compute TF and IDF
 print ("Computing TF and IDF")
 CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.ComputeTF_IDF(CB_user_attributes_dictionary, CB_attribute_users_dictionary)
-
+#CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.ComputeTF_IDF(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
 # Create the dictionaries needed to compute the similarity between users or items
 # It is the User Rating Matrix build with dictionaries
 # Dictionary is a list of elements, each element is defined as following
@@ -127,6 +132,15 @@ CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendatio
 
 # Write the final Result for Collaborative Filtering User Based
 CBAlgorithms.CBWriteResult(CB_UB_MAP_Output, CB_UB_users_prediction_dictionary)
+
+#CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarity(active_items_to_recommend, CB_item_attributes_dictionary,
+#                                                                       CB_attribute_items_dictionary, CB_IB_similarity_shrink)
+
+#CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
+#                                                                                  CF_user_items_dictionary, target_users_dictionary,
+#                                                                                CF_IB_prediction_shrink)
+
+#CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 
 # Compute the User-User Similarity for Collaborative Filtering User Based
 CF_user_user_similarity_dictionary = CFAlgorithms.CFUserUserSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,

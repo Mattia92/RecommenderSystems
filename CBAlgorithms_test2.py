@@ -242,6 +242,9 @@ def ComputeTF_IDF(users_attributes, attributes_users, user_items_dictionary):
     for attribute in attributes_users:#.keys():
         attributes_users[attribute] = OrderedDict(
             sorted(attributes_users[attribute].items(), key=lambda t: -t[1]))
+    for user in users_attributes:
+        users_attributes[user] = OrderedDict(
+            sorted(users_attributes[user].items(), key=lambda t: -t[1]))
 
     return users_attributes, attributes_users
 
@@ -326,12 +329,11 @@ def CBItemItemSimilarity(active_items_dictionary, item_attribute_dictionary, att
     for item in active_items_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
-        item_att = item_attribute_dictionary[item]
+        item_att = item_attribute_dictionary[item].keys()
         item_item_similarity_dictionary_num[item] = {}
-        for att in item_att:
+        for att in item_att[:6]:
             item_list = attribute_items_dictionary[att].keys()
-
-            for ij in item_list[:5]:
+            for ij in item_list[:200]:
                 if ij == item:
                     continue
                 else:
@@ -350,8 +352,11 @@ def CBItemItemSimilarity(active_items_dictionary, item_attribute_dictionary, att
         item_similarity_dictionary_norm[item] = math.sqrt(item_similarity_dictionary_norm[item])
 
     print ("Similarities estimate:")
-
+    i = 1
+    size = len(item_item_similarity_dictionary_num)
     for item in item_item_similarity_dictionary_num:
+        print (str(i) + "/" + str(size))
+        i = i + 1
         item_item_similarity_dictionary[item] = {}
         for item_j in item_item_similarity_dictionary_num[item]:
             item_item_similarity_dictionary[item][item_j] = item_item_similarity_dictionary_num[item][item_j] / \
@@ -429,6 +434,7 @@ def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similari
     # For each target user
     for uu in target_users_dictionary:
         users_prediction_dictionary_num[uu] = {}
+        users_prediction_dictionary_den[uu] = {}
         # If user has interact with at least one item
         if (user_items_dictionary.has_key(uu)):
             # Get dictionary of items with which the user has interact
@@ -436,19 +442,20 @@ def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similari
             # For each item in this dictionary
             for ij in i_r_dict:
                 # Get the dictionary of similar items and the value of similarity
-                ij_s_dict = item_item_similarity_dictionary[ij]
-                # For each similar item in the dictionary
-                for ii in ij_s_dict:
-                    if (i_r_dict.has_key(ii)):
-                        continue
-                    # If the item was not predicted yet for the user, add it
-                    if not (users_prediction_dictionary_num[uu].has_key(ii)):
-                        users_prediction_dictionary_num[uu][ii] = i_r_dict[ij] * ij_s_dict[ii]
-                        users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
-                    # Else Evaluate its contribution
-                    else:
-                        users_prediction_dictionary_num[uu][ii] += i_r_dict[ij] * ij_s_dict[ii]
-                        users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
+                if (ij in active_items_dictionary):
+                    ij_s_dict = item_item_similarity_dictionary[ij]
+                    # For each similar item in the dictionary
+                    for ii in ij_s_dict:
+                        if (i_r_dict.has_key(ii)):
+                            continue
+                        # If the item was not predicted yet for the user, add it
+                        if not (users_prediction_dictionary_num[uu].has_key(ii)):
+                            users_prediction_dictionary_num[uu][ii] = i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
+                        # Else Evaluate its contribution
+                        else:
+                            users_prediction_dictionary_num[uu][ii] += i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate:")
     # For each target user (users_prediction_dictionary_num contains all target users)
