@@ -2,7 +2,6 @@ from __future__ import division
 import math
 import numpy
 from collections import OrderedDict
-from collections import Counter
 
 #Function to initialize users_attributes and attributes_users dictionaries
 def InitializeDictionaries_user(user_profile, user_cols):
@@ -39,12 +38,14 @@ def InitializeDictionaries_user(user_profile, user_cols):
                             users_attributes[row['user']][att + '_' + str(f)] = 1
                 # if the attribute is country don't consider float values
                 elif (att == 'country'):
-                    if type(row[att]) == str:
-                        users_attributes[row['user']][att + '_' + str(row[att])] = 1
+                    continue
+                    #if type(row[att]) == str:
+                    #    users_attributes[row['user']][att + '_' + str(row[att])] = 1
                 # only the user user having country equal to de has this attribute
                 elif (att == 'region'):
-                    if (row['country'] == 'de'):
-                        users_attributes[row['user']][att + '_' + str(row[att])] = 1
+                    continue
+                    #if (row['country'] == 'de'):
+                    #    users_attributes[row['user']][att + '_' + str(row[att])] = 1
                 # if the attribute is edu_deg don't consider null value or 0
                 elif (att == 'edu_deg'):
                     if not (math.isnan(row[att]) or row[att] == 0):
@@ -87,17 +88,19 @@ def InitializeDictionaries_user(user_profile, user_cols):
                             attributes_users[att + '_' + str(f)][row['user']] = 1
                 # if the attribute is country don't consider float values
                 elif (att == 'country'):
-                    if type(row[att]) == str:
-                        if not attributes_users.has_key(att + '_' + str(row[att])):
-                            attributes_users[att + '_' + str(row[att])] = {}
-                        attributes_users[att + '_' + str(row[att])][row['user']] = 1
+                    continue
+                    #if type(row[att]) == str:
+                    #    if not attributes_users.has_key(att + '_' + str(row[att])):
+                    #        attributes_users[att + '_' + str(row[att])] = {}
+                    #    attributes_users[att + '_' + str(row[att])][row['user']] = 1
                 # only the user user having country equal to de has this attribute
                 elif (att == 'region'):
-                    if (row['country'] == 'de'):
-                        if not attributes_users.has_key(att + '_' + str(row[att])):
-                            attributes_users[att + '_' + str(row[att])] = {}
-                        attributes_users[att + '_' + str(row[att])][row['user']] = 1
-                        # if the attribute is one of the following consider them only if they are not equal to 0
+                    continue
+                    #if (row['country'] == 'de'):
+                    #    if not attributes_users.has_key(att + '_' + str(row[att])):
+                    #        attributes_users[att + '_' + str(row[att])] = {}
+                    #    attributes_users[att + '_' + str(row[att])][row['user']] = 1
+                # if the attribute is one of the following consider them only if they are not equal to 0
                 elif (att == 'career' or att == 'exp_years' or att == 'exp_years_current'):
                     if not (row[att] == 0 or math.isnan(row[att])):
                         if not attributes_users.has_key(att + '_' + str(row[att])):
@@ -150,12 +153,18 @@ def InitializeDictionaries_item(item_profile, item_cols):
                         items_attributes[row['item']][att + '_' + str(row[att])] = 1
                 # if the attribute is country don't consider float values
                 elif (att == 'country'):
-                    if type(row[att]) == str:
-                        items_attributes[row['item']][att + '_' + str(row[att])] = 1
+                    continue
+                    #if type(row[att]) == str:
+                    #    items_attributes[row['item']][att + '_' + str(row[att])] = 1
                 # only the item having country equal to de has this attribute
                 elif (att == 'region'):
-                    if (row['country'] == 'de'):
-                        items_attributes[row['item']][att + '_' + str(row[att])] = 1
+                    continue
+                    #if (row['country'] == 'de'):
+                    #    items_attributes[row['item']][att + '_' + str(row[att])] = 1
+                elif (att == 'created_at' or att == 'active_during_test'):
+                    continue
+                elif(att == 'latitude' or att == 'longitude'):
+                    continue
                 # if the column type is int or float discard Null values
                 elif (item_profile[att].dtype == numpy.int64 or item_profile[att].dtype == numpy.float64):
                     if not (math.isnan(row[att])):
@@ -164,7 +173,7 @@ def InitializeDictionaries_item(item_profile, item_cols):
     # Create the dictionary containing for each attribute the list of users which have it
     # Dictionary is a list of elements, each element is defined as following
     # dict {attribute -> (list of {user -> value})}
-    print ("Create attributes_users dictionary")
+    print ("Create attributes_items dictionary")
     attributes_items = {}
     # for each row of the user_profile csv
     for i, row in item_profile.iterrows():
@@ -189,16 +198,22 @@ def InitializeDictionaries_item(item_profile, item_cols):
                         attributes_items[att + '_' + str(row[att])][row['item']] = 1
                 # if the attribute is country don't consider float values
                 elif (att == 'country'):
-                    if type(row[att]) == str:
-                        if not attributes_items.has_key(att + '_' + str(row[att])):
-                            attributes_items[att + '_' + str(row[att])] = {}
-                        attributes_items[att + '_' + str(row[att])][row['item']] = 1
+                    continue
+                    #if type(row[att]) == str:
+                    #    if not attributes_items.has_key(att + '_' + str(row[att])):
+                    #        attributes_items[att + '_' + str(row[att])] = {}
+                    #    attributes_items[att + '_' + str(row[att])][row['item']] = 1
                 # only the user user having country equal to de has this attribute
                 elif (att == 'region'):
-                    if (row['country'] == 'de'):
-                        if not attributes_items.has_key(att + '_' + str(row[att])):
-                            attributes_items[att + '_' + str(row[att])] = {}
-                        attributes_items[att + '_' + str(row[att])][row['item']] = 1
+                    continue
+                    #if (row['country'] == 'de'):
+                    #    if not attributes_items.has_key(att + '_' + str(row[att])):
+                    #        attributes_items[att + '_' + str(row[att])] = {}
+                    #    attributes_items[att + '_' + str(row[att])][row['item']] = 1
+                elif (att == 'created_at' or att == 'active_during_test'):
+                    continue
+                elif(att == 'latitude' or att == 'longitude'):
+                    continue
                 # if the column type is int or float discard Null values
                 elif (item_profile[att].dtype == numpy.int64 or item_profile[att].dtype == numpy.float64):
                     if not (math.isnan(row[att])):
@@ -228,11 +243,14 @@ def ComputeTF_IDF(users_attributes, attributes_users):
     for attribute in attributes_users:#.keys():
         attributes_users[attribute] = OrderedDict(
             sorted(attributes_users[attribute].items(), key=lambda t: -t[1]))
+    for user in users_attributes:
+        users_attributes[user] = OrderedDict(
+            sorted(users_attributes[user].items(), key=lambda t: -t[1]))
 
     return users_attributes, attributes_users
 
 # Function to build the User-User Similarity Dictionary
-def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
+def CBUserUserSimilarity(target_users_dictionary, user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
     # Create the dictionary for the user_user similarity
     # dict {user -> (list of {user -> similarity})}
     user_user_similarity_dictionary = {}
@@ -242,29 +260,28 @@ def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_us
     print ("Create dictionaries for CB user-user similarity")
     # For each user in the dictionary
     i = 1
-    size = len(user_attributes_dictionary)
-    for user in user_attributes_dictionary:
+    size = len(target_users_dictionary)
+    for user in target_users_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
         # Calculate the similarity only for the target users
-        if user in target_users['user_id'].unique():
-            user_att = user_attributes_dictionary[user] #dictionary of all the attributes of the user
-            user_user_similarity_dictionary_num[user] = {}
-            # For each attribute of the user
-            for att in user_att:
-                user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
-                # for first 10 users
-                for u in user_list[:600]:
-                    # Don't consider the similarity between the same users
-                    if u == user:
-                        continue
-                    else:
-                        # Create the dictionary containing the numerator of the similarity
-                        if(user_user_similarity_dictionary_num[user].has_key(u)):
-                            user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
+        user_att = user_attributes_dictionary[user] #dictionary of all the attributes of the user
+        user_user_similarity_dictionary_num[user] = {}
+        # For each attribute of the user
+        for att in user_att:
+            user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
+            # for first 10 users
+            for u in user_list[:550]:
+                # Don't consider the similarity between the same users
+                if u == user:
+                    continue
+                else:
+                    # Create the dictionary containing the numerator of the similarity
+                    if(user_user_similarity_dictionary_num[user].has_key(u)):
+                        user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
                                                                             user_attributes_dictionary[u][att]
-                        else:
-                            user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] *\
+                    else:
+                        user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] *\
                                                                             user_attributes_dictionary[u][att]
     # For each user in the dictionary
     for user in user_attributes_dictionary:
@@ -300,6 +317,7 @@ def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_us
     #                user_user_KNN_similarity_dictionary[user][sim_user[0]] = user_user_similarity_dictionary[user][sim_user[0]]
     #     return user_user_KNN_similarity_dictionary
 
+# Function to build the Item-Item Similarity Dictionary
 def CBItemItemSimilarity(active_items_dictionary, item_attribute_dictionary, attribute_items_dictionary, similarity_shrink):
     item_item_similarity_dictionary = {}
     item_item_similarity_dictionary_num = {}
@@ -349,7 +367,7 @@ def CBItemItemSimilarity(active_items_dictionary, item_attribute_dictionary, att
     return item_item_similarity_dictionary
 
 # Function to create the recommendations for User_Based
-def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
+def CBUserBasedPredictRecommendation(target_users_dictionary, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
                                      prediction_shrink):
     print ("Create dictionaries for CB User Based user predictions")
     # Create the dictionary for users prediction
@@ -358,7 +376,7 @@ def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
     users_prediction_dictionary_num = {}
     users_prediction_dictionary_norm = {}
     # For each target user
-    for user in target_users['user_id']:
+    for user in target_users_dictionary:
         users_prediction_dictionary_num[user] = {}
         # Get dictionary of similar users and the value of similarity
         uus_list = user_user_similarity_dictionary[user]
