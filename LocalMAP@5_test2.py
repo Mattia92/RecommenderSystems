@@ -29,7 +29,6 @@ validation = pd.read_csv('TestDataSet/validationSet.csv', sep=',', header=0)
 # Dictionary with only active items
 active_items_to_recommend = {}
 for item, state in active_items_idx.values:
-    print item
     active_items_to_recommend[item] = state
 
 # Filename for the output result
