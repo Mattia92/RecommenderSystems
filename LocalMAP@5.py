@@ -130,16 +130,19 @@ CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendatio
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
                                                                                   CB_UB_prediction_shrink)
 
-# Write the final Result for Collaborative Filtering User Based
+# Write the final Result for Content User Based
 CBAlgorithms.CBWriteResult(CB_UB_MAP_Output, CB_UB_users_prediction_dictionary)
 
+# Compute the Ite-Item Similarity for Content Item Based
 #CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarity(active_items_to_recommend, CB_item_attributes_dictionary,
 #                                                                       CB_attribute_items_dictionary, CB_IB_similarity_shrink)
 
+# Compute the Prediction for Content Item Based
 #CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
 #                                                                                  CF_user_items_dictionary, target_users_dictionary,
 #                                                                                CF_IB_prediction_shrink)
 
+# Write the final Result for Content Item Based
 #CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 
 # Compute the User-User Similarity for Collaborative Filtering User Based
