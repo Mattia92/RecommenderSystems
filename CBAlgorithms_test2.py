@@ -123,7 +123,7 @@ def InitializeDictionaries(user_profile, user_cols):
     return users_attributes, attributes_users
 
 # Function to compute TF and IDF
-def ComputeTF_IDF(users_attributes, attributes_users):
+def ComputeTF_IDF(users_attributes, attributes_users, user_items_dictionary):
     # create the tf(time frequency) dictionary for each user
     # each attribute of the same user has the same tf value
     users_tf = {}
@@ -138,6 +138,7 @@ def ComputeTF_IDF(users_attributes, attributes_users):
     for user in users_attributes:#.keys():
         for attribute in users_attributes[user]:#.keys():
             users_attributes[user][attribute] *= users_tf[user] * attributes_idf[attribute]
+            #if user in user_items_dictionary:
             attributes_users[attribute][user] *= users_tf[user] * attributes_idf[attribute]
     # sort the dictionary by attribute values
     for attribute in attributes_users:#.keys():
@@ -147,7 +148,7 @@ def ComputeTF_IDF(users_attributes, attributes_users):
     return users_attributes, attributes_users
 
 # Function to build the User-User Similarity Dictionary
-def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
+def CBUserUserSimilarity(target_users_dictionary, user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
     # Create the dictionary for the user_user similarity
     # dict {user -> (list of {user -> similarity})}
     user_user_similarity_dictionary = {}
@@ -157,30 +158,29 @@ def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_us
     print ("Create dictionaries for CB user-user similarity")
     # For each user in the dictionary
     i = 1
-    size = len(user_attributes_dictionary)
-    for user in user_attributes_dictionary:
+    size = len(target_users_dictionary)
+    for user in target_users_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
         # Calculate the similarity only for the target users
-        if user in target_users['user_id'].unique():
-            user_att = user_attributes_dictionary[user] #dictionary of all the attributes of the user
-            user_user_similarity_dictionary_num[user] = {}
-            # For each attribute of the user
-            for att in user_att:
-                user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
-                # for first 10 users
-                for u in user_list[:1000]:
-                    # Don't consider the similarity between the same users
-                    if u == user:
-                        continue
+        user_att = user_attributes_dictionary[user] #dictionary of all the attributes of the user
+        user_user_similarity_dictionary_num[user] = {}
+        # For each attribute of the user
+        for att in user_att:
+            user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
+            # for first 10 users
+            for u in user_list[:1000]:
+                # Don't consider the similarity between the same users
+                if u == user:
+                    continue
+                else:
+                    # Create the dictionary containing the numerator of the similarity
+                    if(user_user_similarity_dictionary_num[user].has_key(u)):
+                        user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
+                                                                        user_attributes_dictionary[u][att]
                     else:
-                        # Create the dictionary containing the numerator of the similarity
-                        if(user_user_similarity_dictionary_num[user].has_key(u)):
-                            user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
-                                                                            user_attributes_dictionary[u][att]
-                        else:
-                            user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] *\
-                                                                            user_attributes_dictionary[u][att]
+                        user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] *\
+                                                                        user_attributes_dictionary[u][att]
     # For each user in the dictionary
     for user in user_attributes_dictionary:
         # For each attribute of the user
@@ -217,7 +217,7 @@ def CBUserUserSimilarity(target_users, user_attributes_dictionary, attributes_us
     return user_user_similarity_dictionary
 
 # Function to create the recommendations for User_Based
-def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
+def CBUserBasedPredictRecommendation(target_users_dictionary, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
                                      prediction_shrink):
     print ("Create dictionaries for CB User Based user predictions")
     # Create the dictionary for users prediction
@@ -226,7 +226,7 @@ def CBUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
     users_prediction_dictionary_num = {}
     users_prediction_dictionary_norm = {}
     # For each target user
-    for user in target_users['user_id']:
+    for user in target_users_dictionary:
         users_prediction_dictionary_num[user] = {}
         # If user has similar users
         if (user_user_similarity_dictionary.has_key(user)):

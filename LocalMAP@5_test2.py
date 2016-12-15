@@ -8,6 +8,8 @@ import ValidationAlgorithm as va
 cols = ['user_id', 'item_id', 'interaction']
 interactions = pd.read_csv('TestDataSet/trainingSet.csv', sep='\t', names=cols, header=0)
 
+interacted_users = pd.read_csv('DataSet/interactions.csv',sep = '\t', header = 0)
+
 items = pd.read_csv('DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
 active_items_idx = active_items[['item_id', 'active_during_test']]
@@ -16,7 +18,7 @@ user_cols = ['user', 'job', 'career', 'discipline', 'industry', 'country', 'regi
              'edu_deg', 'edu_fiel']
 user_profile = pd.read_csv('DataSet/user_profile.csv', sep='\t', names=user_cols, header=0)
 
-target_users = pd.read_csv('DataSet/target_users.csv')
+target_users = pd.read_csv('DataSet/target_users.csv', header = 0)
 
 validation = pd.read_csv('TestDataSet/validationSet.csv', sep=',', header=0)
 
@@ -72,6 +74,18 @@ CF_item_users_dictionary = {}
 # Dictionary for using IDF in Collaborative Filtering Item Based
 CF_IB_IDF = {}
 
+target_users_dictionary = {}
+for user in target_users['user_id']:
+    target_users_dictionary[user] = 0
+
+print ("Create dictionaries for users and items")
+for user, item, interaction in interactions.values:
+    CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
+
+# dict {item -> (list of {user -> interaction})}
+for user, item, interaction in interactions.values:
+    CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
+
 # Dictionaries for Content User Based Algorithms
 # Create the dictionary needed to compute the similarity between users
 # It is the User content matrix build with dictionaries
@@ -84,19 +98,14 @@ CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.Init
 
 # Compute TF and IDF
 print ("Computing TF and IDF")
-CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.ComputeTF_IDF(CB_user_attributes_dictionary, CB_attribute_users_dictionary)
+CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.ComputeTF_IDF(CB_user_attributes_dictionary, CB_attribute_users_dictionary,
+                                                                                          CF_user_items_dictionary)
 
 # Create the dictionaries needed to compute the similarity between users or items
 # It is the User Rating Matrix build with dictionaries
 # Dictionary is a list of elements, each element is defined as following
 # dict {user -> (list of {item -> interaction})}
-print ("Create dictionaries for users and items")
-for user, item, interaction in interactions.values:
-    CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
 
-# dict {item -> (list of {user -> interaction})}
-for user, item, interaction in interactions.values:
-    CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
 
 print ("Create dictionary for CF_IDF")
 for user, item, interaction in interactions.values:
@@ -105,11 +114,11 @@ for user, item, interaction in interactions.values:
     CF_IB_IDF[item] += 1
 
 # Compute the User-User Similarity for Content User Based
-CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users, CB_user_attributes_dictionary,
+CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users_dictionary, CB_user_attributes_dictionary,
                                                                        CB_attribute_users_dictionary, CB_UB_similarity_shrink, CB_UB_KNN)
 
 # Compute the Prediction for Content User Based
-CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendation(target_users, CB_user_user_similarity_dictionary,
+CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendation(target_users_dictionary, CB_user_user_similarity_dictionary,
                                                                                   CF_user_items_dictionary, active_items_to_recommend,
                                                                                   CB_UB_prediction_shrink)
 
