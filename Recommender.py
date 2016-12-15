@@ -83,7 +83,7 @@ CF_Hybrid_Weight = 0.4
 CB_UB_KNN = 600
 
 # Values of KNN for CF Similarities, KNN = 0 means to not use the KNN technique
-CF_UB_KNN = 110
+CF_UB_KNN = 130
 CF_IB_KNN = 0
 
 # Values of KNN for Ranked Prediction
