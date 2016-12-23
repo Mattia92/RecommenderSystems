@@ -330,11 +330,11 @@ def CBItemItemSimilarity(active_items_dictionary, item_attribute_dictionary, att
     for item in active_items_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
-        item_att = item_attribute_dictionary[item]
+        item_att = item_attribute_dictionary[item].keys()
         item_item_similarity_dictionary_num[item] = {}
-        for att in item_att:
-            item_list = attribute_items_dictionary[att].keys()
-            for ij in item_list[:600]:
+        for att in item_att[:10]:
+            item_list = attribute_items_dictionary[att]#.keys()
+            for ij in item_list:#[:600]:
                 if ij == item:
                     continue
                 else:
@@ -374,15 +374,23 @@ def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_similarit
     if (KNN == 0):
         return item_item_similarity_dictionary
     else:
-        item_item_KNN_similarity_dictionary = {}
+        #item_item_KNN_similarity_dictionary = {}
         for item in item_item_similarity_dictionary:
-            item_item_KNN_similarity_dictionary[item] = {}
-            KNN_sim_items = sorted(item_item_similarity_dictionary[item].items(), key=operator.itemgetter(1))
-            KNN_sim_items_desc = sorted(KNN_sim_items, key=lambda tup: -tup[1])
-            for sim_item in KNN_sim_items_desc:
-                if (len(item_item_KNN_similarity_dictionary[item]) < KNN):
-                    item_item_KNN_similarity_dictionary[item][sim_item[0]] = item_item_similarity_dictionary[item][sim_item[0]]
-        return item_item_KNN_similarity_dictionary
+            item_item_similarity_dictionary[item] = OrderedDict(sorted(item_item_similarity_dictionary[item].items(), key=lambda t: -t[1]))
+            while (len(item_item_similarity_dictionary[item]) > KNN):
+                item_to_remove = item_item_similarity_dictionary[item].keys()[-1]
+                del item_item_similarity_dictionary[item][item_to_remove]
+
+        return item_item_similarity_dictionary
+            #item_item_KNN_similarity_dictionary[item] = {}
+            #KNN_sim_items = sorted(item_item_similarity_dictionary[item].items(), key=operator.itemgetter(1))
+            #KNN_sim_items_desc = sorted(KNN_sim_items, key=lambda tup: -tup[1])
+            #while (len(KNN_sim_items_desc) > KNN):
+                #del KNN_sim_items_desc[-1]
+            #for sim_item in KNN_sim_items_desc:
+                #if (len(item_item_KNN_similarity_dictionary[item]) < KNN):
+                    #item_item_KNN_similarity_dictionary[item][sim_item[0]] = item_item_similarity_dictionary[item][sim_item[0]]
+        #return item_item_KNN_similarity_dictionary
 
 # Function to create the recommendations for User_Based
 def CBUserBasedPredictRecommendation(target_users_dictionary, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
