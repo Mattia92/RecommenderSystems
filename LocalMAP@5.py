@@ -97,7 +97,7 @@ CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 
 # Dictionary for using IDF in Collaborative Filtering Item Based
-CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
+CF_IDF = CFAlgorithms.CF_IDF(interactions)
 
 # Dictionary for the target users
 target_users_dictionary = {}
@@ -154,22 +154,22 @@ CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.Comp
 #CBAlgorithms.CBWriteResult(CB_UB_MAP_Output, CB_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Content Item Based
-CB_item_item_similarity_dictionary, CB_item_item_similarity_dictionary_norm  = CBAlgorithms.CBItemItemSimilarity(CF_item_users_dictionary, active_items_to_recommend,
-                                                                                                                 CB_item_attributes_dictionary, CB_attribute_items_dictionary)
-del CB_attribute_items_dictionary
+#CB_item_item_similarity_dictionary, CB_item_item_similarity_dictionary_norm  = CBAlgorithms.CBItemItemSimilarity(CF_item_users_dictionary, active_items_to_recommend,
+#                                                                                                                 CB_item_attributes_dictionary, CB_attribute_items_dictionary)
+#del CB_attribute_items_dictionary
 
-CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimate(CB_item_item_similarity_dictionary, CB_item_item_similarity_dictionary_norm,
-                                                                               CB_IB_similarity_shrink, CB_IB_KNN)
-del CB_item_item_similarity_dictionary_norm
+#CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimate(CB_item_item_similarity_dictionary, CB_item_item_similarity_dictionary_norm,
+#                                                                               CB_IB_similarity_shrink, CB_IB_KNN)
+#del CB_item_item_similarity_dictionary_norm
 
 # Compute the Prediction for Content Item Based
-CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
-                                                                                  CF_user_items_dictionary, target_users_dictionary,
-                                                                                  CF_IB_prediction_shrink)
-del CB_item_item_similarity_dictionary
+#CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
+#                                                                                  CF_user_items_dictionary, target_users_dictionary,
+#                                                                                  CF_IB_prediction_shrink)
+#del CB_item_item_similarity_dictionary
 
 # Write the final Result for Content Item Based
-CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
+#CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 
 # Compute the User-User Similarity for Collaborative Filtering User Based
 #CF_user_user_similarity_dictionary = CFAlgorithms.CFUserUserSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
@@ -185,22 +185,22 @@ CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 #CFAlgorithms.CFWriteResult(CF_UB_MAP_Output, CF_UB_users_prediction_dictionary)
 
 # Compute the User-User Similarity for Collaborative Filtering Hybrid User Based
-#CF_HB_user_user_similarity_dictionary = CFAlgorithms.CFHybridUserUserSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
-#                                                                                CB_user_attributes_dictionary, CF_UB_similarity_shrink,
-#                                                                                CB_UB_similarity_shrink, CF_UB_KNN, CF_HB_UB_w)
-#del CB_user_attributes_dictionary
+CF_HB_user_user_similarity_dictionary = CFAlgorithms.CFHybridUserUserSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
+                                                                                CB_user_attributes_dictionary, CF_UB_similarity_shrink,
+                                                                                CB_UB_similarity_shrink, CF_UB_KNN, CF_HB_UB_w)
+del CB_user_attributes_dictionary
 
 # Compute the Prediction for Collaborative Filtering Hybrid User Based
-#CF_HB_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictRecommendation(target_users, CF_HB_user_user_similarity_dictionary,
-#                                                                                    CF_user_items_dictionary, active_items_to_recommend,
-#                                                                                    CF_UB_prediction_shrink)
-#CF_HB_UB_users_prediction_dictionary_normalized = CFAlgorithms.CFUserBasedPredictNormalizedRecommendation(target_users, CF_HB_user_user_similarity_dictionary,
-#                                                                                                          CF_user_items_dictionary, active_items_to_recommend,
-#                                                                                                          CF_UB_prediction_shrink)
-#del CF_HB_user_user_similarity_dictionary
+CF_HB_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictRecommendation(target_users, CF_HB_user_user_similarity_dictionary,
+                                                                                    CF_user_items_dictionary, active_items_to_recommend,
+                                                                                    CF_UB_prediction_shrink)
+CF_HB_UB_users_prediction_dictionary_normalized = CFAlgorithms.CFUserBasedPredictNormalizedRecommendation(target_users, CF_HB_user_user_similarity_dictionary,
+                                                                                                          CF_user_items_dictionary, active_items_to_recommend,
+                                                                                                          CF_UB_prediction_shrink)
+del CF_HB_user_user_similarity_dictionary
 
 # Write the final Result for Collaborative Filtering Hybrid User Based
-#CFAlgorithms.CFWriteResult(CF_HB_UB_MAP_Output, CF_HB_UB_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_HB_UB_MAP_Output, CF_HB_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Collaborative Filtering Item Based
 #CF_item_item_similarity_dictionary = CFAlgorithms.CFItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
@@ -216,19 +216,19 @@ CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 #CFAlgorithms.CFWriteResult(CF_IB_MAP_Output, CF_IB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Collaborative Filtering Item Based
-#CF_HB_item_item_similarity_dictionary = CFAlgorithms.CFHybridItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
-#                                                                                CB_item_attributes_dictionary, CF_IB_similarity_shrink,
-#                                                                                CB_IB_similarity_shrink, CF_IB_KNN, CF_HB_IB_w)
-#del CB_item_attributes_dictionary
+CF_HB_item_item_similarity_dictionary = CFAlgorithms.CFHybridItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
+                                                                                CB_item_attributes_dictionary, CF_IB_similarity_shrink,
+                                                                                CB_IB_similarity_shrink, CF_IB_KNN, CF_HB_IB_w)
+del CB_item_attributes_dictionary
 
 # Compute the Prediction for Collaborative Filtering Hybrid Item Based
-#CF_HB_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_HB_item_item_similarity_dictionary,
-#                                                                                   CF_user_items_dictionary, active_items_to_recommend,
-#                                                                                   CF_IB_prediction_shrink, CF_IB_IDF)
-#CF_HB_IB_users_prediction_dictionary_normalized = CFAlgorithms.CFItemBasedPredictNormalizedRecommendation(target_users, CF_HB_item_item_similarity_dictionary,
-#                                                                                                          CF_user_items_dictionary, active_items_to_recommend,
-#                                                                                                          CF_IB_prediction_shrink, CF_IB_IDF)
-#del CF_HB_item_item_similarity_dictionary
+CF_HB_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_HB_item_item_similarity_dictionary,
+                                                                                   CF_user_items_dictionary, active_items_to_recommend,
+                                                                                   CF_IB_prediction_shrink, CF_IDF)
+CF_HB_IB_users_prediction_dictionary_normalized = CFAlgorithms.CFItemBasedPredictNormalizedRecommendation(target_users, CF_HB_item_item_similarity_dictionary,
+                                                                                                          CF_user_items_dictionary, active_items_to_recommend,
+                                                                                                          CF_IB_prediction_shrink, CF_IDF)
+del CF_HB_item_item_similarity_dictionary
 
 # Write the final Result for Collaborative Filtering Hybrid Item Based
 #CFAlgorithms.CFWriteResult(CF_HB_IB_MAP_Output, CF_HB_IB_users_prediction_dictionary)
@@ -271,10 +271,10 @@ CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 
 # Compute the LocalMAP@5
 #va.MAP(target_users, validation, CB_UB_MAP_Output)
-va.MAP(target_users, validation, CB_IB_MAP_Output)
+#va.MAP(target_users, validation, CB_IB_MAP_Output)
 #va.MAP(target_users, validation, CF_UB_MAP_Output)
-#va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
+va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_IB_MAP_Output)
-#va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
+va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
 #va.MAP(target_users, validation, CF_Hybrid_Weighted_MAP_Output)
-#va.MAP(target_users, validation, CF_Hybrid_Ranked_MAP_Output)
+va.MAP(target_users, validation, CF_Hybrid_Ranked_MAP_Output)

@@ -485,7 +485,7 @@ def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarit
 
 # Function to create the recommendations for Item_Based
 def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
-                                     prediction_shrink, CF_IB_IDF):
+                                     prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -510,11 +510,11 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
                         continue
                     # If the item was not predicted yet for the user, add it
                     if not (users_prediction_dictionary_num[uu].has_key(ii)):
-                        users_prediction_dictionary_num[uu][ii] = CF_IB_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
                     # Else Evaluate its contribution
                     else:
-                        users_prediction_dictionary_num[uu][ii] += CF_IB_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate:")
@@ -532,7 +532,7 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
 
 # Function to create the normalized recommendations for Item_Based
 def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
-                                               prediction_shrink, CF_IB_IDF):
+                                               prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -557,11 +557,11 @@ def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarit
                         continue
                     # If the item was not predicted yet for the user, add it
                     if not (users_prediction_dictionary_num[uu].has_key(ii)):
-                        users_prediction_dictionary_num[uu][ii] = CF_IB_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
                     # Else Evaluate its contribution
                     else:
-                        users_prediction_dictionary_num[uu][ii] += CF_IB_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate and Normalization:")
