@@ -40,6 +40,7 @@ active_items_to_recommend = {}
 for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
+# Filename for the output result
 CB_UB_Output = "Results/CB_User_Based.csv"
 CB_IB_Output = "Results/CB_Item_Based.csv"
 CF_UB_Output = "Results/CF_User_Based.csv"
@@ -54,7 +55,7 @@ CB_UB_similarity_shrink = 10
 CB_UB_prediction_shrink = 10
 
 # Shrink values for Content Item Based
-CB_IB_similarity_shrink = 20
+CB_IB_similarity_shrink = 5
 CB_IB_prediction_shrink = 10
 
 # Shrink values for Collaborative Filtering User Based
@@ -67,14 +68,14 @@ CF_IB_prediction_shrink = 10
 
 # Weight values for Collaborative Filtering, Content Based and Hybrid Ranking
 CF_User_Rank_Weight = 0.5
-CF_Item_Rank_Weight = 4
+CF_Item_Rank_Weight = 2
 CB_User_Rank_Weight = 0.5
 CB_Item_Rank_Weight = 0
 CF_Hybrid_Rank_Weight = 4
 
 # Weight for Hybrid Collaborative Filtering
-CF_HB_UB_w = 1
-CF_HB_IB_w = 2
+CF_HB_UB_w = 1.1
+CF_HB_IB_w = 1.5
 
 # Weight values for Collaborative Filtering Hybrid Weighted
 CF_Hybrid_Weight = 0.4
@@ -133,8 +134,8 @@ CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.Comp
 CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.ComputeTF_IDF(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
 
 # Compute the User-User Similarity for Content User Based
-CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users_dictionary, CB_user_attributes_dictionary, CB_attribute_users_dictionary,
-                                                                       CB_UB_similarity_shrink, CB_UB_KNN)
+CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users_dictionary, CF_user_items_dictionary, CB_user_attributes_dictionary,
+                                                                       CB_attribute_users_dictionary, CB_UB_similarity_shrink, CB_UB_KNN)
 del CB_attribute_users_dictionary
 
 # Compute the Prediction for Content User Based
