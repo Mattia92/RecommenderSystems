@@ -81,7 +81,7 @@ CF_HB_IB_w = 1.5
 CF_Hybrid_Weight = 0.4
 
 # Values of KNN for CB Similarities, KNN = 0 means to not use the KNN technique
-CB_UB_KNN = 600
+CB_UB_KNN = 500
 CB_IB_KNN = 0
 
 # Values of KNN for CF Similarities, KNN = 0 means to not use the KNN technique

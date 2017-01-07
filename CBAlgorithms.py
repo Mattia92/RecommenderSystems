@@ -39,14 +39,14 @@ def InitializeDictionaries_user(user_profile, user_cols):
                             users_attributes[row['user']][att + '_' + str(f)] = 1
                 # if the attribute is country don't consider float values
                 elif (att == 'country'):
-                    continue
-                    #if type(row[att]) == str:
-                    #    users_attributes[row['user']][att + '_' + str(row[att])] = 1
+                    #continue
+                    if type(row[att]) == str:
+                        users_attributes[row['user']][att + '_' + str(row[att])] = 1
                 # only the user user having country equal to de has this attribute
                 elif (att == 'region'):
-                    continue
-                    #if (row['country'] == 'de'):
-                    #    users_attributes[row['user']][att + '_' + str(row[att])] = 1
+                    #continue
+                    if (row['country'] == 'de'):
+                        users_attributes[row['user']][att + '_' + str(row[att])] = 1
                 # if the attribute is edu_deg don't consider null value or 0
                 elif (att == 'edu_deg'):
                     if not (math.isnan(row[att]) or row[att] == 0):
@@ -89,18 +89,18 @@ def InitializeDictionaries_user(user_profile, user_cols):
                             attributes_users[att + '_' + str(f)][row['user']] = 1
                 # if the attribute is country don't consider float values
                 elif (att == 'country'):
-                    continue
-                    #if type(row[att]) == str:
-                    #    if not attributes_users.has_key(att + '_' + str(row[att])):
-                    #        attributes_users[att + '_' + str(row[att])] = {}
-                    #    attributes_users[att + '_' + str(row[att])][row['user']] = 1
+                    #continue
+                    if type(row[att]) == str:
+                        if not attributes_users.has_key(att + '_' + str(row[att])):
+                            attributes_users[att + '_' + str(row[att])] = {}
+                        attributes_users[att + '_' + str(row[att])][row['user']] = 1
                 # only the user user having country equal to de has this attribute
                 elif (att == 'region'):
-                    continue
-                    #if (row['country'] == 'de'):
-                    #    if not attributes_users.has_key(att + '_' + str(row[att])):
-                    #        attributes_users[att + '_' + str(row[att])] = {}
-                    #    attributes_users[att + '_' + str(row[att])][row['user']] = 1
+                    #continue
+                    if (row['country'] == 'de'):
+                        if not attributes_users.has_key(att + '_' + str(row[att])):
+                            attributes_users[att + '_' + str(row[att])] = {}
+                        attributes_users[att + '_' + str(row[att])][row['user']] = 1
                 # if the attribute is one of the following consider them only if they are not equal to 0
                 elif (att == 'career' or att == 'exp_years' or att == 'exp_years_current'):
                     if not (row[att] == 0 or math.isnan(row[att])):
