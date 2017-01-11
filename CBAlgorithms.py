@@ -266,13 +266,13 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
         print (str(i) + "/" + str(size))
         i = i + 1
         # Calculate the similarity only for the target users
-        user_att = user_attributes_dictionary[user]#.keys() #dictionary of all the attributes of the user
+        user_att = user_attributes_dictionary[user].keys() #dictionary of all the attributes of the user
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
-        for att in user_att:#[:10]:
+        for att in user_att[:10]:
             user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
             # for first 10 users
-            for u in user_list[:2500]:
+            for u in user_list:#[:2500]:
                 # Don't consider the similarity between the same users
                 if u == user:
                     continue
@@ -322,7 +322,6 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
 # Function to build the Item-Item Similarity Dictionary
 def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary, item_attribute_dictionary, attribute_items_dictionary):
     item_item_similarity_dictionary_num = {}
-    item_similarity_dictionary_norm = {}
 
     print ("Create dictionaries for CB item-item similarity")
 
@@ -346,6 +345,11 @@ def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary,
                         else:
                             item_item_similarity_dictionary_num[item][ij] = item_attribute_dictionary[item][att] *\
                                                                             item_attribute_dictionary[ij][att]
+
+    return item_item_similarity_dictionary_num
+
+def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_attribute_dictionary, similarity_shrink, KNN):
+    item_similarity_dictionary_norm = {}
     for item in item_attribute_dictionary:
         for attribute in item_attribute_dictionary[item]:
             if (item_similarity_dictionary_norm.has_key(item)):
@@ -354,10 +358,6 @@ def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary,
                 item_similarity_dictionary_norm[item] = math.pow(item_attribute_dictionary[item][attribute], 2)
         item_similarity_dictionary_norm[item] = math.sqrt(item_similarity_dictionary_norm[item])
 
-    return item_item_similarity_dictionary_num, item_similarity_dictionary_norm
-
-def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_similarity_dictionary_norm, similarity_shrink, KNN):
-    #item_item_similarity_dictionary = {}
     print ("Similarities estimate:")
     i = 1
     #size = len(item_item_similarity_dictionary_num)
