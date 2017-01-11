@@ -26,7 +26,7 @@ for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
 # Filename for the output result
-CB_UB_predictions_output = "../Predictions/CB_Item_Based.csv"
+CB_UB_predictions_output = "../Predictions/CB_User_Based.csv"
 
 # Shrink values for Content User Based
 CB_UB_similarity_shrink = 10
