@@ -129,12 +129,12 @@ for user, item, interaction in interactions.values:
 CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.InitializeDictionaries_user(user_profile, user_cols)
 
 # Dictionaries for Content Item Based Algorithms
-CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.InitializeDictionaries_item(item_profile, item_cols)
+#CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.InitializeDictionaries_item(item_profile, item_cols)
 
 # Compute TF and IDF
 print ("Computing TF and IDF")
 CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.ComputeTF_IDF(CB_user_attributes_dictionary, CB_attribute_users_dictionary)
-CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.ComputeTF_IDF(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
+#CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.ComputeTF_IDF(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
 
 # Compute the User-User Similarity for Content User Based
 CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users_dictionary, CF_user_items_dictionary, CB_user_attributes_dictionary,

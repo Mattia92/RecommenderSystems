@@ -254,7 +254,7 @@ def ComputeTF_IDF(users_attributes, attributes_users):
 def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction, user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
     # Create the dictionary for the user_user similarity
     # dict {user -> (list of {user -> similarity})}
-    user_user_similarity_dictionary = {}
+    #user_user_similarity_dictionary = {}
     user_user_similarity_dictionary_num = {}
     user_similarity_dictionary_norm = {}
 
@@ -266,13 +266,13 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
         print (str(i) + "/" + str(size))
         i = i + 1
         # Calculate the similarity only for the target users
-        user_att = user_attributes_dictionary[user]#.keys() #dictionary of all the attributes of the user
+        user_att = user_attributes_dictionary[user].keys() #dictionary of all the attributes of the user
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
-        for att in user_att:#[:10]:
-            user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
+        for att in user_att[:10]:
+            user_list = attributes_users_dictionary[att]#.keys() #list of users that has this attribute
             # for first 10 users
-            for u in user_list[:2500]:
+            for u in user_list:#[:2500]:
                 # Don't consider the similarity between the same users
                 if u == user:
                     continue
@@ -299,24 +299,24 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
     print ("Similarities estimate:")
     # For each user in the dictionary
     for user in user_user_similarity_dictionary_num:
-        user_user_similarity_dictionary[user] = {}
+        #user_user_similarity_dictionary[user] = {}
         # Calculate the user-user similarity
         for user_j in user_user_similarity_dictionary_num[user]:
-            user_user_similarity_dictionary[user][user_j] = user_user_similarity_dictionary_num[user][user_j] / \
+            user_user_similarity_dictionary_num[user][user_j] = user_user_similarity_dictionary_num[user][user_j] / \
                                                             (user_similarity_dictionary_norm[user] *
                                                              user_similarity_dictionary_norm[user_j] + similarity_shrink)
 
     if (KNN == 0):
-        return user_user_similarity_dictionary
+        return user_user_similarity_dictionary_num
     else:
         user_user_KNN_similarity_dictionary = {}
-        for user in user_user_similarity_dictionary:
+        for user in user_user_similarity_dictionary_num:
             user_user_KNN_similarity_dictionary[user] = {}
-            KNN_sim_users = sorted(user_user_similarity_dictionary[user].items(), key=operator.itemgetter(1))
+            KNN_sim_users = sorted(user_user_similarity_dictionary_num[user].items(), key=operator.itemgetter(1))
             KNN_sim_users_desc = sorted(KNN_sim_users, key=lambda tup: -tup[1])
             for sim_user in KNN_sim_users_desc:
                 if (len(user_user_KNN_similarity_dictionary[user]) < KNN):
-                    user_user_KNN_similarity_dictionary[user][sim_user[0]] = user_user_similarity_dictionary[user][sim_user[0]]
+                    user_user_KNN_similarity_dictionary[user][sim_user[0]] = user_user_similarity_dictionary_num[user][sim_user[0]]
         return user_user_KNN_similarity_dictionary
 
 # Function to build the Item-Item Similarity Dictionary
