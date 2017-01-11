@@ -689,6 +689,14 @@ def Top_Popular_Filling(users_prediction_dictionary, CF_IB_IDF):
             if (len(users_prediction_dictionary[user]) < 5):
                 users_prediction_dictionary[user][top_pop] = 0
 
+def CFWritePredictions(output_filename, users_prediction_dictionary):
+    print ("Writing predictions on " + output_filename)
+    out_file = open(output_filename, "w")
+    for user in users_prediction_dictionary:
+        for item in users_prediction_dictionary[user]:
+            out_file.write(str(user) + "\t" + str(item) + "\t" + str(users_prediction_dictionary[user][item]) + "\n")
+    out_file.close()
+
 # Function to write the final result of recommendation
 def CFWriteResult(output_filename, users_prediction_dictionary):
     sum = 0

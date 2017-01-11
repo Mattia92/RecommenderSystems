@@ -266,13 +266,13 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
         print (str(i) + "/" + str(size))
         i = i + 1
         # Calculate the similarity only for the target users
-        user_att = user_attributes_dictionary[user].keys() #dictionary of all the attributes of the user
+        user_att = user_attributes_dictionary[user]#.keys() #dictionary of all the attributes of the user
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
-        for att in user_att[:10]:
+        for att in user_att:#[:10]:
             user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
             # for first 10 users
-            for u in user_list:#[:2500]:
+            for u in user_list[:2500]:
                 # Don't consider the similarity between the same users
                 if u == user:
                     continue
@@ -556,6 +556,14 @@ def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similari
                                                       (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
 
     return users_prediction_dictionary_num
+
+def CBWritePredictions(output_filename, users_prediction_dictionary):
+    print ("Writing predictions on " + output_filename)
+    out_file = open(output_filename, "w")
+    for user in users_prediction_dictionary:
+        for item in users_prediction_dictionary[user]:
+            out_file.write(str(user) + "\t" + str(item) + "\t" + users_prediction_dictionary[user][item] + "\n")
+    out_file.close()
 
 # Function to write the final result of recommendation
 def CBWriteResult(output_filename, users_prediction_dictionary):
