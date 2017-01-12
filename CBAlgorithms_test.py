@@ -394,26 +394,27 @@ def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_attribute
     print ("Similarities estimate:")
     i = 1
     size = len(item_item_similarity_dictionary)
+    KNN_item_item_similarity_dictionary = {}
     for item in item_item_similarity_dictionary:
+        KNN_item_item_similarity_dictionary[item] = {}
         print (str(i) + "/" + str(size))
         i = i + 1
         for item_j in item_item_similarity_dictionary[item]:
-            item_item_similarity_dictionary[item][item_j] = item_item_similarity_dictionary[item][item_j] / \
-                                                            (item_similarity_dictionary_norm[item] *
-                                                             item_similarity_dictionary_norm[item_j] + similarity_shrink)
-
-        #item_item_similarity_dictionary[item] = OrderedDict(sorted(item_item_similarity_dictionary[item].items(), key=lambda t: -t[1]))
-        #while (len(item_item_similarity_dictionary[item]) > KNN):
-        #    item_item_similarity_dictionary[item].popitem()
+            KNN_item_item_similarity_dictionary[item][item_j] = item_item_similarity_dictionary[item][item_j] / \
+                                                                (item_similarity_dictionary_norm[item] *
+                                                                item_similarity_dictionary_norm[item_j] + similarity_shrink)
+            KNN_item_item_similarity_dictionary[item] = OrderedDict(sorted(KNN_item_item_similarity_dictionary[item].items(), key=lambda t: -t[1]))
+            if (len(KNN_item_item_similarity_dictionary[item]) > KNN):
+                KNN_item_item_similarity_dictionary[item].popitem()
 
     final_item_item_similarity_dictionary = {}
-    for item in item_item_similarity_dictionary:
-        for item2 in item_item_similarity_dictionary[item]:
+    for item in KNN_item_item_similarity_dictionary:
+        for item2 in KNN_item_item_similarity_dictionary[item]:
             if (final_item_item_similarity_dictionary.has_key(item2)):
-                final_item_item_similarity_dictionary[item2][item] = item_item_similarity_dictionary[item][item2]
+                final_item_item_similarity_dictionary[item2][item] = KNN_item_item_similarity_dictionary[item][item2]
             else:
                 final_item_item_similarity_dictionary[item2] = {}
-                final_item_item_similarity_dictionary[item2][item] = item_item_similarity_dictionary[item][item2]
+                final_item_item_similarity_dictionary[item2][item] = KNN_item_item_similarity_dictionary[item][item2]
 
     return final_item_item_similarity_dictionary
 

@@ -160,7 +160,7 @@ CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.Comp
 #CBAlgorithms.CBWriteResult(CB_UB_MAP_Output, CB_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Content Item Based
-CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarity(CF_item_users_dictionary, active_items_to_recommend,
+CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarity(item_at_least_one_interaction_by_target_users, active_items_to_recommend,
                                                                        CB_item_attributes_dictionary, CB_attribute_items_dictionary)
 del CB_attribute_items_dictionary
 
