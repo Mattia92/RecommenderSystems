@@ -116,7 +116,13 @@ for user, item, interaction in interactions.values:
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
 
-
+# dict of items which as at least one interaction by target user
+item_at_least_one_interaction_by_target_users = {}
+for item in CF_item_users_dictionary:
+    for user in CF_item_users_dictionary[item]:
+        if (target_users_dictionary.has_key(user)):
+            item_at_least_one_interaction_by_target_users[item] = 0
+            break
 
 # Dictionaries for Content User Based Algorithms
 # Create the dictionary needed to compute the similarity between users
