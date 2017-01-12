@@ -154,14 +154,14 @@ def InitializeDictionaries_item(item_profile, item_cols):
                         items_attributes[row['item']][att + '_' + str(row[att])] = 1
                 # if the attribute is country don't consider float values
                 elif (att == 'country'):
-                    continue
-                    #if type(row[att]) == str:
-                    #    items_attributes[row['item']][att + '_' + str(row[att])] = 1
+                    #continue
+                    if type(row[att]) == str:
+                        items_attributes[row['item']][att + '_' + str(row[att])] = 1
                 # only the item having country equal to de has this attribute
                 elif (att == 'region'):
-                    continue
-                    #if (row['country'] == 'de'):
-                    #    items_attributes[row['item']][att + '_' + str(row[att])] = 1
+                    #continue
+                    if (row['country'] == 'de'):
+                        items_attributes[row['item']][att + '_' + str(row[att])] = 1
                 elif (att == 'created_at' or att == 'active_during_test'):
                     continue
                 elif(att == 'latitude' or att == 'longitude'):
@@ -199,18 +199,18 @@ def InitializeDictionaries_item(item_profile, item_cols):
                         attributes_items[att + '_' + str(row[att])][row['item']] = 1
                 # if the attribute is country don't consider float values
                 elif (att == 'country'):
-                    continue
-                    #if type(row[att]) == str:
-                    #    if not attributes_items.has_key(att + '_' + str(row[att])):
-                    #        attributes_items[att + '_' + str(row[att])] = {}
-                    #    attributes_items[att + '_' + str(row[att])][row['item']] = 1
+                    #continue
+                    if type(row[att]) == str:
+                        if not attributes_items.has_key(att + '_' + str(row[att])):
+                            attributes_items[att + '_' + str(row[att])] = {}
+                        attributes_items[att + '_' + str(row[att])][row['item']] = 1
                 # only the user user having country equal to de has this attribute
                 elif (att == 'region'):
-                    continue
-                    #if (row['country'] == 'de'):
-                    #    if not attributes_items.has_key(att + '_' + str(row[att])):
-                    #        attributes_items[att + '_' + str(row[att])] = {}
-                    #    attributes_items[att + '_' + str(row[att])][row['item']] = 1
+                    #continue
+                    if (row['country'] == 'de'):
+                        if not attributes_items.has_key(att + '_' + str(row[att])):
+                            attributes_items[att + '_' + str(row[att])] = {}
+                        attributes_items[att + '_' + str(row[att])][row['item']] = 1
                 elif (att == 'created_at' or att == 'active_during_test'):
                     continue
                 elif(att == 'latitude' or att == 'longitude'):
@@ -332,9 +332,9 @@ def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary,
         i = i + 1
         item_att = item_attribute_dictionary[item].keys()
         item_item_similarity_dictionary_num[item] = {}
-        for att in item_att[:30]:
-            item_list = attribute_items_dictionary[att].keys()
-            for ij in item_list[:600]:
+        for att in item_att[:5]:
+            item_list = attribute_items_dictionary[att]#.keys()
+            for ij in item_list:#[:600]:
                 if ij == item:
                     continue
                 else:
@@ -511,7 +511,7 @@ def CBUserBasedPredictNormalizedRecommendation(target_users_dictionary, user_use
 
 # Function to create the recommendations for Item_Based
 def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similarity_dictionary, user_items_dictionary, target_users_dictionary,
-                                     prediction_shrink):
+                                     prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -537,11 +537,11 @@ def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similari
                         continue
                     # If the item was not predicted yet for the user, add it
                     if not (users_prediction_dictionary_num[uu].has_key(ii)):
-                        users_prediction_dictionary_num[uu][ii] = i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
                     # Else Evaluate its contribution
                     else:
-                        users_prediction_dictionary_num[uu][ii] += i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate:")
@@ -554,6 +554,59 @@ def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similari
             if (active_items_dictionary.has_key(ii)):
                 users_prediction_dictionary_num[uu][ii] = users_prediction_dictionary_num[uu][ii] / \
                                                       (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
+
+    return users_prediction_dictionary_num
+
+# Function to create the recommendations for Item_Based
+def CBItemBasedPredictNormalizedRecommendation(active_items_dictionary, item_item_similarity_dictionary, user_items_dictionary, target_users_dictionary,
+                                               prediction_shrink, CF_IDF):
+    print ("Create dictionaries for CF Item Based user predictions")
+    # Create the dictionary for users prediction
+    # dict {user -> (list of {item -> prediction})}
+    #users_prediction_dictionary = {}
+    users_prediction_dictionary_num = {}
+    users_prediction_dictionary_den = {}
+    # For each target user
+    for uu in target_users_dictionary:
+        users_prediction_dictionary_num[uu] = {}
+        users_prediction_dictionary_den[uu] = {}
+        # If user has interact with at least one item
+        if (user_items_dictionary.has_key(uu)):
+            # Get dictionary of items with which the user has interact
+            i_r_dict = user_items_dictionary[uu]
+            # For each item in this dictionary
+            for ij in i_r_dict:
+                # Get the dictionary of similar items and the value of similarity
+                #if (ij in active_items_dictionary):
+                ij_s_dict = item_item_similarity_dictionary[ij]
+                # For each similar item in the dictionary
+                for ii in ij_s_dict:
+                    if (i_r_dict.has_key(ii)):
+                        continue
+                    # If the item was not predicted yet for the user, add it
+                    if not (users_prediction_dictionary_num[uu].has_key(ii)):
+                        users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
+                    # Else Evaluate its contribution
+                    else:
+                        users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                        users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
+
+    print ("Ratings estimate and Normalization:")
+    # For each target user (users_prediction_dictionary_num contains all target users)
+    for uu in users_prediction_dictionary_num:
+        max_prediction = 0
+        #users_prediction_dictionary[uu] = {}
+        # For each item predicted for the user
+        for ii in users_prediction_dictionary_num[uu]:
+            # Evaluate the prediction of that item for that user
+            if (active_items_dictionary.has_key(ii)):
+                users_prediction_dictionary_num[uu][ii] = users_prediction_dictionary_num[uu][ii] / \
+                                                      (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
+                max_prediction = max(max_prediction, users_prediction_dictionary_num[uu][ii])
+
+        for item in users_prediction_dictionary_num[uu]:
+            users_prediction_dictionary_num[uu][item] = users_prediction_dictionary_num[uu][item] / max_prediction
 
     return users_prediction_dictionary_num
 

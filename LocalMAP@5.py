@@ -126,50 +126,49 @@ for user, item, interaction in interactions.values:
 # Create the dictionary containing for each attribute the list of users which have it
 # Dictionary is a list of elements, each element is defined as following
 # dict {attribute -> (list of {user -> value})}
-CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.InitializeDictionaries_user(user_profile, user_cols)
+#CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.InitializeDictionaries_user(user_profile, user_cols)
 
 # Dictionaries for Content Item Based Algorithms
-#CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.InitializeDictionaries_item(item_profile, item_cols)
+CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.InitializeDictionaries_item(item_profile, item_cols)
 
 # Compute TF and IDF
 print ("Computing TF and IDF")
-CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.ComputeTF_IDF(CB_user_attributes_dictionary, CB_attribute_users_dictionary)
-#CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.ComputeTF_IDF(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
+#CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.ComputeTF_IDF(CB_user_attributes_dictionary, CB_attribute_users_dictionary)
+CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.ComputeTF_IDF(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
 
 # Compute the User-User Similarity for Content User Based
-CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users_dictionary, CF_user_items_dictionary, CB_user_attributes_dictionary,
-                                                                       CB_attribute_users_dictionary, CB_UB_similarity_shrink, CB_UB_KNN)
-del CB_attribute_users_dictionary
+#CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_users_dictionary, CF_user_items_dictionary, CB_user_attributes_dictionary,
+#                                                                       CB_attribute_users_dictionary, CB_UB_similarity_shrink, CB_UB_KNN)
+#del CB_attribute_users_dictionary
 
 # Compute the Prediction for Content User Based
-CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendation(target_users_dictionary, CB_user_user_similarity_dictionary,
-                                                                                  CF_user_items_dictionary, active_items_to_recommend,
-                                                                                  CB_UB_prediction_shrink)
+#CB_UB_users_prediction_dictionary = CBAlgorithms.CBUserBasedPredictRecommendation(target_users_dictionary, CB_user_user_similarity_dictionary,
+#                                                                                  CF_user_items_dictionary, active_items_to_recommend,
+#                                                                                  CB_UB_prediction_shrink)
 #CB_UB_users_prediction_dictionary_normalized = CBAlgorithms.CBUserBasedPredictNormalizedRecommendation(target_users_dictionary, CB_user_user_similarity_dictionary,
 #                                                                                                       CF_user_items_dictionary, active_items_to_recommend,
 #                                                                                                       CB_UB_prediction_shrink)
-del CB_user_user_similarity_dictionary
+#del CB_user_user_similarity_dictionary
 
 # Write the final Result for Content User Based
-CBAlgorithms.CBWriteResult(CB_UB_MAP_Output, CB_UB_users_prediction_dictionary)
+#CBAlgorithms.CBWriteResult(CB_UB_MAP_Output, CB_UB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Content Item Based
-#CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarity(CF_item_users_dictionary, active_items_to_recommend,
-#                                                                       CB_item_attributes_dictionary, CB_attribute_items_dictionary)
-#del CB_attribute_items_dictionary
+CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarity(CF_item_users_dictionary, active_items_to_recommend,
+                                                                       CB_item_attributes_dictionary, CB_attribute_items_dictionary)
+del CB_attribute_items_dictionary
 
-#CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimate(CB_item_item_similarity_dictionary, CB_item_attributes_dictionary,
-#                                                                               CB_IB_similarity_shrink, CB_IB_KNN)
-#del CB_item_item_similarity_dictionary_norm
+CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimate(CB_item_item_similarity_dictionary, CB_item_attributes_dictionary,
+                                                                               CB_IB_similarity_shrink, CB_IB_KNN)
 
 # Compute the Prediction for Content Item Based
-#CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
-#                                                                                  CF_user_items_dictionary, target_users_dictionary,
-#                                                                                  CF_IB_prediction_shrink)
-#del CB_item_item_similarity_dictionary
+CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
+                                                                                  CF_user_items_dictionary, target_users_dictionary,
+                                                                                  CF_IB_prediction_shrink, CF_IDF)
+del CB_item_item_similarity_dictionary
 
 # Write the final Result for Content Item Based
-#CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
+CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 
 # Compute the User-User Similarity for Collaborative Filtering User Based
 #CF_user_user_similarity_dictionary = CFAlgorithms.CFUserUserSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
@@ -270,8 +269,8 @@ CBAlgorithms.CBWriteResult(CB_UB_MAP_Output, CB_UB_users_prediction_dictionary)
 #CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_MAP_Output, CF_Normalized_HB_Ranked_users_prediction_dictionary)
 
 # Compute the LocalMAP@5
-va.MAP(target_users, validation, CB_UB_MAP_Output)
-#va.MAP(target_users, validation, CB_IB_MAP_Output)
+#va.MAP(target_users, validation, CB_UB_MAP_Output)
+va.MAP(target_users, validation, CB_IB_MAP_Output)
 #va.MAP(target_users, validation, CF_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_IB_MAP_Output)
