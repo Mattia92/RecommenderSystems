@@ -266,13 +266,13 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
         print (str(i) + "/" + str(size))
         i = i + 1
         # Calculate the similarity only for the target users
-        user_att = user_attributes_dictionary[user].keys() #dictionary of all the attributes of the user
+        user_att = user_attributes_dictionary[user]#.keys() #dictionary of all the attributes of the user
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
-        for att in user_att[:10]:
-            user_list = attributes_users_dictionary[att]#.keys() #list of users that has this attribute
+        for att in user_att:#[:10]:
+            user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
             # for first 10 users
-            for u in user_list:#[:2500]:
+            for u in user_list[:2500]:
                 # Don't consider the similarity between the same users
                 if u == user:
                     continue
