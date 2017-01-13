@@ -68,11 +68,11 @@ CF_IB_similarity_shrink = 20
 CF_IB_prediction_shrink = 10
 
 # Weight values for Collaborative Filtering, Content Based and Hybrid Ranking
-CF_User_Rank_Weight = 0.5
-CF_Item_Rank_Weight = 2
-CB_User_Rank_Weight = 0.5
-CB_Item_Rank_Weight = 0
-CF_Hybrid_Rank_Weight = 4
+CF_User_Rank_Weight = 0#0.5
+CF_Item_Rank_Weight = 1#2
+CB_User_Rank_Weight = 0#0.5
+CB_Item_Rank_Weight = 0.5#0
+CF_Hybrid_Rank_Weight = 0#4
 
 # Weight for Hybrid Collaborative Filtering
 CF_HB_UB_w = 1.1
@@ -168,13 +168,16 @@ CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimate(C
                                                                                CB_IB_similarity_shrink, CB_IB_KNN)
 
 # Compute the Prediction for Content Item Based
-CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
-                                                                                  CF_user_items_dictionary, target_users_dictionary,
-                                                                                  CF_IB_prediction_shrink, CF_IDF)
+#CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
+#                                                                                  CF_user_items_dictionary, target_users_dictionary,
+#                                                                                  CB_IB_prediction_shrink, CF_IDF)
+CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictNormalizedRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
+                                                                                            CF_user_items_dictionary, target_users_dictionary,
+                                                                                            CB_IB_prediction_shrink, CF_IDF)
 del CB_item_item_similarity_dictionary
 
 # Write the final Result for Content Item Based
-CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
+#CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 
 # Compute the User-User Similarity for Collaborative Filtering User Based
 #CF_user_user_similarity_dictionary = CFAlgorithms.CFUserUserSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
@@ -221,22 +224,22 @@ CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 #CFAlgorithms.CFWriteResult(CF_IB_MAP_Output, CF_IB_users_prediction_dictionary)
 
 # Compute the Item-Item Similarity for Collaborative Filtering Item Based
-#CF_HB_item_item_similarity_dictionary = CFAlgorithms.CFHybridItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
-#                                                                                CB_item_attributes_dictionary, CF_IB_similarity_shrink,
-#                                                                                CB_IB_similarity_shrink, CF_IB_KNN, CF_HB_IB_w)
-#del CB_item_attributes_dictionary
+CF_HB_item_item_similarity_dictionary = CFAlgorithms.CFHybridItemItemSimilarity(CF_user_items_dictionary, CF_item_users_dictionary,
+                                                                                CB_item_attributes_dictionary, CF_IB_similarity_shrink,
+                                                                                CB_IB_similarity_shrink, CF_IB_KNN, CF_HB_IB_w)
+del CB_item_attributes_dictionary
 
 # Compute the Prediction for Collaborative Filtering Hybrid Item Based
 #CF_HB_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictRecommendation(target_users, CF_HB_item_item_similarity_dictionary,
 #                                                                                   CF_user_items_dictionary, active_items_to_recommend,
 #                                                                                   CF_IB_prediction_shrink, CF_IDF)
-#CF_HB_IB_users_prediction_dictionary_normalized = CFAlgorithms.CFItemBasedPredictNormalizedRecommendation(target_users, CF_HB_item_item_similarity_dictionary,
-#                                                                                                          CF_user_items_dictionary, active_items_to_recommend,
-#                                                                                                          CF_IB_prediction_shrink, CF_IDF)
-#del CF_HB_item_item_similarity_dictionary
+CF_HB_IB_users_prediction_dictionary_normalized = CFAlgorithms.CFItemBasedPredictNormalizedRecommendation(target_users, CF_HB_item_item_similarity_dictionary,
+                                                                                                          CF_user_items_dictionary, active_items_to_recommend,
+                                                                                                          CF_IB_prediction_shrink, CF_IDF)
+del CF_HB_item_item_similarity_dictionary
 
 # Write the final Result for Collaborative Filtering Hybrid Item Based
-#CFAlgorithms.CFWriteResult(CF_HB_IB_MAP_Output, CF_HB_IB_users_prediction_dictionary_normalized)
+CFAlgorithms.CFWriteResult(CF_HB_IB_MAP_Output, CF_HB_IB_users_prediction_dictionary_normalized)
 
 # Compute the Prediction for Collaborative Filtering Hybrid Weighted
 #CF_HB_Weighted_users_prediction_dictionary = CFAlgorithms.CFHybridWeightedPredictRecommendation(CF_UB_users_prediction_dictionary,
@@ -258,12 +261,17 @@ CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 #                                                                                             CF_Hybrid_KNN, CF_Hybrid_Rank_Weight,
 #                                                                                             CB_User_Rank_Weight)
 
-# Compute the Prediction for Normalized Collaborative Filtering Hybrid Rank
-#CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_HB_UB_users_prediction_dictionary_normalized,
-#                                                                                                               CF_HB_IB_users_prediction_dictionary_normalized,
-#                                                                                                               CF_User_Rank_Weight, CF_Item_Rank_Weight)
+# Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBIB-CFIB)
+CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CB_IB_users_prediction_dictionary,
+                                                                                                               CF_HB_IB_users_prediction_dictionary_normalized,
+                                                                                                               CB_Item_Rank_Weight, CF_Item_Rank_Weight)
 
-# Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank
+# Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBCFIB-CFUB)
+#CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_HB_UB_users_prediction_dictionary_normalized,
+#                                                                                                               CF_Normalized_HB_Ranked_users_prediction_dictionary,
+#                                                                                                               CF_User_Rank_Weight, CF_Hybrid_Rank_Weight)
+
+# Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBIBCFIBUB-CBUB)
 #CF_Normalized_CB_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_Normalized_HB_Ranked_users_prediction_dictionary,
 #                                                                                                                  CB_UB_users_prediction_dictionary_normalized,
 #                                                                                                                  CF_Hybrid_Rank_Weight, CB_User_Rank_Weight)
@@ -272,14 +280,14 @@ CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary)
 #CFAlgorithms.Top_Popular_Filling(CF_HB_Ranked_users_prediction_dictionary, CF_IB_IDF)
 
 # Write the final Result for Collaborative Filtering Hybrid Rank
-#CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_MAP_Output, CF_Normalized_HB_Ranked_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_MAP_Output, CF_Normalized_HB_Ranked_users_prediction_dictionary)
 
 # Compute the LocalMAP@5
 #va.MAP(target_users, validation, CB_UB_MAP_Output)
-va.MAP(target_users, validation, CB_IB_MAP_Output)
+#va.MAP(target_users, validation, CB_IB_MAP_Output)
 #va.MAP(target_users, validation, CF_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_IB_MAP_Output)
-#va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
+va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
 #va.MAP(target_users, validation, CF_Hybrid_Weighted_MAP_Output)
-#va.MAP(target_users, validation, CF_Hybrid_Ranked_MAP_Output)
+va.MAP(target_users, validation, CF_Hybrid_Ranked_MAP_Output)

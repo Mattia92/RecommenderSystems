@@ -332,9 +332,9 @@ def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary,
         i = i + 1
         item_att = item_attribute_dictionary[item].keys()
         item_item_similarity_dictionary_num[item] = {}
-        for att in item_att[:8]:
-            item_list = attribute_items_dictionary[att].keys()
-            for ij in item_list[:2500]:
+        for att in item_att[:5]:
+            item_list = attribute_items_dictionary[att]#.keys()
+            for ij in item_list:#[:2500]:
                 if ij == item:
                     continue
                 else:
