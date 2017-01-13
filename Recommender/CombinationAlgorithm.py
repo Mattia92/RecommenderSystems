@@ -27,15 +27,22 @@ CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankP
                                                                                                                CF_HB_IB_users_prediction_dictionary_normalized,
                                                                                                                CB_Item_Rank_Weight, CF_Item_Rank_Weight)
 
+del CB_IB_users_prediction_dictionary_normalized
+del CF_HB_IB_users_prediction_dictionary_normalized
+
 # Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBCFIB-CFUB)
 CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_HB_UB_users_prediction_dictionary_normalized,
                                                                                                                CF_Normalized_HB_Ranked_users_prediction_dictionary,
                                                                                                                CF_User_Rank_Weight, CB_CF_IB_Hybrid_Rank_Weight)
 
+del CF_HB_UB_users_prediction_dictionary_normalized
+
 # Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBIBCFIBUB-CBUB)
-CF_Normalized_CB_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_Normalized_HB_Ranked_users_prediction_dictionary,
+CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_Normalized_HB_Ranked_users_prediction_dictionary,
                                                                                                                   CB_UB_users_prediction_dictionary_normalized,
                                                                                                                   CB_IB_CF_IB_UB_Hybrid_Rank_Weight, CB_User_Rank_Weight)
 
+del CB_UB_users_prediction_dictionary_normalized
+
 # Write the final Result for Collaborative Filtering Hybrid Rank
-CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_Output, CF_Normalized_CB_HB_Ranked_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_Output, CF_Normalized_HB_Ranked_users_prediction_dictionary)
