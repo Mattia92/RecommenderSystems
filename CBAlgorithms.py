@@ -628,7 +628,7 @@ def CBRead_Predictions(output_filename):
         predictions = line.split("\t")
         if not(users_prediction_dictionary.has_key(predictions[0])):
             users_prediction_dictionary[predictions[0]] = {}
-        users_prediction_dictionary[predictions[0]][predictions[1]] = predictions[2]
+        users_prediction_dictionary[predictions[0]][predictions[1]] = float(predictions[2])
     in_file.close()
     return users_prediction_dictionary
 
