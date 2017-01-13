@@ -615,7 +615,7 @@ def CBWritePredictions(output_filename, users_prediction_dictionary):
     out_file = open(output_filename, "w")
     for user in users_prediction_dictionary:
         for item in users_prediction_dictionary[user]:
-            out_file.write(str(user) + "\t" + str(item) + "\t" + users_prediction_dictionary[user][item] + "\n")
+            out_file.write(str(user) + "\t" + str(item) + "\t" + str(users_prediction_dictionary[user][item]) + "\n")
     out_file.close()
 
 #Function to Read the predictions files
