@@ -79,4 +79,4 @@ CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictNormalizedRec
 
 
 # Write the final Result for Collaborative Filtering Item Based
-CFAlgorithms.CFWritePredictions(CF_IB_predictions_output, CF_IB_users_prediction_dictionary)
+CFAlgorithms.CFWrite_Top_Predictions(CF_IB_predictions_output, CF_IB_users_prediction_dictionary)

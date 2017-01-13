@@ -73,4 +73,4 @@ CB_UB_users_prediction_dictionary_normalized = CBAlgorithms.CBUserBasedPredictNo
                                                                                                        CB_UB_prediction_shrink)
 
 # Write the final Result for Content User Based
-CBAlgorithms.CBWritePredictions(CB_UB_predictions_output, CB_UB_users_prediction_dictionary_normalized)
+CBAlgorithms.CBWrite_Top_Predictions(CB_UB_predictions_output, CB_UB_users_prediction_dictionary_normalized)

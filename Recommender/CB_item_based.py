@@ -85,4 +85,4 @@ CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictNormalizedRec
                                                                                             CF_user_items_dictionary, target_users_dictionary,
                                                                                             CB_IB_prediction_shrink, CF_IDF)
 
-CBAlgorithms.CBWritePredictions(CB_IB_predictions_output, CB_IB_users_prediction_dictionary)
+CBAlgorithms.CBWrite_Top_Predictions(CB_IB_predictions_output, CB_IB_users_prediction_dictionary)

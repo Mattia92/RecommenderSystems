@@ -618,6 +618,17 @@ def CBWritePredictions(output_filename, users_prediction_dictionary):
             out_file.write(str(user) + "\t" + str(item) + "\t" + str(users_prediction_dictionary[user][item]) + "\n")
     out_file.close()
 
+def CBWrite_Top_Predictions(output_filename, users_prediction_dictionary):
+    print ("Writing predictions on " + output_filename)
+    out_file = open(output_filename, "w")
+    for user in users_prediction_dictionary:
+        users_prediction_dictionary[user] = OrderedDict(
+            sorted(users_prediction_dictionary[user].items(), key=lambda t: -t[1]))
+        items_predicted = users_prediction_dictionary[user].keys()
+        for item in items_predicted[:300]:
+            out_file.write(str(user) + "\t" + str(item) + "\t" + str(users_prediction_dictionary[user][item]) + "\n")
+    out_file.close()
+
 #Function to Read the predictions files
 def CBRead_Predictions(output_filename):
     print ("Reading predictions from " + output_filename)
