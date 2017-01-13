@@ -84,3 +84,5 @@ CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimate(C
 CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictNormalizedRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
                                                                                             CF_user_items_dictionary, target_users_dictionary,
                                                                                             CB_IB_prediction_shrink, CF_IDF)
+
+CBAlgorithms.CBWritePredictions(CB_IB_predictions_output, CB_IB_users_prediction_dictionary)
