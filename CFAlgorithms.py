@@ -672,6 +672,8 @@ def CFHybridRankPredictNormalizedRecommendation(user_based_users_prediction, ite
             users_prediction_dictionary[user][item] = user_based_weight * user_based_users_prediction[user][item]
     # for each user in the Item based prediction
     for user in item_based_users_predictions:
+        if not(users_prediction_dictionary.has_key(user)):
+            users_prediction_dictionary[user] = {}
         for item in item_based_users_predictions[user]:
             if (users_prediction_dictionary[user].has_key(item)):
                 users_prediction_dictionary[user][item] += item_based_weight * item_based_users_predictions[user][item]
