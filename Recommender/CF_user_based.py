@@ -16,7 +16,7 @@ active_items_idx = active_items[['item_id', 'active_during_test']]
 
 user_cols = ['user', 'job', 'career', 'discipline', 'industry', 'country', 'region', 'experience', 'exp_years', 'exp_years_current',
              'edu_deg', 'edu_fiel']
-user_profile = pd.read_csv('DataSet/user_profile.csv', sep='\t',names=user_cols, header=0)
+user_profile = pd.read_csv('../DataSet/user_profile.csv', sep='\t',names=user_cols, header=0)
 
 target_users = pd.read_csv('../DataSet/target_users.csv')
 
