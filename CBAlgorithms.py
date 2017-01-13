@@ -629,6 +629,7 @@ def CBRead_Predictions(output_filename):
         if not(users_prediction_dictionary.has_key(predictions[0])):
             users_prediction_dictionary[predictions[0]] = {}
         users_prediction_dictionary[predictions[0]][predictions[1]] = predictions[2]
+    in_file.close()
     return users_prediction_dictionary
 
 # Function to write the final result of recommendation
