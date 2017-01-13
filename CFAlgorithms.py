@@ -697,6 +697,21 @@ def CFWritePredictions(output_filename, users_prediction_dictionary):
             out_file.write(str(user) + "\t" + str(item) + "\t" + str(users_prediction_dictionary[user][item]) + "\n")
     out_file.close()
 
+#Function to Read the predictions files
+def CFRead_Predictions(output_filename):
+    print ("Reading predictions from " + output_filename)
+    in_file = open(output_filename, "r")
+    users_prediction_dictionary = {}
+    for line in in_file:
+        line = line.strip('\n')
+        predictions = line.split("\t")
+        if not(users_prediction_dictionary.has_key(predictions[0])):
+            users_prediction_dictionary[predictions[0]] = {}
+        users_prediction_dictionary[predictions[0]][predictions[1]] = predictions[2]
+    in_file.close()
+    return users_prediction_dictionary
+
+
 # Function to write the final result of recommendation
 def CFWriteResult(output_filename, users_prediction_dictionary):
     sum = 0
