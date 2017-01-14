@@ -77,4 +77,4 @@ CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictNormalizedRec
 
 
 # Write the final Result for Collaborative Filtering User Based
-CFAlgorithms.CFWritePredictions(CF_UB_predictions_output, CF_UB_users_prediction_dictionary)
+CFAlgorithms.CFWrite_Top_Predictions(CF_UB_predictions_output, CF_UB_users_prediction_dictionary)

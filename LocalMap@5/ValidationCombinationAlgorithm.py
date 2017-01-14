@@ -23,8 +23,8 @@ CF_Hybrid_Ranked_MAP_Output = "../TestDataSet/CF_MAP_Hybrid_Ranked.csv"
 CF_User_Rank_Weight = 0.5
 CF_Item_Rank_Weight = 1
 CB_User_Rank_Weight = 0.5
-CB_Item_Rank_Weight = 0.8#0.5
-CB_CF_IB_Hybrid_Rank_Weight = 2
+CB_Item_Rank_Weight = 0.5
+CB_CF_IB_Hybrid_Rank_Weight = 1
 CB_IB_CF_IB_UB_Hybrid_Rank_Weight = 4
 
 CB_UB_users_prediction_dictionary_normalized = CBAlgorithms.CBRead_Predictions(CB_UB_predictions_output)
