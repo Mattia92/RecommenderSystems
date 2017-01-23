@@ -301,7 +301,7 @@ def ComputeTF_IDF_CB_IB(item_attributes, attribute_items, active_items, item_at_
         attributes_idf[attribute] = math.log10(n_items / len(attribute_items[attribute]))
     # modify each attribute value including tf-idf
     for item in item_attributes:
-        for attribute in attribute_items[item]:
+        for attribute in item_attributes[item]:
             item_attributes[item][attribute] *= items_tf[item] * attributes_idf[attribute]
     # create the dictionary of target users with their KNN attributes
     item_KNN_attributes = {}
