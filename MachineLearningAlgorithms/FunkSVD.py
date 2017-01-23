@@ -186,5 +186,5 @@ with open(OUTPUT, 'w') as out:
         if i % 10 == 0:
             print(i)
         target_user_row = user_id_to_row[target_user]
-        best = svd.recommend(target_user_row, n=5)
+        best = svd.recommend(target_user_row, n=300)
         out.write(str(target_user) + "," + " ".join(str(i) for i in best) + "\n")

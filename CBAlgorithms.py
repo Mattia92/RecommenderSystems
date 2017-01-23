@@ -445,10 +445,10 @@ def CBUserUserSimilarityKNNAttributes(user_attributes_dictionary, attributes_use
                         # Create the dictionary containing the numerator of the similarity
                         if(user_user_similarity_dictionary_num[user].has_key(u)):
                             user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
-                                                                            user_attributes_dictionary[u][att]
+                                                                            attributes_users_dictionary[att][u]
                         else:
-                            user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] *\
-                                                                            user_attributes_dictionary[u][att]
+                            user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] * \
+                                                                           attributes_users_dictionary[att][u]
     # For each user in the dictionary
     for user in user_attributes_dictionary:
         # For each attribute of the user
@@ -471,7 +471,6 @@ def CBUserUserSimilarityKNNAttributes(user_attributes_dictionary, attributes_use
     print ("Similarities estimate:")
     # For each user in the dictionary
     for user in user_user_similarity_dictionary_num:
-        #user_user_similarity_dictionary[user] = {}
         # Calculate the user-user similarity
         for user_j in user_user_similarity_dictionary_num[user]:
             user_user_similarity_dictionary_num[user][user_j] = user_user_similarity_dictionary_num[user][user_j] / \
@@ -574,7 +573,6 @@ def CBItemItemSimilarityKNNAttributes(item_attribute_dictionary, attribute_items
         for att in item_att:
             if (attribute_items_dictionary.has_key(att)):
                 item_list = attribute_items_dictionary[att].keys()
-                #print ("length: " + str(len(item_list)))
                 for ij in item_list[:500]:
                     if ij == item:
                         continue
