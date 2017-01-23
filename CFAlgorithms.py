@@ -483,6 +483,64 @@ def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarit
 
     return users_prediction_dictionary
 
+# Function to create the normalized recommendations for User_Based
+def CFUserBasedPredictNormalizedRecommendationOnlyRecentItems(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
+                                               prediction_shrink, recent_items):
+    print ("Create dictionaries for CF User Based user predictions")
+    # Create the dictionary for users prediction
+    # dict {user -> (list of {item -> prediction})}
+    users_prediction_dictionary = {}
+    users_prediction_dictionary_num = {}
+    users_prediction_dictionary_norm = {}
+    # For each target user
+    for user in target_users['user_id']:
+        users_prediction_dictionary_num[user] = {}
+        # If user has similar users
+        if (user_user_similarity_dictionary.has_key(user)):
+            # Get dictionary of similar users and the value of similarity
+            uus_list = user_user_similarity_dictionary[user]
+            # For each similar user in the dictionary
+            for user2 in uus_list:
+                # Get the dictionary of items with which this user has interact
+                u2_item_list = user_items_dictionary[user2]
+                if (user in user_user_similarity_dictionary[user2]):
+                    # For each item in the dictionary
+                    for i in u2_item_list:
+                        if(recent_items.has_key(i)):
+                            # If the item was not predicted yet for the user, add it
+                            if not (users_prediction_dictionary_num[user].has_key(i)):
+                                users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
+                            # Else Evaluate its contribution
+                            else:
+                                users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
+
+    # For each user in the dictionary
+    for user in user_user_similarity_dictionary:
+        users_prediction_dictionary_norm[user] = 0
+        # Get the dictionary pointed by the user, containing the similar users
+        sim_users = user_user_similarity_dictionary[user]
+        for other_user in sim_users:
+            users_prediction_dictionary_norm[user] += sim_users[other_user]
+
+    print ("Ratings estimate and Normalization:")
+    # For each target user (users_prediction_dictionary_num contains all target users)
+    for user in users_prediction_dictionary_num:
+        users_prediction_dictionary[user] = {}
+        max_prediction = 0
+        # For each item predicted for the user
+        for item in users_prediction_dictionary_num[user]:
+            # Evaluate the prediction of that item for that user
+            if not (item in user_items_dictionary[user]):
+                if (active_items_to_recommend.has_key(item)):
+                    users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
+                                                              (users_prediction_dictionary_norm[user] + prediction_shrink)
+                    max_prediction = max(max_prediction, users_prediction_dictionary[user][item])
+
+        for item in users_prediction_dictionary[user]:
+            users_prediction_dictionary[user][item] = users_prediction_dictionary[user][item] / max_prediction
+
+    return users_prediction_dictionary
+
 # Function to create the recommendations for Item_Based
 def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
                                      prediction_shrink, CF_IDF):
@@ -563,6 +621,59 @@ def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarit
                     else:
                         users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
+
+    print ("Ratings estimate and Normalization:")
+    # For each target user (users_prediction_dictionary_num contains all target users)
+    for uu in users_prediction_dictionary_num:
+        users_prediction_dictionary[uu] = {}
+        max_prediction = 0
+        # For each item predicted for the user
+        for ii in users_prediction_dictionary_num[uu]:
+            # Evaluate the prediction of that item for that user
+            if (active_items_to_recommend.has_key(ii)):
+                users_prediction_dictionary[uu][ii] = users_prediction_dictionary_num[uu][ii] / \
+                                                      (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
+                max_prediction = max(max_prediction, users_prediction_dictionary[uu][ii])
+
+        for item in users_prediction_dictionary[uu]:
+            users_prediction_dictionary[uu][item] = users_prediction_dictionary[uu][item] / max_prediction
+
+    return users_prediction_dictionary
+
+# Function to create the normalized recommendations for Item_Based
+def CFItemBasedPredictNormalizedRecommendationOnlyRecentItem(target_users, item_item_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
+                                               prediction_shrink, CF_IDF, recent_items):
+    print ("Create dictionaries for CF Item Based user predictions")
+    # Create the dictionary for users prediction
+    # dict {user -> (list of {item -> prediction})}
+    users_prediction_dictionary = {}
+    users_prediction_dictionary_num = {}
+    users_prediction_dictionary_den = {}
+    # For each target user
+    for uu in target_users['user_id']:
+        users_prediction_dictionary_num[uu] = {}
+        users_prediction_dictionary_den[uu] = {}
+        # If user has interact with at least one item
+        if (user_items_dictionary.has_key(uu)):
+            # Get dictionary of items with which the user has interact
+            i_r_dict = user_items_dictionary[uu]
+            # For each item in this dictionary
+            for ij in i_r_dict:
+                # Get the dictionary of similar items and the value of similarity
+                ij_s_dict = item_item_similarity_dictionary[ij]
+                # For each similar item in the dictionary
+                for ii in ij_s_dict:
+                    if (i_r_dict.has_key(ii)):
+                        continue
+                    if(recent_items.has_key(ii)):
+                        # If the item was not predicted yet for the user, add it
+                        if not (users_prediction_dictionary_num[uu].has_key(ii)):
+                            users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
+                        # Else Evaluate its contribution
+                        else:
+                            users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate and Normalization:")
     # For each target user (users_prediction_dictionary_num contains all target users)

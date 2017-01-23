@@ -25,6 +25,12 @@ active_items_to_recommend = {}
 for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
+# Dictionary with only recent items
+recent_intems = {}
+for i, row in item_profile.iterrows():
+    if(['created_at'] >= 1446249600):
+        recent_intems[row['item']] = 0
+
 # Filename for the output result
 CF_IB_predictions_output = "../Predictions/CF_Item_Based.csv"
 
