@@ -500,6 +500,44 @@ def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary,
 
     return item_item_similarity_dictionary_num
 
+def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_attribute_dictionary, similarity_shrink, KNN):
+    item_similarity_dictionary_norm = {}
+    for item in item_attribute_dictionary:
+        for attribute in item_attribute_dictionary[item]:
+            if (item_similarity_dictionary_norm.has_key(item)):
+                item_similarity_dictionary_norm[item] += math.pow(item_attribute_dictionary[item][attribute], 2)
+            else:
+                item_similarity_dictionary_norm[item] = math.pow(item_attribute_dictionary[item][attribute], 2)
+        item_similarity_dictionary_norm[item] = math.sqrt(item_similarity_dictionary_norm[item])
+
+    print ("Similarities estimate:")
+    i = 1
+    size = len(item_item_similarity_dictionary)
+    for item in item_item_similarity_dictionary:
+        print (str(i) + "/" + str(size))
+        i = i + 1
+        for item_j in item_item_similarity_dictionary[item]:
+            item_item_similarity_dictionary[item][item_j] = item_item_similarity_dictionary[item][item_j] / \
+                                                            (item_similarity_dictionary_norm[item] *
+                                                             item_similarity_dictionary_norm[item_j] + similarity_shrink)
+
+    print ("Similarity KNN")
+    if (KNN == 0):
+        return item_item_similarity_dictionary
+    else:
+        i = 1
+        item_item_KNN_similarity_dictionary = {}
+        for item in item_item_similarity_dictionary:
+            print (str(i) + "/" + str(size))
+            i = i + 1
+            item_item_KNN_similarity_dictionary[item] = {}
+            KNN_sim_items = sorted(item_item_similarity_dictionary[item].items(), key=operator.itemgetter(1))
+            KNN_sim_items_desc = sorted(KNN_sim_items, key=lambda tup: -tup[1])
+            for sim_item in KNN_sim_items_desc:
+                if (len(item_item_KNN_similarity_dictionary[item]) < KNN):
+                    item_item_KNN_similarity_dictionary[item][sim_item[0]] = item_item_similarity_dictionary[item][sim_item[0]]
+        return item_item_KNN_similarity_dictionary
+
 # Function to build the Item-Item Similarity Dictionary
 def CBItemItemSimilarityKNNAttributes(item_attribute_dictionary, attribute_items_dictionary):
 
@@ -528,8 +566,8 @@ def CBItemItemSimilarityKNNAttributes(item_attribute_dictionary, attribute_items
 
     return item_item_similarity_dictionary_num
 
-def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_attribute_dictionary, item_interacted_by_target_users_KNN_attributes,
-                                 similarity_shrink, KNN):
+def CBItemItemSimilarityEstimateKNNAttributes(item_item_similarity_dictionary, item_attribute_dictionary, item_interacted_by_target_users_KNN_attributes,
+                                              similarity_shrink, KNN):
     item_similarity_dictionary_norm = {}
     for item in item_attribute_dictionary:
         for attribute in item_attribute_dictionary[item]:
