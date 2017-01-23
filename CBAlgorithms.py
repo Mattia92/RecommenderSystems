@@ -224,24 +224,87 @@ def InitializeDictionaries_item(item_profile, item_cols):
     return items_attributes, attributes_items
 
 # Function to compute TF and IDF
-def ComputeTF_IDF(users_attributes, attributes_users):
+def ComputeTF_IDF(user_attributes, attribute_users):
     # create the tf(time frequency) dictionary for each user
     # each attribute of the same user has the same tf value
     users_tf = {}
-    for user in users_attributes:#.keys():
-        users_tf[user] = 1 / len(users_attributes[user])
+    for user in user_attributes:#.keys():
+        users_tf[user] = 1 / len(user_attributes[user])
     # create the idf dictionary for each attribute
     attributes_idf = {}
-    n_users = len(users_attributes.keys())
-    for attribute in attributes_users:#.keys():
-        attributes_idf[attribute] = math.log10(n_users / len(attributes_users[attribute]))
+    n_users = len(user_attributes.keys())
+    for attribute in attribute_users:#.keys():
+        attributes_idf[attribute] = math.log10(n_users / len(attribute_users[attribute]))
     # modify each attribute value including tf-idf
-    for user in users_attributes:#.keys():
-        for attribute in users_attributes[user]:#.keys():
-            users_attributes[user][attribute] *= users_tf[user] * attributes_idf[attribute]
-            attributes_users[attribute][user] *= users_tf[user] * attributes_idf[attribute]
+    for user in user_attributes:#.keys():
+        for attribute in user_attributes[user]:#.keys():
+            user_attributes[user][attribute] *= users_tf[user] * attributes_idf[attribute]
+            attribute_users[attribute][user] *= users_tf[user] * attributes_idf[attribute]
     # sort the dictionary by attribute values
-    for attribute in attributes_users:#.keys():
+    for attribute in attribute_users:#.keys():
+        attribute_users[attribute] = OrderedDict(
+            sorted(attribute_users[attribute].items(), key=lambda t: -t[1]))
+    for user in user_attributes:
+        user_attributes[user] = OrderedDict(
+            sorted(user_attributes[user].items(), key=lambda t: -t[1]))
+
+    return user_attributes, attribute_users
+
+# Function to compute TF and IDF
+def ComputeTF_IDF_CB_UB(user_attributes, attribute_users, target_users, KNN):
+    # create the tf(time frequency) dictionary for each user
+    # each attribute of the same user has the same tf value
+    users_tf = {}
+    for user in user_attributes:
+        users_tf[user] = 1 / len(user_attributes[user])
+    # create the idf dictionary for each attribute
+    attributes_idf = {}
+    n_users = len(user_attributes.keys())
+    for attribute in attribute_users:
+        attributes_idf[attribute] = math.log10(n_users / len(attribute_users[attribute]))
+    # modify each attribute value including tf-idf
+    for user in user_attributes:
+        for attribute in user_attributes[user]:
+            user_attributes[user][attribute] *= users_tf[user] * attributes_idf[attribute]
+            attribute_users[attribute][user] *= users_tf[user] * attributes_idf[attribute]
+    # create the dictionary of target users with their KNN attributes
+    user_KNN_attributes = {}
+    for user in target_users:
+        user_KNN_attributes[user] = {}
+        user_attributes[user] = OrderedDict(
+            sorted(user_attributes[user].items(), key=lambda t: -t[1]))
+        KNN_attributes = user_attributes[user].keys()
+        for attribute in KNN_attributes[:KNN]:
+            user_KNN_attributes[user][attribute] = user_attributes[user][attribute]
+    attribute_KNN_users = {}
+    for user in user_KNN_attributes:
+        for attribute in user_KNN_attributes[user]:
+            if (attribute_KNN_users.has_key(attribute)):
+                attribute_KNN_users[attribute][user] = user_KNN_attributes[user][attribute]
+            else:
+                attribute_KNN_users[attribute] = {}
+                attribute_KNN_users[attribute][user] = user_KNN_attributes[user][attribute]
+
+    return user_KNN_attributes, attribute_KNN_users
+
+# Function to compute TF and IDF
+def ComputeTF_IDF_CB_IB(item_attributes, attribute_items):
+    # create the tf(time frequency) dictionary for each user
+    # each attribute of the same user has the same tf value
+    items_tf = {}
+    for item in item_attributes:
+        items_tf[item] = 1 / len(item_attributes[item])
+    # create the idf dictionary for each attribute
+    attributes_idf = {}
+    n_items = len(item_attributes.keys())
+    for attribute in attribute_items:
+        attributes_idf[attribute] = math.log10(n_items / len(attribute_items[attribute]))
+    # modify each attribute value including tf-idf
+    for item in item_attributes:
+        for attribute in attribute_items[item]:
+            item_attributes[item][attribute] *= items_tf[item] * attributes_idf[attribute]
+    # sort the dictionary by attribute values
+    for attribute in attributes_users:
         attributes_users[attribute] = OrderedDict(
             sorted(attributes_users[attribute].items(), key=lambda t: -t[1]))
     for user in users_attributes:
@@ -266,10 +329,10 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
         print (str(i) + "/" + str(size))
         i = i + 1
         # Calculate the similarity only for the target users
-        user_att = user_attributes_dictionary[user]#.keys() #dictionary of all the attributes of the user
+        user_att = user_attributes_dictionary[user] #dictionary of all the attributes of the user
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
-        for att in user_att:#[:10]:
+        for att in user_att:
             user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
             # for first 10 users
             for u in user_list[:2500]:
