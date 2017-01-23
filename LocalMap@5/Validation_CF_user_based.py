@@ -3,7 +3,7 @@ import CFAlgorithms
 import CBAlgorithms
 
 # Importing all the files needed
-cols = ['user_id', 'item_id', 'interaction', 'create_at']
+cols = ['user_id', 'item_id', 'create_at']
 interactions = pd.read_csv('../TestDataSet/trainingSetWithTime.csv', sep='\t', names=cols, header=0)
 
 items = pd.read_csv('../DataSet/item_profile.csv', sep='\t', header=0)
@@ -41,7 +41,6 @@ CF_UB_KNN = 130
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 CF_user_items_dictionary_time = {}
-CF_item_users_dictionary_time = {}
 
 # Dictionary for the target users
 target_users_dictionary = {}
@@ -62,8 +61,6 @@ for user, item, interaction in interactions.values:
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
-    if (interaction >= 1446336000):
-        CF_item_users_dictionary_time.setdefault(item, {})[user] = 1
 
 # Dictionaries for Content User Based Algorithms
 CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.InitializeDictionaries_user(user_profile, user_cols)
@@ -79,9 +76,12 @@ CF_user_user_similarity_dictionary = CFAlgorithms.CFHybridUserUserSimilarity(CF_
 
 # Compute the Prediction for Collaborative Filtering User Based
 CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictNormalizedRecommendation(target_users, CF_user_user_similarity_dictionary,
-                                                                                            CF_user_items_dictionary_time, active_items_to_recommend,
+                                                                                            CF_user_items_dictionary, active_items_to_recommend,
                                                                                             CF_UB_prediction_shrink)
 
+#CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedLastWeekPredictNormalizedRecommendation(target_users, CF_user_user_similarity_dictionary,
+#                                                                                                    CF_user_items_dictionary, CF_user_items_dictionary_time,
+#                                                                                                    active_items_to_recommend, CF_UB_prediction_shrink)
 
 # Write the final Result for Collaborative Filtering User Based
 CFAlgorithms.CFWrite_Top_Predictions(CF_UB_predictions_output, CF_UB_users_prediction_dictionary)

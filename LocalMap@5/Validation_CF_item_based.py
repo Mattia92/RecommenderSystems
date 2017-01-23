@@ -3,8 +3,8 @@ import CFAlgorithms
 import CBAlgorithms
 
 # Importing all the files needed
-cols = ['user_id', 'item_id', 'interaction']
-interactions = pd.read_csv('../TestDataSet/trainingSet.csv', sep='\t', names=cols, header=0)
+cols = ['user_id', 'item_id', 'create_at']
+interactions = pd.read_csv('../TestDataSet/trainingSetWithTime.csv', sep='\t', names=cols, header=0)
 
 items = pd.read_csv('../DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
@@ -40,6 +40,7 @@ CF_IB_KNN = 0
 # Dictionaries for Collaborative Filtering Algorithms
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
+CF_user_items_dictionary_time = {}
 
 # Dictionary for using IDF in Collaborative Filtering Item Based
 CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
@@ -51,6 +52,8 @@ CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
 print ("Create dictionaries for users and items")
 for user, item, interaction in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
+    if(interaction >= 1446336000):
+        CF_user_items_dictionary_time.setdefault(user, {})[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
@@ -70,8 +73,8 @@ CF_item_item_similarity_dictionary = CFAlgorithms.CFHybridItemItemSimilarity(CF_
 
 # Compute the Prediction for Collaborative Filtering Item Based
 CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictNormalizedRecommendation(target_users, CF_item_item_similarity_dictionary,
-                                                                                   CF_user_items_dictionary, active_items_to_recommend,
-                                                                                   CF_IB_prediction_shrink, CF_IB_IDF)
+                                                                                            CF_user_items_dictionary, active_items_to_recommend,
+                                                                                            CF_IB_prediction_shrink, CF_IB_IDF)
 
 
 # Write the final Result for Collaborative Filtering Item Based
