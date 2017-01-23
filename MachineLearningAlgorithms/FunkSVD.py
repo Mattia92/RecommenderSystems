@@ -170,10 +170,11 @@ class FunkSVD(object):
         ranking_dictionary = {}
         count = 0
         for r in ranking:
-            while count < 300:
-                if((user_row_to_id[user_row], item_row_to_id[r]) not in interactions_map and item_row_to_id[r] in active_items):
-                    ranking_dictionary[item_row_to_id[r]] = scores[r]
-                    count += 1
+            if count >= n:
+                break
+            if((user_row_to_id[user_row], item_row_to_id[r]) not in interactions_map and item_row_to_id[r] in active_items):
+                ranking_dictionary[item_row_to_id[r]] = scores[r]
+                count += 1
 
         #ranking = [item_row_to_id[r] for r in ranking if
         #           (user_row_to_id[user_row], item_row_to_id[r]) not in interactions_map and item_row_to_id[
@@ -195,4 +196,4 @@ with open(OUTPUT, 'w') as out:
         target_user_row = user_id_to_row[target_user]
         ranking_dictionary = svd.recommend(target_user_row, n=300)
         for item in ranking_dictionary:
-            out.write(str(target_user) + "\t" + str(item) + str(ranking_dictionary[item]) + "\n")
+            out.write(str(target_user) + "\t" + str(item) + "\t"+ str(ranking_dictionary[item]) + "\n")
