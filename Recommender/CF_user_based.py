@@ -20,10 +20,20 @@ user_profile = pd.read_csv('../DataSet/user_profile.csv', sep='\t',names=user_co
 
 target_users = pd.read_csv('../DataSet/target_users.csv')
 
+item_cols = ['item', 'title', 'career',	'discipline', 'industry', 'country', 'region', 'latitude', 'longitude',
+            'employ', 'tags', 'created_at', 'active_during_test']
+item_profile = pd.read_csv('DataSet/item_profile.csv', sep='\t', names=item_cols, header=0)
+
 # Dictionary with only active items
 active_items_to_recommend = {}
 for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
+
+# Dictionary with only recent items
+recent_intems = {}
+for i, row in item_profile.iterrows():
+    if(['created_at'] >= 1446249600):
+        recent_intems[row['item']] = 0
 
 # Filename for the output result
 CF_UB_predictions_output = "../Predictions/CF_User_Based.csv"
