@@ -288,7 +288,7 @@ def ComputeTF_IDF_CB_UB(user_attributes, attribute_users, target_users, KNN):
     return user_KNN_attributes, attribute_KNN_users
 
 # Function to compute TF and IDF
-def ComputeTF_IDF_CB_IB(item_attributes, attribute_items):
+def ComputeTF_IDF_CB_IB(item_attributes, attribute_items, active_items, item_at_least_one_interaction_by_target_users, KNN):
     # create the tf(time frequency) dictionary for each user
     # each attribute of the same user has the same tf value
     items_tf = {}
@@ -303,15 +303,34 @@ def ComputeTF_IDF_CB_IB(item_attributes, attribute_items):
     for item in item_attributes:
         for attribute in attribute_items[item]:
             item_attributes[item][attribute] *= items_tf[item] * attributes_idf[attribute]
-    # sort the dictionary by attribute values
-    for attribute in attributes_users:
-        attributes_users[attribute] = OrderedDict(
-            sorted(attributes_users[attribute].items(), key=lambda t: -t[1]))
-    for user in users_attributes:
-        users_attributes[user] = OrderedDict(
-            sorted(users_attributes[user].items(), key=lambda t: -t[1]))
+    # create the dictionary of target users with their KNN attributes
+    item_KNN_attributes = {}
+    for item in active_items:
+        item_KNN_attributes[item] = {}
+        item_attributes[item] = OrderedDict(
+            sorted(item_attributes[item].items(), key=lambda t: -t[1]))
+        KNN_attributes = item_attributes[item].keys()
+        for attribute in KNN_attributes[:KNN]:
+            item_KNN_attributes[item][attribute] = item_attributes[item][attribute]
+    item_interacted_by_target_users_KNN_attributes = {}
+    for item in item_at_least_one_interaction_by_target_users:
+        item_interacted_by_target_users_KNN_attributes[item] = {}
+        item_attributes[item] = OrderedDict(
+            sorted(item_attributes[item].items(), key=lambda t: -t[1]))
+        KNN_attributes = item_attributes[item].keys()
+        for attribute in KNN_attributes[:KNN]:
+            item_interacted_by_target_users_KNN_attributes[item][attribute] = item_attributes[item][attribute]
 
-    return users_attributes, attributes_users
+    attribute_KNN_items = {}
+    for item in item_interacted_by_target_users_KNN_attributes:
+        for attribute in item_interacted_by_target_users_KNN_attributes[item]:
+            if (attribute_KNN_items.has_key(attribute)):
+                attribute_KNN_items[attribute][item] = item_interacted_by_target_users_KNN_attributes[item][attribute]
+            else:
+                attribute_KNN_items[attribute] = {}
+                attribute_KNN_items[attribute][item] = item_interacted_by_target_users_KNN_attributes[item][attribute]
+
+    return item_KNN_attributes, attribute_KNN_items
 
 # Function to build the User-User Similarity Dictionary
 def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction, user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
@@ -333,8 +352,7 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
         for att in user_att:
-            user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
-            # for first 10 users
+            user_list = attributes_users_dictionary[att] #list of users that has this attribute
             for u in user_list[:2500]:
                 # Don't consider the similarity between the same users
                 if u == user:
