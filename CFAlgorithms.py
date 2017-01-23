@@ -484,8 +484,8 @@ def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarit
     return users_prediction_dictionary
 
 # Function to create the normalized recommendations for User_Based
-def CFUserBasedPredictNormalizedRecommendationOnlyRecentItems(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
-                                               prediction_shrink, recent_items):
+def CFUserBasedLastWeekPredictNormalizedRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, user_items_dictionary_time,
+                                                       active_items_to_recommend, prediction_shrink):
     print ("Create dictionaries for CF User Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -503,10 +503,11 @@ def CFUserBasedPredictNormalizedRecommendationOnlyRecentItems(target_users, user
             for user2 in uus_list:
                 # Get the dictionary of items with which this user has interact
                 u2_item_list = user_items_dictionary[user2]
-                if (user in user_user_similarity_dictionary[user2]):
-                    # For each item in the dictionary
-                    for i in u2_item_list:
-                        if(recent_items.has_key(i)):
+                #if (user in user_user_similarity_dictionary[user2]):
+                # For each item in the dictionary
+                for i in u2_item_list:
+                    if (user_items_dictionary_time.has_key(user2)):
+                        if (user_items_dictionary_time[user2].has_key(i)):
                             # If the item was not predicted yet for the user, add it
                             if not (users_prediction_dictionary_num[user].has_key(i)):
                                 users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
