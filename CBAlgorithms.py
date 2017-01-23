@@ -251,7 +251,7 @@ def ComputeTF_IDF(user_attributes, attribute_users):
     return user_attributes, attribute_users
 
 # Function to compute TF and IDF
-def ComputeTF_IDF_CB_UB(user_attributes, attribute_users, target_users, KNN):
+def ComputeTF_IDF_CB_UB(user_attributes, attribute_users, target_users, user_at_least_one_interaction, KNN):
     # create the tf(time frequency) dictionary for each user
     # each attribute of the same user has the same tf value
     users_tf = {}
@@ -276,14 +276,23 @@ def ComputeTF_IDF_CB_UB(user_attributes, attribute_users, target_users, KNN):
         KNN_attributes = user_attributes[user].keys()
         for attribute in KNN_attributes[:KNN]:
             user_KNN_attributes[user][attribute] = user_attributes[user][attribute]
+    user_one_interaction_KNN_attributes = {}
+    for user in user_at_least_one_interaction:
+        user_one_interaction_KNN_attributes[user] = {}
+        user_attributes[user] = OrderedDict(
+            sorted(user_attributes[user].items(), key=lambda t: -t[1]))
+        KNN_attributes = user_attributes[user].keys()
+        for attribute in KNN_attributes[:KNN]:
+            user_one_interaction_KNN_attributes[user][attribute] = user_attributes[user][attribute]
+
     attribute_KNN_users = {}
-    for user in user_KNN_attributes:
-        for attribute in user_KNN_attributes[user]:
+    for user in user_one_interaction_KNN_attributes:
+        for attribute in user_one_interaction_KNN_attributes[user]:
             if (attribute_KNN_users.has_key(attribute)):
-                attribute_KNN_users[attribute][user] = user_KNN_attributes[user][attribute]
+                attribute_KNN_users[attribute][user] = user_one_interaction_KNN_attributes[user][attribute]
             else:
                 attribute_KNN_users[attribute] = {}
-                attribute_KNN_users[attribute][user] = user_KNN_attributes[user][attribute]
+                attribute_KNN_users[attribute][user] = user_one_interaction_KNN_attributes[user][attribute]
 
     return user_KNN_attributes, attribute_KNN_users
 
@@ -406,8 +415,8 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
         return user_user_KNN_similarity_dictionary
 
 # Function to build the User-User Similarity Dictionary
-def CBUserUserSimilarityKNNAttributes(target_users_dictionary, user_at_least_one_interaction, user_attributes_dictionary,
-                                      attributes_users_dictionary, similarity_shrink, KNN):
+def CBUserUserSimilarityKNNAttributes(user_attributes_dictionary, attributes_users_dictionary, user_one_interact_attributes_dictionary,
+                                      similarity_shrink, KNN):
     # Create the dictionary for the user_user similarity
     # dict {user -> (list of {user -> similarity})}
     #user_user_similarity_dictionary = {}
@@ -417,8 +426,8 @@ def CBUserUserSimilarityKNNAttributes(target_users_dictionary, user_at_least_one
     print ("Create dictionaries for CB user-user similarity")
     # For each user in the dictionary
     i = 1
-    size = len(target_users_dictionary)
-    for user in target_users_dictionary:
+    size = len(user_attributes_dictionary)
+    for user in user_attributes_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
         # Calculate the similarity only for the target users
@@ -426,13 +435,13 @@ def CBUserUserSimilarityKNNAttributes(target_users_dictionary, user_at_least_one
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
         for att in user_att:
-            user_list = attributes_users_dictionary[att] #list of users that has this attribute
-            for u in user_list:
-                # Don't consider the similarity between the same users
-                if u == user:
-                    continue
-                else:
-                    if (user_at_least_one_interaction.has_key(u)):
+            if (attributes_users_dictionary.has_key(att)):
+                user_list = attributes_users_dictionary[att] #list of users that has this attribute
+                for u in user_list:
+                    # Don't consider the similarity between the same users
+                    if u == user:
+                        continue
+                    else:
                         # Create the dictionary containing the numerator of the similarity
                         if(user_user_similarity_dictionary_num[user].has_key(u)):
                             user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
@@ -450,6 +459,14 @@ def CBUserUserSimilarityKNNAttributes(target_users_dictionary, user_at_least_one
             else:
                 user_similarity_dictionary_norm[user] = math.pow(user_attributes_dictionary[user][attribute], 2)
         user_similarity_dictionary_norm[user] = math.sqrt(user_similarity_dictionary_norm[user])
+    for user in user_one_interact_attributes_dictionary:
+        if not(user_similarity_dictionary_norm.has_key(user)):
+            for attribute in user_one_interact_attributes_dictionary[user]:
+                if (user_similarity_dictionary_norm.has_key(user)):
+                    user_similarity_dictionary_norm[user] += math.pow(user_one_interact_attributes_dictionary[user][attribute], 2)
+                else:
+                    user_similarity_dictionary_norm[user] = math.pow(user_one_interact_attributes_dictionary[user][attribute], 2)
+            user_similarity_dictionary_norm[user] = math.sqrt(user_similarity_dictionary_norm[user])
 
     print ("Similarities estimate:")
     # For each user in the dictionary
@@ -601,6 +618,8 @@ def CBItemItemSimilarityEstimateKNNAttributes(item_item_similarity_dictionary, i
                                                             (item_similarity_dictionary_norm[item] *
                                                              item_similarity_dictionary_norm[item_j] + similarity_shrink)
 
+    # Change the dictionary from {active_item --> {item_interact_by_target_u --> score}}
+    # to {item_interact_by_target_u --> {active_item --> score}}
     print ("Similarity KNN")
     item_item_KNN_similarity_dictionary = {}
     item_item_KNN_similarity_dictionary2 = {}
