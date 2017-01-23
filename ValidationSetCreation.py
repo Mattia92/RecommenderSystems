@@ -37,15 +37,13 @@ for user in interact_dictionary:
     print (i)
     i = i + 1
     validation_dictionary[user] = []
-    training_dictionary[user] = []
+    training_dictionary[user] = {}
     for item in interact_dictionary[user]:
         if count < 5:
             validation_dictionary[user].append(item)
         else:
-            training_dictionary[user].append(item)
+            training_dictionary[user][item] = interact_dictionary[user][item]
         count += 1
-print validation_dictionary
-print training_dictionary
 
 print ("Writing result ")
 out_file = open("TestDataSet/validationSet.csv", "w")
@@ -57,9 +55,9 @@ for user in validation_dictionary:
 out_file.close()
 
 print ("Writing result ")
-out_file = open("TestDataSet/trainingSet.csv", "w")
-out_file.write('user_id\titem_id\tinteraction_type\n')
+out_file = open("TestDataSet/trainingSetWithTime.csv", "w")
+out_file.write('user_id\titem_id\tcreate_at\n')
 for user in training_dictionary:
     for item in training_dictionary[user]:
-        out_file.write(str(user) + '\t' + str(item) + '\t' + str(1) + '\n')
+        out_file.write(str(user) + '\t' + str(item) + '\t' + str(training_dictionary[user][item]) +'\n')
 out_file.close()

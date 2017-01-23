@@ -3,8 +3,8 @@ import CFAlgorithms
 import CBAlgorithms
 
 # Importing all the files needed
-cols = ['user_id', 'item_id', 'interaction']
-interactions = pd.read_csv('../TestDataSet/trainingSet.csv', sep='\t', names=cols, header=0)
+cols = ['user_id', 'item_id', 'interaction', 'create_at']
+interactions = pd.read_csv('../TestDataSet/trainingSetWithTime.csv', sep='\t', names=cols, header=0)
 
 items = pd.read_csv('../DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
@@ -40,6 +40,8 @@ CF_UB_KNN = 130
 # Dictionaries for Collaborative Filtering Algorithms
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
+CF_user_items_dictionary_time = {}
+CF_item_users_dictionary_time = {}
 
 # Dictionary for the target users
 target_users_dictionary = {}
@@ -53,10 +55,15 @@ for user in target_users['user_id']:
 print ("Create dictionaries for users and items")
 for user, item, interaction in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
+    if(interaction >= 1446336000):
+        CF_user_items_dictionary_time.setdefault(user, {})[item] = 1
+
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
+    if (interaction >= 1446336000):
+        CF_item_users_dictionary_time.setdefault(item, {})[user] = 1
 
 # Dictionaries for Content User Based Algorithms
 CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.InitializeDictionaries_user(user_profile, user_cols)
@@ -72,7 +79,7 @@ CF_user_user_similarity_dictionary = CFAlgorithms.CFHybridUserUserSimilarity(CF_
 
 # Compute the Prediction for Collaborative Filtering User Based
 CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictNormalizedRecommendation(target_users, CF_user_user_similarity_dictionary,
-                                                                                            CF_user_items_dictionary, active_items_to_recommend,
+                                                                                            CF_user_items_dictionary_time, active_items_to_recommend,
                                                                                             CF_UB_prediction_shrink)
 
 
