@@ -294,7 +294,7 @@ def ComputeTF_IDF_CB_UB(user_attributes, attribute_users, target_users, user_at_
                 attribute_KNN_users[attribute] = {}
                 attribute_KNN_users[attribute][user] = user_one_interaction_KNN_attributes[user][attribute]
 
-    return user_KNN_attributes, attribute_KNN_users
+    return user_KNN_attributes, attribute_KNN_users, user_one_interaction_KNN_attributes
 
 # Function to compute TF and IDF
 def ComputeTF_IDF_CB_IB(item_attributes, attribute_items, active_items, item_at_least_one_interaction_by_target_users, KNN):
