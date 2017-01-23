@@ -329,6 +329,10 @@ def ComputeTF_IDF_CB_IB(item_attributes, attribute_items, active_items, item_at_
             else:
                 attribute_KNN_items[attribute] = {}
                 attribute_KNN_items[attribute][item] = item_interacted_by_target_users_KNN_attributes[item][attribute]
+    # attribute_KNN_items dict sorted by items
+    for attribute in attribute_KNN_items:
+        attribute_KNN_items[attribute] = OrderedDict(
+            sorted(attribute_KNN_items[attribute].items(), key=lambda t: -t[1]))
 
     return item_KNN_attributes, attribute_KNN_items, item_interacted_by_target_users_KNN_attributes
 
@@ -552,8 +556,9 @@ def CBItemItemSimilarityKNNAttributes(item_attribute_dictionary, attribute_items
         item_item_similarity_dictionary_num[item] = {}
         for att in item_att:
             if (attribute_items_dictionary.has_key(att)):
-                item_list = attribute_items_dictionary[att]
-                for ij in item_list:
+                item_list = attribute_items_dictionary[att].keys()
+                #print ("length: " + str(len(item_list)))
+                for ij in item_list[:500]:
                     if ij == item:
                         continue
                     else:
@@ -597,11 +602,20 @@ def CBItemItemSimilarityEstimateKNNAttributes(item_item_similarity_dictionary, i
                                                              item_similarity_dictionary_norm[item_j] + similarity_shrink)
 
     print ("Similarity KNN")
+    item_item_KNN_similarity_dictionary = {}
+    item_item_KNN_similarity_dictionary2 = {}
     if (KNN == 0):
-        return item_item_similarity_dictionary
+        for item in item_item_similarity_dictionary:
+            for itemsim in item_item_similarity_dictionary[item]:
+                if (item_item_KNN_similarity_dictionary.has_key(itemsim)):
+                    item_item_KNN_similarity_dictionary[itemsim][item] = item_item_similarity_dictionary[item][itemsim]
+                else:
+                    item_item_KNN_similarity_dictionary[itemsim] = {}
+                    item_item_KNN_similarity_dictionary[itemsim][item] = item_item_similarity_dictionary[item][itemsim]
+
+        return item_item_KNN_similarity_dictionary
     else:
         i = 1
-        item_item_KNN_similarity_dictionary = {}
         for item in item_item_similarity_dictionary:
             print (str(i) + "/" + str(size))
             i = i + 1
@@ -611,7 +625,15 @@ def CBItemItemSimilarityEstimateKNNAttributes(item_item_similarity_dictionary, i
             for sim_item in KNN_sim_items_desc:
                 if (len(item_item_KNN_similarity_dictionary[item]) < KNN):
                     item_item_KNN_similarity_dictionary[item][sim_item[0]] = item_item_similarity_dictionary[item][sim_item[0]]
-        return item_item_KNN_similarity_dictionary
+        for item in item_item_KNN_similarity_dictionary:
+            for itemsim in item_item_KNN_similarity_dictionary[item]:
+                if (item_item_KNN_similarity_dictionary2.has_key(itemsim)):
+                    item_item_KNN_similarity_dictionary2[itemsim][item] = item_item_similarity_dictionary[item][itemsim]
+                else:
+                    item_item_KNN_similarity_dictionary2[itemsim] = {}
+                    item_item_KNN_similarity_dictionary2[itemsim][item] = item_item_similarity_dictionary[item][itemsim]
+
+        return item_item_KNN_similarity_dictionary2
 
 # Function to create the recommendations for User_Based
 def CBUserBasedPredictRecommendation(target_users_dictionary, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
@@ -813,6 +835,59 @@ def CBItemBasedPredictNormalizedRecommendation(active_items_dictionary, item_ite
                     else:
                         users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
                         users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
+
+    print ("Ratings estimate and Normalization:")
+    # For each target user (users_prediction_dictionary_num contains all target users)
+    for uu in users_prediction_dictionary_num:
+        max_prediction = 0
+        #users_prediction_dictionary[uu] = {}
+        # For each item predicted for the user
+        for ii in users_prediction_dictionary_num[uu]:
+            # Evaluate the prediction of that item for that user
+            if (active_items_dictionary.has_key(ii)):
+                users_prediction_dictionary_num[uu][ii] = users_prediction_dictionary_num[uu][ii] / \
+                                                      (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
+                max_prediction = max(max_prediction, users_prediction_dictionary_num[uu][ii])
+
+        for item in users_prediction_dictionary_num[uu]:
+            users_prediction_dictionary_num[uu][item] = users_prediction_dictionary_num[uu][item] / max_prediction
+
+    return users_prediction_dictionary_num
+
+# Function to create the recommendations for Item_Based
+def CBItemKNNAttributesBasedPredictNormalizedRecommendation(active_items_dictionary, item_item_similarity_dictionary, user_items_dictionary,
+                                                            target_users_dictionary, prediction_shrink, CF_IDF):
+    print ("Create dictionaries for CF Item Based user predictions")
+    # Create the dictionary for users prediction
+    # dict {user -> (list of {item -> prediction})}
+    #users_prediction_dictionary = {}
+    users_prediction_dictionary_num = {}
+    users_prediction_dictionary_den = {}
+    # For each target user
+    for uu in target_users_dictionary:
+        users_prediction_dictionary_num[uu] = {}
+        users_prediction_dictionary_den[uu] = {}
+        # If user has interact with at least one item
+        if (user_items_dictionary.has_key(uu)):
+            # Get dictionary of items with which the user has interact
+            i_r_dict = user_items_dictionary[uu]
+            # For each item in this dictionary
+            for ij in i_r_dict:
+                # Get the dictionary of similar items and the value of similarity
+                if (item_item_similarity_dictionary.has_key(ij)):
+                    ij_s_dict = item_item_similarity_dictionary[ij]
+                    # For each similar item in the dictionary
+                    for ii in ij_s_dict:
+                        if (i_r_dict.has_key(ii)):
+                            continue
+                        # If the item was not predicted yet for the user, add it
+                        if not (users_prediction_dictionary_num[uu].has_key(ii)):
+                            users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
+                        # Else Evaluate its contribution
+                        else:
+                            users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate and Normalization:")
     # For each target user (users_prediction_dictionary_num contains all target users)
