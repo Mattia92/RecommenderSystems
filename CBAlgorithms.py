@@ -330,10 +330,11 @@ def ComputeTF_IDF_CB_IB(item_attributes, attribute_items, active_items, item_at_
                 attribute_KNN_items[attribute] = {}
                 attribute_KNN_items[attribute][item] = item_interacted_by_target_users_KNN_attributes[item][attribute]
 
-    return item_KNN_attributes, attribute_KNN_items
+    return item_KNN_attributes, attribute_KNN_items, item_interacted_by_target_users_KNN_attributes
 
 # Function to build the User-User Similarity Dictionary
-def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction, user_attributes_dictionary, attributes_users_dictionary, similarity_shrink, KNN):
+def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction, user_attributes_dictionary,
+                         attributes_users_dictionary, similarity_shrink, KNN):
     # Create the dictionary for the user_user similarity
     # dict {user -> (list of {user -> similarity})}
     #user_user_similarity_dictionary = {}
@@ -400,8 +401,78 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
                     user_user_KNN_similarity_dictionary[user][sim_user[0]] = user_user_similarity_dictionary_num[user][sim_user[0]]
         return user_user_KNN_similarity_dictionary
 
+# Function to build the User-User Similarity Dictionary
+def CBUserUserSimilarityKNNAttributes(target_users_dictionary, user_at_least_one_interaction, user_attributes_dictionary,
+                                      attributes_users_dictionary, similarity_shrink, KNN):
+    # Create the dictionary for the user_user similarity
+    # dict {user -> (list of {user -> similarity})}
+    #user_user_similarity_dictionary = {}
+    user_user_similarity_dictionary_num = {}
+    user_similarity_dictionary_norm = {}
+
+    print ("Create dictionaries for CB user-user similarity")
+    # For each user in the dictionary
+    i = 1
+    size = len(target_users_dictionary)
+    for user in target_users_dictionary:
+        print (str(i) + "/" + str(size))
+        i = i + 1
+        # Calculate the similarity only for the target users
+        user_att = user_attributes_dictionary[user] #dictionary of all the attributes of the user
+        user_user_similarity_dictionary_num[user] = {}
+        # For each attribute of the user
+        for att in user_att:
+            user_list = attributes_users_dictionary[att] #list of users that has this attribute
+            for u in user_list:
+                # Don't consider the similarity between the same users
+                if u == user:
+                    continue
+                else:
+                    if (user_at_least_one_interaction.has_key(u)):
+                        # Create the dictionary containing the numerator of the similarity
+                        if(user_user_similarity_dictionary_num[user].has_key(u)):
+                            user_user_similarity_dictionary_num[user][u] += user_attributes_dictionary[user][att] *\
+                                                                            user_attributes_dictionary[u][att]
+                        else:
+                            user_user_similarity_dictionary_num[user][u] = user_attributes_dictionary[user][att] *\
+                                                                            user_attributes_dictionary[u][att]
+    # For each user in the dictionary
+    for user in user_attributes_dictionary:
+        # For each attribute of the user
+        for attribute in user_attributes_dictionary[user]:
+            # Calculate the norm of the vector corresponding to the user attributes
+            if (user_similarity_dictionary_norm.has_key(user)):
+                user_similarity_dictionary_norm[user] += math.pow(user_attributes_dictionary[user][attribute], 2)
+            else:
+                user_similarity_dictionary_norm[user] = math.pow(user_attributes_dictionary[user][attribute], 2)
+        user_similarity_dictionary_norm[user] = math.sqrt(user_similarity_dictionary_norm[user])
+
+    print ("Similarities estimate:")
+    # For each user in the dictionary
+    for user in user_user_similarity_dictionary_num:
+        #user_user_similarity_dictionary[user] = {}
+        # Calculate the user-user similarity
+        for user_j in user_user_similarity_dictionary_num[user]:
+            user_user_similarity_dictionary_num[user][user_j] = user_user_similarity_dictionary_num[user][user_j] / \
+                                                            (user_similarity_dictionary_norm[user] *
+                                                             user_similarity_dictionary_norm[user_j] + similarity_shrink)
+
+    if (KNN == 0):
+        return user_user_similarity_dictionary_num
+    else:
+        user_user_KNN_similarity_dictionary = {}
+        for user in user_user_similarity_dictionary_num:
+            user_user_KNN_similarity_dictionary[user] = {}
+            KNN_sim_users = sorted(user_user_similarity_dictionary_num[user].items(), key=operator.itemgetter(1))
+            KNN_sim_users_desc = sorted(KNN_sim_users, key=lambda tup: -tup[1])
+            for sim_user in KNN_sim_users_desc:
+                if (len(user_user_KNN_similarity_dictionary[user]) < KNN):
+                    user_user_KNN_similarity_dictionary[user][sim_user[0]] = user_user_similarity_dictionary_num[user][sim_user[0]]
+        return user_user_KNN_similarity_dictionary
+
 # Function to build the Item-Item Similarity Dictionary
-def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary, item_attribute_dictionary, attribute_items_dictionary):
+def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary, item_attribute_dictionary,
+                         attribute_items_dictionary):
     item_item_similarity_dictionary_num = {}
 
     print ("Create dictionaries for CB item-item similarity")
@@ -414,22 +485,51 @@ def CBItemItemSimilarity(item_at_least_one_interaction, active_items_dictionary,
         item_att = item_attribute_dictionary[item].keys()
         item_item_similarity_dictionary_num[item] = {}
         for att in item_att[:5]:
-            item_list = attribute_items_dictionary[att]#.keys()
-            for ij in item_list:#[:2500]:
+            item_list = attribute_items_dictionary[att]
+            for ij in item_list:
                 if ij == item:
                     continue
                 else:
                     if (active_items_dictionary.has_key(ij)):
-                        if(item_item_similarity_dictionary_num[item].has_key(ij)):
-                            item_item_similarity_dictionary_num[item][ij] += item_attribute_dictionary[item][att] *\
+                        if (item_item_similarity_dictionary_num[item].has_key(ij)):
+                            item_item_similarity_dictionary_num[item][ij] += item_attribute_dictionary[item][att] * \
                                                                              item_attribute_dictionary[ij][att]
                         else:
-                            item_item_similarity_dictionary_num[item][ij] = item_attribute_dictionary[item][att] *\
+                            item_item_similarity_dictionary_num[item][ij] = item_attribute_dictionary[item][att] * \
                                                                             item_attribute_dictionary[ij][att]
 
     return item_item_similarity_dictionary_num
 
-def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_attribute_dictionary, similarity_shrink, KNN):
+# Function to build the Item-Item Similarity Dictionary
+def CBItemItemSimilarityKNNAttributes(item_attribute_dictionary, attribute_items_dictionary):
+
+    item_item_similarity_dictionary_num = {}
+    print ("Create dictionaries for CB item-item similarity")
+    i = 1
+    size = len(item_attribute_dictionary)
+    for item in item_attribute_dictionary:
+        print (str(i) + "/" + str(size))
+        i = i + 1
+        item_att = item_attribute_dictionary[item]
+        item_item_similarity_dictionary_num[item] = {}
+        for att in item_att:
+            if (attribute_items_dictionary.has_key(att)):
+                item_list = attribute_items_dictionary[att]
+                for ij in item_list:
+                    if ij == item:
+                        continue
+                    else:
+                        if(item_item_similarity_dictionary_num[item].has_key(ij)):
+                            item_item_similarity_dictionary_num[item][ij] += item_attribute_dictionary[item][att] * \
+                                                                             attribute_items_dictionary[att][ij]
+                        else:
+                            item_item_similarity_dictionary_num[item][ij] = item_attribute_dictionary[item][att] * \
+                                                                            attribute_items_dictionary[att][ij]
+
+    return item_item_similarity_dictionary_num
+
+def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_attribute_dictionary, item_interacted_by_target_users_KNN_attributes,
+                                 similarity_shrink, KNN):
     item_similarity_dictionary_norm = {}
     for item in item_attribute_dictionary:
         for attribute in item_attribute_dictionary[item]:
@@ -438,22 +538,25 @@ def CBItemItemSimilarityEstimate(item_item_similarity_dictionary, item_attribute
             else:
                 item_similarity_dictionary_norm[item] = math.pow(item_attribute_dictionary[item][attribute], 2)
         item_similarity_dictionary_norm[item] = math.sqrt(item_similarity_dictionary_norm[item])
+    for item in item_interacted_by_target_users_KNN_attributes:
+        if not(item_similarity_dictionary_norm.has_key(item)):
+            for attribute in item_interacted_by_target_users_KNN_attributes[item]:
+                if (item_similarity_dictionary_norm.has_key(item)):
+                    item_similarity_dictionary_norm[item] += math.pow(item_interacted_by_target_users_KNN_attributes[item][attribute], 2)
+                else:
+                    item_similarity_dictionary_norm[item] = math.pow(item_interacted_by_target_users_KNN_attributes[item][attribute], 2)
+            item_similarity_dictionary_norm[item] = math.sqrt(item_similarity_dictionary_norm[item])
 
     print ("Similarities estimate:")
     i = 1
-    #size = len(item_item_similarity_dictionary_num)
     size = len(item_item_similarity_dictionary)
-    #for item in item_item_similarity_dictionary_num:
     for item in item_item_similarity_dictionary:
         print (str(i) + "/" + str(size))
         i = i + 1
-        #item_item_similarity_dictionary[item] = {}
-        #for item_j in item_item_similarity_dictionary_num[item]:
         for item_j in item_item_similarity_dictionary[item]:
             item_item_similarity_dictionary[item][item_j] = item_item_similarity_dictionary[item][item_j] / \
                                                             (item_similarity_dictionary_norm[item] *
                                                              item_similarity_dictionary_norm[item_j] + similarity_shrink)
-                                                            #item_item_similarity_dictionary_num[item][item_j] / \
 
     print ("Similarity KNN")
     if (KNN == 0):
