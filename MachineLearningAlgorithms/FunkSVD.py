@@ -167,12 +167,19 @@ class FunkSVD(object):
     def recommend(self, user_row, n=None):
         scores = np.dot(self.U[user_row], self.V.T)
         ranking = scores.argsort()[::-1]
+        ranking_dictionary = {}
+        count = 0
+        for r in ranking:
+            while count < 300:
+                if((user_row_to_id[user_row], item_row_to_id[r]) not in interactions_map and item_row_to_id[r] in active_items):
+                    ranking_dictionary[item_row_to_id[r]] = scores[r]
+                    count += 1
 
-        ranking = [item_row_to_id[r] for r in ranking if
-                   (user_row_to_id[user_row], item_row_to_id[r]) not in interactions_map and item_row_to_id[
-                       r] in active_items]
+        #ranking = [item_row_to_id[r] for r in ranking if
+        #           (user_row_to_id[user_row], item_row_to_id[r]) not in interactions_map and item_row_to_id[
+        #               r] in active_items]
 
-        return ranking[:n]
+        return ranking_dictionary
 
 ######-----Chiamata degli algoritmi di ML-----#####
 print("brb fitting...")
@@ -186,5 +193,6 @@ with open(OUTPUT, 'w') as out:
         if i % 10 == 0:
             print(i)
         target_user_row = user_id_to_row[target_user]
-        best = svd.recommend(target_user_row, n=300)
-        out.write(str(target_user) + "," + " ".join(str(i) for i in best) + "\n")
+        ranking_dictionary = svd.recommend(target_user_row, n=300)
+        for item in ranking_dictionary:
+            out.write(str(target_user) + "\t" + str(item) + str(ranking_dictionary[item]) + "\n")
