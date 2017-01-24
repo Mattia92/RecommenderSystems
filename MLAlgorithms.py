@@ -1,14 +1,19 @@
+from __future__ import division
 from collections import OrderedDict
 
 def MLHybridPredictNormalizedRecommendation(actual_users_prediction_dictionary, ML_user_prediction_dictionary, ML_Weight):
+    max_prediction = 0
     for user in ML_user_prediction_dictionary:
+        max_prediction = 0
+        for item in ML_user_prediction_dictionary[user]:
+            max_prediction = max(max_prediction, ML_user_prediction_dictionary[user][item])
         if not actual_users_prediction_dictionary.has_key(user):
             actual_users_prediction_dictionary[user] = {}
         for item in ML_user_prediction_dictionary[user]:
             if actual_users_prediction_dictionary[user].has_key(item):
-                actual_users_prediction_dictionary[user][item] += ML_user_prediction_dictionary[user][item] * ML_Weight
+                actual_users_prediction_dictionary[user][item] += (ML_user_prediction_dictionary[user][item] * ML_Weight) / max_prediction
             else:
-                actual_users_prediction_dictionary[user][item] = ML_user_prediction_dictionary[user][item] * ML_Weight
+                actual_users_prediction_dictionary[user][item] = (ML_user_prediction_dictionary[user][item] * ML_Weight) / max_prediction
 
     return actual_users_prediction_dictionary
 

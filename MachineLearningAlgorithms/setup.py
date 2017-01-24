@@ -1,11 +1,10 @@
 import numpy
 from Cython.Build import cythonize
-import Cython.Compiler.Options as cy
-#from Cython.Compiler.Options import #_directive_defaults
+from Cython.Compiler.Options import _directive_defaults
 from setuptools import Extension, setup
 
-cy.directive_defaults['linetrace'] = True
-cy.directive_defaults['binding'] = True
+_directive_defaults['linetrace'] = True
+_directive_defaults['binding'] = True
 
 extensions = [
     Extension(name='_cython._similarity',

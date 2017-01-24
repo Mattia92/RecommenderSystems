@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Recommender.iml" filepath="$PROJECT_DIR$/.idea/Recommender.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../recsys-course-2016-pub/.idea/recsys-course-2016-pub.iml" filepath="$PROJECT_DIR$/../recsys-course-2016-pub/.idea/recsys-course-2016-pub.iml" />
     </modules>
   </component>
 </project>

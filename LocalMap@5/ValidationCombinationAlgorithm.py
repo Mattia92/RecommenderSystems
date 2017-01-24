@@ -12,7 +12,7 @@ CB_UB_predictions_output = "../ValidationPredictions/Validation_CB_User_Based.cs
 CB_IB_predictions_output = "../ValidationPredictions/Validation_CB_Item_Based.csv"
 CF_UB_predictions_output = "../ValidationPredictions/Validation_CF_User_Based.csv"
 CF_IB_predictions_output = "../ValidationPredictions/Validation_CF_Item_Based.csv"
-ML_SVD_predictions_output = "../ValidationPredictions/Validation_unkSVD.csv"
+ML_SVD_predictions_output = "../ValidationPredictions/Validation_Funk_SVD.csv"
 
 # Filename for the output result
 CB_UB_MAP_Output = "../TestDataSet/CB_MAP_User_Based.csv"
@@ -21,6 +21,7 @@ CF_HB_UB_MAP_Output = "../TestDataSet/CF_MAP_Hybrid_User_Based.csv"
 CF_HB_IB_MAP_Output = "../TestDataSet/CF_MAP_Hybrid_Item_Based.csv"
 ML_SVD_MAP_Output = "../TestDataSet/CF_MAP_FunkSVD.csv"
 CF_Hybrid_Ranked_MAP_Output = "../TestDataSet/CF_MAP_Hybrid_Ranked.csv"
+ML_Funk_SVD_MAP_Output = "../TestDataSet/CF_MAP_FunkSVD.csv"
 CF_CB_ML_Hybrid_MAP_Output = "../TestDataSet/CF_CB_ML_MAP_Hybrid_Ranked.csv"
 
 # Weight values for Collaborative Filtering, Content Based and Hybrid Ranking
@@ -30,7 +31,7 @@ CB_User_Rank_Weight = 0.5
 CB_Item_Rank_Weight = 1
 CB_CF_IB_Hybrid_Rank_Weight = 1
 CB_IB_CF_IB_UB_Hybrid_Rank_Weight = 4
-ML_SVD_Rank_Weight = 0.5
+ML_SVD_Rank_Weight = 0.1
 
 CB_UB_users_prediction_dictionary_normalized = CBAlgorithms.CBRead_Predictions(CB_UB_predictions_output)
 CB_IB_users_prediction_dictionary_normalized = CBAlgorithms.CBRead_Predictions(CB_IB_predictions_output)
@@ -77,5 +78,5 @@ CFAlgorithms.CFWriteResult(CF_CB_ML_Hybrid_MAP_Output, HB_CF_CB_ML_users_predict
 #va.MAP(target_users, validation, CB_IB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
-va.MAP(target_users, validation, ML_SVD_predictions_output)
+va.MAP(target_users, validation, ML_Funk_SVD_MAP_Output)
 va.MAP(target_users, validation, CF_CB_ML_Hybrid_MAP_Output)
