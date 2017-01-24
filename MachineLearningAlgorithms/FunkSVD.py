@@ -128,7 +128,7 @@ class FunkSVD(object):
                  init_std=0.1,
                  lrate_decay=0.9,
                  rnd_seed=42):
-        '''
+        '''#reg = 0.015 lrate=0.001 iter=50
         Initialize the model
         :param num_factors: number of latent factors
         :param lrate: initial learning rate used in SGD

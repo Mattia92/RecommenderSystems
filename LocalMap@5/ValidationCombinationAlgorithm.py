@@ -12,13 +12,14 @@ CB_UB_predictions_output = "../ValidationPredictions/Validation_CB_User_Based.cs
 CB_IB_predictions_output = "../ValidationPredictions/Validation_CB_Item_Based.csv"
 CF_UB_predictions_output = "../ValidationPredictions/Validation_CF_User_Based.csv"
 CF_IB_predictions_output = "../ValidationPredictions/Validation_CF_Item_Based.csv"
-ML_SVD_predictions_output = "../ValidationPredictions/testFunkSVD.csv"
+ML_SVD_predictions_output = "../ValidationPredictions/Validation_unkSVD.csv"
 
 # Filename for the output result
 CB_UB_MAP_Output = "../TestDataSet/CB_MAP_User_Based.csv"
 CB_IB_MAP_Output = "../TestDataSet/CB_MAP_Item_Based.csv"
 CF_HB_UB_MAP_Output = "../TestDataSet/CF_MAP_Hybrid_User_Based.csv"
 CF_HB_IB_MAP_Output = "../TestDataSet/CF_MAP_Hybrid_Item_Based.csv"
+ML_SVD_MAP_Output = "../TestDataSet/CF_MAP_FunkSVD.csv"
 CF_Hybrid_Ranked_MAP_Output = "../TestDataSet/CF_MAP_Hybrid_Ranked.csv"
 CF_CB_ML_Hybrid_MAP_Output = "../TestDataSet/CF_CB_ML_MAP_Hybrid_Ranked.csv"
 
@@ -41,6 +42,7 @@ ML_SVD_user_prediction_dictionary = MLAlgorithms.MLRead_Predictions(ML_SVD_predi
 #CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary_normalized)
 #CFAlgorithms.CFWriteResult(CF_HB_UB_MAP_Output, CF_HB_UB_users_prediction_dictionary_normalized)
 #CFAlgorithms.CFWriteResult(CF_HB_IB_MAP_Output, CF_HB_IB_users_prediction_dictionary_normalized)
+MLAlgorithms.MLWriteResult(ML_SVD_MAP_Output, ML_SVD_user_prediction_dictionary)
 
 # Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBIB-CFIB)
 CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_HB_UB_users_prediction_dictionary_normalized,
@@ -75,4 +77,5 @@ CFAlgorithms.CFWriteResult(CF_CB_ML_Hybrid_MAP_Output, HB_CF_CB_ML_users_predict
 #va.MAP(target_users, validation, CB_IB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
+va.MAP(target_users, validation, ML_SVD_predictions_output)
 va.MAP(target_users, validation, CF_CB_ML_Hybrid_MAP_Output)
