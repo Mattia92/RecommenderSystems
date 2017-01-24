@@ -2,8 +2,6 @@ import pandas as pd
 import CFAlgorithms
 import CBAlgorithms
 
-timestamp_last_five_day = 1446508800
-
 # Importing all the files needed
 cols = ['user_id', 'item_id', 'interaction', 'create_at']
 interactions = pd.read_csv('../DataSet/interactions.csv', sep='\t', names=cols, header=0)
@@ -51,6 +49,8 @@ CF_HB_UB_w = 1.1
 
 # Values of KNN for CF Similarities, KNN = 0 means to not use the KNN technique
 CF_UB_KNN = 130
+
+timestamp_last_five_day = 1446508800
 
 # Dictionaries for Collaborative Filtering Algorithms
 CF_user_items_dictionary = {}

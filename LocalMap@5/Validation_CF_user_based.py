@@ -44,6 +44,7 @@ CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 CF_user_items_dictionary_time = {}
 
+#Dictionary containing for each item the number of click on it in the last 5 days
 item_number_click_dictionary = {}
 
 # Dictionary for the target users
