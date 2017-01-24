@@ -17,6 +17,25 @@ CB_Item_Rank_Weight = 1
 CF_UB_IB_Hybrid_Rank_Weight = 1
 CB_IB_CF_IB_UB_Hybrid_Rank_Weight = 4
 
+# timestamp of the fifth day before the last interaction
+timestamp_last_five_day = 1446508800
+
+# Dictionary for number of click on items
+item_number_click_dictionary = {}
+
+# Creating the dictionary which collect for each item the number of times it has been clicked by the users
+for user, item, interaction, created in interactions.values:
+    if (created >= timestamp_last_five_day):
+        if item_number_click_dictionary.has_key(item):
+            item_number_click_dictionary[item] += 1
+        else:
+            item_number_click_dictionary[item] = 1
+
+# return the max number of click on an item in the last 5 days
+max_click = 0
+for item in item_number_click_dictionary:
+    max_click = max(max_click, item_number_click_dictionary[item])
+
 CB_UB_users_prediction_dictionary_normalized = CBAlgorithms.CBRead_Predictions(CB_UB_predictions_output)
 CB_IB_users_prediction_dictionary_normalized = CBAlgorithms.CBRead_Predictions(CB_IB_predictions_output)
 CF_HB_UB_users_prediction_dictionary_normalized = CFAlgorithms.CFRead_Predictions(CF_UB_predictions_output)
@@ -44,5 +63,9 @@ CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankP
 
 del CB_UB_users_prediction_dictionary_normalized
 
+
+final_users_prediction_dictionary = CFAlgorithms.CF_Popularity_Rank_Predictions(CF_Normalized_HB_Ranked_users_prediction_dictionary,
+                                                                                item_number_click_dictionary, max_click)
+
 # Write the final Result for Collaborative Filtering Hybrid Rank
-CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_Output, CF_Normalized_HB_Ranked_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_Hybrid_Ranked_Output, final_users_prediction_dictionary)

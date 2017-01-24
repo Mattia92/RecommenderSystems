@@ -428,7 +428,7 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
 
 # Function to create the normalized recommendations for User_Based
 def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
-                                               item_number_click_dictionary, max_n_click, prediction_shrink):
+                                               prediction_shrink):
     print ("Create dictionaries for CF User Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -478,16 +478,16 @@ def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarit
                                                               (users_prediction_dictionary_norm[user] + prediction_shrink)
                     max_prediction = max(max_prediction, users_prediction_dictionary[user][item])
 
-        for item in users_prediction_dictionary[user]:
-            rank = users_prediction_dictionary[user][item] / max_prediction
-            if (item_number_click_dictionary.has_key(item)):
-                pop = item_number_click_dictionary[item] / max_n_click
-            else:
-                pop = 0
-            users_prediction_dictionary[user][item] = rank * (1.5 + pop)
+        # for item in users_prediction_dictionary[user]:
+        #     rank = users_prediction_dictionary[user][item] / max_prediction
+        #     if (item_number_click_dictionary.has_key(item)):
+        #         pop = item_number_click_dictionary[item] / max_n_click
+        #     else:
+        #         pop = 0
+        #     users_prediction_dictionary[user][item] = rank * (1.5 + pop)
 
-        #for item in users_prediction_dictionary[user]:
-        #    users_prediction_dictionary[user][item] = users_prediction_dictionary[user][item] / max_prediction
+        for item in users_prediction_dictionary[user]:
+            users_prediction_dictionary[user][item] = users_prediction_dictionary[user][item] / max_prediction
 
     return users_prediction_dictionary
 
@@ -599,7 +599,7 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
 
 # Function to create the normalized recommendations for Item_Based
 def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
-                                               item_number_click_dictionary, max_n_click, prediction_shrink, CF_IDF):
+                                               prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -644,16 +644,16 @@ def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarit
                                                       (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
                 max_prediction = max(max_prediction, users_prediction_dictionary[uu][ii])
 
-        for item in users_prediction_dictionary[uu]:
-            rank = users_prediction_dictionary[uu][item] / max_prediction
-            if (item_number_click_dictionary.has_key(item)):
-                pop = item_number_click_dictionary[item] / max_n_click
-            else:
-                pop = 0
-            users_prediction_dictionary[uu][item] = rank * (1.5 + pop)
+        # for item in users_prediction_dictionary[uu]:
+        #     rank = users_prediction_dictionary[uu][item] / max_prediction
+        #     if (item_number_click_dictionary.has_key(item)):
+        #         pop = item_number_click_dictionary[item] / max_n_click
+        #     else:
+        #         pop = 0
+        #     users_prediction_dictionary[uu][item] = rank * (1.5 + pop)
 
-        #for item in users_prediction_dictionary[user]:
-        #    users_prediction_dictionary[user][item] = users_prediction_dictionary[user][item] / max_prediction
+        for item in users_prediction_dictionary[uu]:
+            users_prediction_dictionary[uu][item] = users_prediction_dictionary[uu][item] / max_prediction
 
     return users_prediction_dictionary
 
@@ -818,6 +818,15 @@ def Top_Popular_Filling(users_prediction_dictionary, CF_IB_IDF):
         for top_pop in TopPopular_items:
             if (len(users_prediction_dictionary[user]) < 5):
                 users_prediction_dictionary[user][top_pop] = 0
+
+def CF_Popularity_Rank_Predictions(users_prediction_dictionary, item_number_click_dictionary, max_n_click):
+    for user in users_prediction_dictionary:
+        for item in users_prediction_dictionary[user]:
+            rank = users_prediction_dictionary[user][item]
+            pop = item_number_click_dictionary[item] / max_n_click
+            users_prediction_dictionary[user][item] = rank * (1.5 + pop)
+
+    return users_prediction_dictionary
 
 def CFWritePredictions(output_filename, users_prediction_dictionary):
     print ("Writing predictions on " + output_filename)

@@ -710,7 +710,7 @@ def CBUserBasedPredictRecommendation(target_users_dictionary, user_user_similari
 
 # Function to create the normalized recommendations for User_Based
 def CBUserBasedPredictNormalizedRecommendation(target_users_dictionary, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
-                                               item_number_click_dictionary, max_n_click, prediction_shrink):
+                                               prediction_shrink):
     print ("Create dictionaries for CB User Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -765,13 +765,13 @@ def CBUserBasedPredictNormalizedRecommendation(target_users_dictionary, user_use
                                                               (users_prediction_dictionary_norm[user] + prediction_shrink)
                     max_prediction = max(max_prediction, users_prediction_dictionary[user][item])
 
-        for item in users_prediction_dictionary[user]:
-            rank = users_prediction_dictionary[user][item] / max_prediction
-            pop = item_number_click_dictionary[item] / max_n_click
-            users_prediction_dictionary[user][item] = rank * (1.5 + pop)
+        # for item in users_prediction_dictionary[user]:
+        #     rank = users_prediction_dictionary[user][item] / max_prediction
+        #     pop = item_number_click_dictionary[item] / max_n_click
+        #     users_prediction_dictionary[user][item] = rank * (1.5 + pop)
 
-        #for item in users_prediction_dictionary[user]:
-        #    users_prediction_dictionary[user][item] = users_prediction_dictionary[user][item] / max_prediction
+        for item in users_prediction_dictionary[user]:
+            users_prediction_dictionary[user][item] = users_prediction_dictionary[user][item] / max_prediction
 
     return users_prediction_dictionary
 
@@ -825,7 +825,7 @@ def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similari
 
 # Function to create the recommendations for Item_Based
 def CBItemBasedPredictNormalizedRecommendation(active_items_dictionary, item_item_similarity_dictionary, user_items_dictionary, target_users_dictionary,
-                                               item_number_click_dictionary, max_n_click, prediction_shrink, CF_IDF):
+                                               prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -871,19 +871,19 @@ def CBItemBasedPredictNormalizedRecommendation(active_items_dictionary, item_ite
                                                       (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
                 max_prediction = max(max_prediction, users_prediction_dictionary_num[uu][ii])
 
-        for item in users_prediction_dictionary_num[uu]:
-            rank = users_prediction_dictionary_num[uu][item] / max_prediction
-            pop = item_number_click_dictionary[item] / max_n_click
-            users_prediction_dictionary_num[uu][item] = rank * (1.5 + pop)
+        # for item in users_prediction_dictionary_num[uu]:
+        #     rank = users_prediction_dictionary_num[uu][item] / max_prediction
+        #     pop = item_number_click_dictionary[item] / max_n_click
+        #     users_prediction_dictionary_num[uu][item] = rank * (1.5 + pop)
 
-        #for item in users_prediction_dictionary_num[uu]:
-        #    users_prediction_dictionary_num[uu][item] = users_prediction_dictionary_num[uu][item] / max_prediction
+        for item in users_prediction_dictionary_num[uu]:
+            users_prediction_dictionary_num[uu][item] = users_prediction_dictionary_num[uu][item] / max_prediction
 
     return users_prediction_dictionary_num
 
 # Function to create the recommendations for Item_Based
 def CBItemKNNAttributesBasedPredictNormalizedRecommendation(active_items_dictionary, item_item_similarity_dictionary, user_items_dictionary,
-                                                            item_number_click_dictionary, max_n_click, target_users_dictionary, prediction_shrink, CF_IDF):
+                                                            target_users_dictionary, prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -929,13 +929,13 @@ def CBItemKNNAttributesBasedPredictNormalizedRecommendation(active_items_diction
                                                       (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
                 max_prediction = max(max_prediction, users_prediction_dictionary_num[uu][ii])
 
-        for item in users_prediction_dictionary_num[uu]:
-            rank = users_prediction_dictionary_num[uu][item] / max_prediction
-            pop = item_number_click_dictionary[item] / max_n_click
-            users_prediction_dictionary_num[uu][item] = rank * (1.5 + pop)
-
         #for item in users_prediction_dictionary_num[uu]:
-        #    users_prediction_dictionary_num[uu][item] = users_prediction_dictionary_num[uu][item] / max_prediction
+        #    rank = users_prediction_dictionary_num[uu][item] / max_prediction
+        #    pop = item_number_click_dictionary[item] / max_n_click
+        #    users_prediction_dictionary_num[uu][item] = rank * (1.5 + pop)
+
+        for item in users_prediction_dictionary_num[uu]:
+            users_prediction_dictionary_num[uu][item] = users_prediction_dictionary_num[uu][item] / max_prediction
 
     return users_prediction_dictionary_num
 

@@ -37,15 +37,10 @@ CF_HB_IB_w = 1.5
 # Values of KNN for CF Similarities, KNN = 0 means to not use the KNN technique
 CF_IB_KNN = 0
 
-timestamp_last_five_day = 1446508800
-
 # Dictionaries for Collaborative Filtering Algorithms
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 CF_user_items_dictionary_time = {}
-
-#Dictionary containing for each item the number of click on it in the last 5 days
-item_number_click_dictionary = {}
 
 # Dictionary for using IDF in Collaborative Filtering Item Based
 CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
@@ -57,20 +52,10 @@ CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
 print ("Create dictionaries for users and items")
 for user, item, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
-    if (created >= timestamp_last_five_day):
-        if item_number_click_dictionary.has_key(item):
-            item_number_click_dictionary[item] += 1
-        else:
-            item_number_click_dictionary[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
-
-#return the max number of click on an item in the last 5 days
-max_click = 0
-for item in item_number_click_dictionary:
-    max_click = max(max_click, item_number_click_dictionary[item])
 
 # Dictionaries for Content Item Based Algorithms
 CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.InitializeDictionaries_item(item_profile, item_cols)
@@ -87,7 +72,6 @@ CF_item_item_similarity_dictionary = CFAlgorithms.CFHybridItemItemSimilarity(CF_
 # Compute the Prediction for Collaborative Filtering Item Based
 CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictNormalizedRecommendation(target_users, CF_item_item_similarity_dictionary,
                                                                                             CF_user_items_dictionary, active_items_to_recommend,
-                                                                                            item_number_click_dictionary, max_click,
                                                                                             CF_IB_prediction_shrink, CF_IB_IDF)
 
 

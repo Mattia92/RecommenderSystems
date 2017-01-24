@@ -34,12 +34,7 @@ CB_UB_prediction_shrink = 10
 # Values of KNN for CB Similarities, KNN = 0 means to not use the KNN technique
 CB_UB_KNN = 500
 
-timestamp_last_five_day = 1446508800
-
 CF_user_items_dictionary = {}
-
-#DIctionary for number of click on items
-item_number_click_dictionary = {}
 
 # Dictionary for the target users
 target_users_dictionary = {}
@@ -51,18 +46,8 @@ for user in target_users['user_id']:
 # Dictionary is a list of elements, each element is defined as following
 # dict {user -> (list of {item -> interaction})}
 print ("Create dictionaries for users and items")
-for user, item, interaction, created in interactions.values:
+for user, item, interaction in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
-    if (created >= timestamp_last_five_day):
-        if item_number_click_dictionary.has_key(item):
-            item_number_click_dictionary[item] += 1
-        else:
-            item_number_click_dictionary[item] = 1
-
-# return the max number of click on an item in the last 5 days
-max_click = 0
-for item in item_number_click_dictionary:
-    max_click = max(max_click, item_number_click_dictionary[item])
 
 # Dictionaries for Content User Based Algorithms
 # Create the dictionary needed to compute the similarity between users
@@ -84,7 +69,7 @@ CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_us
 
 CB_UB_users_prediction_dictionary_normalized = CBAlgorithms.CBUserBasedPredictNormalizedRecommendation(target_users_dictionary, CB_user_user_similarity_dictionary,
                                                                                                        CF_user_items_dictionary, active_items_to_recommend,
-                                                                                                       item_number_click_dictionary, max_click, CB_UB_prediction_shrink)
+                                                                                                       CB_UB_prediction_shrink)
 
 # Write the final Result for Content User Based
 CBAlgorithms.CBWrite_Top_Predictions(CB_UB_predictions_output, CB_UB_users_prediction_dictionary_normalized)

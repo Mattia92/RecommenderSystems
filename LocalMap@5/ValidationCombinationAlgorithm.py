@@ -7,6 +7,9 @@ import ValidationAlgorithm as va
 target_users = pd.read_csv('../DataSet/target_users.csv')
 validation = pd.read_csv('../TestDataSet/validationSet.csv', sep=',', header=0)
 
+cols = ['user_id', 'item_id', 'interaction', 'create_at']
+interactions = pd.read_csv('../DataSet/interactions.csv', sep='\t', names=cols, header=0)
+
 # Filename for the output result
 CB_UB_predictions_output = "../ValidationPredictions/Validation_CB_User_Based.csv"
 CB_IB_predictions_output = "../ValidationPredictions/Validation_CB_Item_Based.csv"
@@ -32,6 +35,25 @@ CB_Item_Rank_Weight = 1
 CB_CF_IB_Hybrid_Rank_Weight = 1
 CB_IB_CF_IB_UB_Hybrid_Rank_Weight = 4
 ML_SVD_Rank_Weight = 0.1
+
+#timestamp of the fifth day before the last interaction
+timestamp_last_five_day = 1446508800
+
+#Dictionary for number of click on items
+item_number_click_dictionary = {}
+
+#Creating the dictionary which collect for each item the number of times it has been clicked by the users
+for user, item, interaction, created in interactions.values:
+    if (created >= timestamp_last_five_day):
+        if item_number_click_dictionary.has_key(item):
+            item_number_click_dictionary[item] += 1
+        else:
+            item_number_click_dictionary[item] = 1
+
+# return the max number of click on an item in the last 5 days
+max_click = 0
+for item in item_number_click_dictionary:
+    max_click = max(max_click, item_number_click_dictionary[item])
 
 CB_UB_users_prediction_dictionary_normalized = CBAlgorithms.CBRead_Predictions(CB_UB_predictions_output)
 CB_IB_users_prediction_dictionary_normalized = CBAlgorithms.CBRead_Predictions(CB_IB_predictions_output)
@@ -70,6 +92,8 @@ del CB_UB_users_prediction_dictionary_normalized
 HB_CF_CB_ML_users_prediction_dictionary = MLAlgorithms.MLHybridPredictNormalizedRecommendation(CF_Normalized_HB_Ranked_users_prediction_dictionary,
                                                                                                ML_SVD_user_prediction_dictionary, ML_SVD_Rank_Weight)
 
+final_users_prediction_dictionary = CFAlgorithms.CF_Popularity_Rank_Predictions(HB_CF_CB_ML_users_prediction_dictionary,
+                                                                                item_number_click_dictionary, max_click)
 # Write the final Result for Collaborative Filtering Hybrid Rank
 CFAlgorithms.CFWriteResult(CF_CB_ML_Hybrid_MAP_Output, HB_CF_CB_ML_users_prediction_dictionary)
 

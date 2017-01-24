@@ -34,13 +34,8 @@ CB_IB_prediction_shrink = 10
 # Values of KNN for CB Similarities, KNN = 0 means to not use the KNN technique
 CB_IB_KNN = 0
 
-timestamp_last_five_day = 1446508800
-
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
-
-#DIctionary for number of click on items
-item_number_click_dictionary = {}
 
 # Dictionary for using IDF in Collaborative Filtering Item Based
 CF_IDF = CFAlgorithms.CF_IDF(interactions)
@@ -57,20 +52,10 @@ for user in target_users['user_id']:
 print ("Create dictionaries for users and items")
 for user, item, interaction, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
-    if (created >= timestamp_last_five_day):
-        if item_number_click_dictionary.has_key(item):
-            item_number_click_dictionary[item] += 1
-        else:
-            item_number_click_dictionary[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
-
-# return the max number of click on an item in the last 5 days
-max_click = 0
-for item in item_number_click_dictionary:
-    max_click = max(max_click, item_number_click_dictionary[item])
 
 # dict of items which as at least one interaction by target user
 item_at_least_one_interaction_by_target_users = {}
@@ -97,6 +82,6 @@ CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimate(C
 # Compute the Prediction for Content Item Based
 CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictNormalizedRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
                                                                                             CF_user_items_dictionary, target_users_dictionary,
-                                                                                            item_number_click_dictionary, max_click, CB_IB_prediction_shrink, CF_IDF)
+                                                                                            CB_IB_prediction_shrink, CF_IDF)
 
 CBAlgorithms.CBWrite_Top_Predictions(CB_IB_predictions_output, CB_IB_users_prediction_dictionary)
