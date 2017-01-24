@@ -2,13 +2,14 @@ import pandas as pd
 import CFAlgorithms
 import CBAlgorithms
 
+timestamp_last_five_day = 1446508800
+
 # Importing all the files needed
 cols = ['user_id', 'item_id', 'interaction', 'create_at']
 interactions = pd.read_csv('../DataSet/interactions.csv', sep='\t', names=cols, header=0)
 # Sort interactions by time of creation in ascending order
 # This is done because in dictionary when duplicate keys encountered during assignment, the last assignment wins
 interactions = interactions.sort_values(by='create_at')
-interactions = interactions.drop('create_at', axis=1)
 
 items = pd.read_csv('../DataSet/item_profile.csv', sep='\t', header=0)
 active_items = items[(items.active_during_test == 1)]
@@ -55,6 +56,9 @@ CF_UB_KNN = 130
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 
+#DIctionary for number of click on items
+item_number_click_dictionary = {}
+
 # Dictionary for the target users
 target_users_dictionary = {}
 for user in target_users['user_id']:
@@ -65,12 +69,22 @@ for user in target_users['user_id']:
 # Dictionary is a list of elements, each element is defined as following
 # dict {user -> (list of {item -> interaction})}
 print ("Create dictionaries for users and items")
-for user, item, interaction in interactions.values:
+for user, item, interaction, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
+    if (created >= timestamp_last_five_day):
+        if item_number_click_dictionary.has_key(item):
+            item_number_click_dictionary[item] += 1
+        else:
+            item_number_click_dictionary[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
+
+#return the max number of click on an item in the last 5 days
+max_click = 0
+for item in item_number_click_dictionary:
+    max_click = max(max_click, item_number_click_dictionary[item])
 
 # Dictionaries for Content User Based Algorithms
 CB_user_attributes_dictionary, CB_attribute_users_dictionary = CBAlgorithms.InitializeDictionaries_user(user_profile, user_cols)
@@ -87,7 +101,7 @@ CF_user_user_similarity_dictionary = CFAlgorithms.CFHybridUserUserSimilarity(CF_
 # Compute the Prediction for Collaborative Filtering User Based
 CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictNormalizedRecommendation(target_users, CF_user_user_similarity_dictionary,
                                                                                             CF_user_items_dictionary, active_items_to_recommend,
-                                                                                            CF_UB_prediction_shrink)
+                                                                                            item_number_click_dictionary, max_click, CF_UB_prediction_shrink)
 
 
 # Write the final Result for Collaborative Filtering User Based

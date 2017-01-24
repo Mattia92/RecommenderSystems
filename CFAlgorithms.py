@@ -428,7 +428,7 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
 
 # Function to create the normalized recommendations for User_Based
 def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, active_items_to_recommend,
-                                               prediction_shrink):
+                                               item_number_click_dictionary, max_n_click, prediction_shrink):
     print ("Create dictionaries for CF User Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -479,7 +479,9 @@ def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarit
                     max_prediction = max(max_prediction, users_prediction_dictionary[user][item])
 
         for item in users_prediction_dictionary[user]:
-            users_prediction_dictionary[user][item] = users_prediction_dictionary[user][item] / max_prediction
+            rank = users_prediction_dictionary[user][item] / max_prediction
+            pop = item_number_click_dictionary[item] / max_n_click
+            users_prediction_dictionary[user][item] = rank * (1.5 + pop)
 
     return users_prediction_dictionary
 
