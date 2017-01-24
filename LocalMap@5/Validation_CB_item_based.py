@@ -53,7 +53,7 @@ for user in target_users['user_id']:
 # Dictionary is a list of elements, each element is defined as following
 # dict {user -> (list of {item -> interaction})}
 print ("Create dictionaries for users and items")
-for user, item, interaction, created in interactions.values:
+for user, item, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
     if (created >= timestamp_last_five_day):
         if item_number_click_dictionary.has_key(item):

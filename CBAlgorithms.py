@@ -573,7 +573,7 @@ def CBItemItemSimilarityKNNAttributes(item_attribute_dictionary, attribute_items
         for att in item_att:
             if (attribute_items_dictionary.has_key(att)):
                 item_list = attribute_items_dictionary[att].keys()
-                for ij in item_list[:500]:
+                for ij in item_list[:2500]:
                     if ij == item:
                         continue
                     else:
