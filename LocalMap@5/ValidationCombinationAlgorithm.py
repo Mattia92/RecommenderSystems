@@ -43,7 +43,7 @@ ML_SVD_user_prediction_dictionary = MLAlgorithms.MLRead_Predictions(ML_SVD_predi
 #CBAlgorithms.CBWriteResult(CB_IB_MAP_Output, CB_IB_users_prediction_dictionary_normalized)
 #CFAlgorithms.CFWriteResult(CF_HB_UB_MAP_Output, CF_HB_UB_users_prediction_dictionary_normalized)
 #CFAlgorithms.CFWriteResult(CF_HB_IB_MAP_Output, CF_HB_IB_users_prediction_dictionary_normalized)
-MLAlgorithms.MLWriteResult(ML_SVD_MAP_Output, ML_SVD_user_prediction_dictionary)
+#MLAlgorithms.MLWriteResult(ML_SVD_MAP_Output, ML_SVD_user_prediction_dictionary)
 
 # Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBIB-CFIB)
 CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_HB_UB_users_prediction_dictionary_normalized,
@@ -78,5 +78,5 @@ CFAlgorithms.CFWriteResult(CF_CB_ML_Hybrid_MAP_Output, HB_CF_CB_ML_users_predict
 #va.MAP(target_users, validation, CB_IB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
-va.MAP(target_users, validation, ML_Funk_SVD_MAP_Output)
+#va.MAP(target_users, validation, ML_Funk_SVD_MAP_Output)
 va.MAP(target_users, validation, CF_CB_ML_Hybrid_MAP_Output)

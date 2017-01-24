@@ -55,7 +55,7 @@ CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
 # Dictionary is a list of elements, each element is defined as following
 # dict {user -> (list of {item -> interaction})}
 print ("Create dictionaries for users and items")
-for user, item, interaction, created in interactions.values:
+for user, item, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
     if (created >= timestamp_last_five_day):
         if item_number_click_dictionary.has_key(item):
@@ -87,6 +87,7 @@ CF_item_item_similarity_dictionary = CFAlgorithms.CFHybridItemItemSimilarity(CF_
 # Compute the Prediction for Collaborative Filtering Item Based
 CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictNormalizedRecommendation(target_users, CF_item_item_similarity_dictionary,
                                                                                             CF_user_items_dictionary, active_items_to_recommend,
+                                                                                            item_number_click_dictionary, max_click,
                                                                                             CF_IB_prediction_shrink, CF_IB_IDF)
 
 

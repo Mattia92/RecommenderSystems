@@ -480,7 +480,10 @@ def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarit
 
         for item in users_prediction_dictionary[user]:
             rank = users_prediction_dictionary[user][item] / max_prediction
-            pop = item_number_click_dictionary[item] / max_n_click
+            if (item_number_click_dictionary.has_key(item)):
+                pop = item_number_click_dictionary[item] / max_n_click
+            else:
+                pop = 0
             users_prediction_dictionary[user][item] = rank * (1.5 + pop)
 
         #for item in users_prediction_dictionary[user]:
@@ -643,7 +646,10 @@ def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarit
 
         for item in users_prediction_dictionary[uu]:
             rank = users_prediction_dictionary[uu][item] / max_prediction
-            pop = item_number_click_dictionary[item] / max_n_click
+            if (item_number_click_dictionary.has_key(item)):
+                pop = item_number_click_dictionary[item] / max_n_click
+            else:
+                pop = 0
             users_prediction_dictionary[uu][item] = rank * (1.5 + pop)
 
         #for item in users_prediction_dictionary[user]:
