@@ -55,7 +55,7 @@ for user in target_users['user_id']:
 print ("Create dictionaries for users and items")
 for user, item, interaction, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
-    if (created >= timestamp_last_nine_days and not recent_items_dictionary.has_key(item)):
+    if (created >= timestamp_last_nine_days):
         recent_items_dictionary[item] = 1
 
 # Dictionaries for Content User Based Algorithms

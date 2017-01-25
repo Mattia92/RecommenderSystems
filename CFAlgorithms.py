@@ -452,7 +452,7 @@ def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarit
                 if (user in user_user_similarity_dictionary[user2]):
                     # For each item in the dictionary
                     for i in u2_item_list:
-                        if (i in recent_items_dictionary):
+                        if (recent_items_dictionary.has_key(i)):
                             # If the item was not predicted yet for the user, add it
                             if not (users_prediction_dictionary_num[user].has_key(i)):
                                 users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
@@ -626,7 +626,7 @@ def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarit
                 for ii in ij_s_dict:
                     if (i_r_dict.has_key(ii)):
                         continue
-                    if (ii in recent_items_dictionary):
+                    if (recent_items_dictionary.has_key(ii)):
                         # If the item was not predicted yet for the user, add it
                         if not (users_prediction_dictionary_num[uu].has_key(ii)):
                             users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]

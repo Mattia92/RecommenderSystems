@@ -58,7 +58,7 @@ CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
 print ("Create dictionaries for users and items")
 for user, item, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
-    if (created >= timestamp_last_nine_days and not recent_items_dictionary.has_key(item)):
+    if (created >= timestamp_last_nine_days):
         recent_items_dictionary[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
