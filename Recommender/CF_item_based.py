@@ -70,7 +70,7 @@ for user, item, interaction, created in interactions.values:
         user_recent_items_dictionary.setdefault(user, {})[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
-for user, item, interaction in interactions.values:
+for user, item, interaction, created in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
 
 # Dictionaries for Content Item Based Algorithms

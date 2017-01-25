@@ -21,7 +21,7 @@ target_users = pd.read_csv('../DataSet/target_users.csv')
 
 item_cols = ['item', 'title', 'career',	'discipline', 'industry', 'country', 'region', 'latitude', 'longitude',
             'employ', 'tags', 'created_at', 'active_during_test']
-item_profile = pd.read_csv('DataSet/item_profile.csv', sep='\t', names=item_cols, header=0)
+item_profile = pd.read_csv('../DataSet/item_profile.csv', sep='\t', names=item_cols, header=0)
 
 # Dictionary with only active items
 active_items_to_recommend = {}
@@ -71,7 +71,7 @@ for user, item, interaction, created in interactions.values:
         user_recent_items_dictionary.setdefault(user, {})[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
-for user, item, interaction in interactions.values:
+for user, item, int, created in interactions.values:
     CF_item_users_dictionary.setdefault(item, {})[user] = 1 #int(interaction)
 
 # Dictionaries for Content User Based Algorithms

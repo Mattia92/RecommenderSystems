@@ -4,9 +4,9 @@ import pandas as pd
 from _cython._mf import FunkSVD_sgd
 import logging
 
-INPUT_INTERACTIONS = "../TestDataSet/trainingSet.csv"
+INPUT_INTERACTIONS = "../DataSet/interactions.csv"
 TARGET_USERS_INPUT = "../DataSet/target_users.csv"
-OUTPUT = "../ValidationPredictions/testFunkSVD.csv"
+OUTPUT = "../Predictions/ML_Funk_SVD.csv"
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -120,10 +120,10 @@ class FunkSVD(object):
 
     # TODO: add global effects
     def __init__(self,
-                 num_factors=50,
-                 lrate=0.3,
-                 reg=0.1,
-                 iters=10,
+                 num_factors=165,
+                 lrate=0.5,
+                 reg=0.5,
+                 iters=15,
                  init_mean=0.0,
                  init_std=0.1,
                  lrate_decay=0.9,
@@ -196,4 +196,4 @@ with open(OUTPUT, 'w') as out:
         target_user_row = user_id_to_row[target_user]
         ranking_dictionary = svd.recommend(target_user_row, n=300)
         for item in ranking_dictionary:
-            out.write(str(target_user) + "\t" + str(item) + "\t"+ str(ranking_dictionary[item]) + "\n")
+            out.write(str(target_user) + "\t" + str(item) + "\t" + str(ranking_dictionary[item]) + "\n")
