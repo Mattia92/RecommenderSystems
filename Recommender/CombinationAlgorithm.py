@@ -22,14 +22,16 @@ CF_UB_IB_Hybrid_Rank_Weight = 1
 CB_IB_CF_IB_UB_Hybrid_Rank_Weight = 4
 
 # timestamp of the fifth day before the last interaction
-timestamp_last_five_day = 1446508800
+timestamp_last_five_days = 1446508800
+timestamp_last_seven_days = 1446336000
+timestamp_last_ten_days = 1446076800
 
 # Dictionary for number of click on items
 item_number_click_dictionary = {}
 
 # Creating the dictionary which collect for each item the number of times it has been clicked by the users
 for user, item, interaction, created in interactions.values:
-    if (created >= timestamp_last_five_day):
+    if (created >= timestamp_last_seven_days):
         if item_number_click_dictionary.has_key(item):
             item_number_click_dictionary[item] += 1
         else:

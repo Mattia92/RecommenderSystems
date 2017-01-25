@@ -37,14 +37,17 @@ CB_IB_CF_IB_UB_Hybrid_Rank_Weight = 4
 ML_SVD_Rank_Weight = 0
 
 #timestamp of the fifth day before the last interaction
-timestamp_last_five_day = 1446508800
+timestamp_last_three_days = 1446681600
+timestamp_last_five_days = 1446508800
+timestamp_last_seven_days = 1446336000
+timestamp_last_ten_days = 1446076800
 
 #Dictionary for number of click on items
 item_number_click_dictionary = {}
 
 #Creating the dictionary which collect for each item the number of times it has been clicked by the users
 for user, item, interaction, created in interactions.values:
-    if (created >= timestamp_last_five_day):
+    if (created >= timestamp_last_seven_days):
         if item_number_click_dictionary.has_key(item):
             item_number_click_dictionary[item] += 1
         else:
@@ -103,4 +106,4 @@ CFAlgorithms.CFWriteResult(CF_CB_ML_Hybrid_MAP_Output, final_users_prediction_di
 #va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
 #va.MAP(target_users, validation, ML_Funk_SVD_MAP_Output)
-va.MAP(target_users, validation, CF_CB_ML_Hybrid_MAP_Output)
+va.MAP(target_users, validation, CF_HB_UB_MAP_Output)

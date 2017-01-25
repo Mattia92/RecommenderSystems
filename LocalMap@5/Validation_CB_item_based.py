@@ -32,8 +32,14 @@ CB_IB_prediction_shrink = 10
 CB_IB_KNN = 200
 CB_IB_attributes_KNN = 7
 
+# timestamp of the fifth day before the last interaction
+timestamp_last_five_days = 1446508800
+timestamp_last_seven_days = 1446336000
+timestamp_last_ten_days = 1446076800
+
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
+user_recent_items_dictionary = {}
 
 # Dictionary for using IDF in Collaborative Filtering Item Based
 CF_IDF = CFAlgorithms.CF_IDF(interactions)
@@ -50,6 +56,8 @@ for user in target_users['user_id']:
 print ("Create dictionaries for users and items")
 for user, item, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
+    if created >= timestamp_last_seven_days:
+        user_recent_items_dictionary.setdefault(user, {})[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
@@ -81,7 +89,7 @@ CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimateKN
 
 # Compute the Prediction for Content Item Based
 CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemKNNAttributesBasedPredictNormalizedRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
-                                                                                                         CF_user_items_dictionary, target_users_dictionary,
-                                                                                                         CB_IB_prediction_shrink, CF_IDF)
+                                                                                                         CF_user_items_dictionary, user_recent_items_dictionary,
+                                                                                                         target_users_dictionary, CB_IB_prediction_shrink, CF_IDF)
 
 CBAlgorithms.CBWrite_Top_Predictions(CB_IB_predictions_output, CB_IB_users_prediction_dictionary)

@@ -22,7 +22,7 @@ for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
 # Filename for the output result
-CF_UB_predictions_output = "../ValidationPredictions/Validation_CF_User_Based.csv"
+CF_UB_predictions_output = "../ValidationPredictions/Validation_CF_User_Based_Time.csv"
 
 # Shrink values for Collaborative Filtering User Based
 CF_UB_similarity_shrink = 10
@@ -37,10 +37,15 @@ CF_HB_UB_w = 1.1
 # Values of KNN for CF Similarities, KNN = 0 means to not use the KNN technique
 CF_UB_KNN = 130
 
+# timestamp of the fifth day before the last interaction
+timestamp_last_five_days = 1446508800
+timestamp_last_seven_days = 1446336000
+timestamp_last_ten_days = 1446076800
+
 # Dictionaries for Collaborative Filtering Algorithms
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
-CF_user_items_dictionary_time = {}
+user_recent_items_dictionary = {}
 
 # Dictionary for the target users
 target_users_dictionary = {}
@@ -54,6 +59,8 @@ for user in target_users['user_id']:
 print ("Create dictionaries for users and items")
 for user, item, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
+    if created >= timestamp_last_seven_days:
+        user_recent_items_dictionary.setdefault(user, {})[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
@@ -73,8 +80,8 @@ CF_user_user_similarity_dictionary = CFAlgorithms.CFHybridUserUserSimilarity(CF_
 
 # Compute the Prediction for Collaborative Filtering User Based
 CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictNormalizedRecommendation(target_users, CF_user_user_similarity_dictionary,
-                                                                                            CF_user_items_dictionary, active_items_to_recommend,
-                                                                                            CF_UB_prediction_shrink)
+                                                                                            CF_user_items_dictionary, user_recent_items_dictionary,
+                                                                                            active_items_to_recommend,CF_UB_prediction_shrink)
 
 #CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedLastWeekPredictNormalizedRecommendation(target_users, CF_user_user_similarity_dictionary,
 #                                                                                                    CF_user_items_dictionary, CF_user_items_dictionary_time,
