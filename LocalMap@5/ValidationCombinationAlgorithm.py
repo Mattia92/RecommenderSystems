@@ -106,4 +106,4 @@ CFAlgorithms.CFWriteResult(CF_CB_ML_Hybrid_MAP_Output, final_users_prediction_di
 #va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
 #va.MAP(target_users, validation, CF_HB_IB_MAP_Output)
 #va.MAP(target_users, validation, ML_Funk_SVD_MAP_Output)
-va.MAP(target_users, validation, CF_HB_UB_MAP_Output)
+va.MAP(target_users, validation, CF_CB_ML_Hybrid_MAP_Output)

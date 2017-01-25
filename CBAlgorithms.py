@@ -710,7 +710,7 @@ def CBUserBasedPredictRecommendation(target_users_dictionary, user_user_similari
 
 # Function to create the normalized recommendations for User_Based
 def CBUserBasedPredictNormalizedRecommendation(target_users_dictionary, user_user_similarity_dictionary, user_items_dictionary,
-                                               user_recent_items_dictionary, active_items_to_recommend, prediction_shrink):
+                                               recent_items_dictionary, active_items_to_recommend, prediction_shrink):
     print ("Create dictionaries for CB User Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -724,18 +724,19 @@ def CBUserBasedPredictNormalizedRecommendation(target_users_dictionary, user_use
         uus_list = user_user_similarity_dictionary[user]
         # For each similar user in the dictionary
         for user2 in uus_list:
-            if (user_recent_items_dictionary.has_key(user2)):
+            if (user_items_dictionary.has_key(user2)):
                 # Get the dictionary of items with which this user has interact
-                u2_item_list = user_recent_items_dictionary[user2]
+                u2_item_list = user_items_dictionary[user2]
                 # if (user in user_user_similarity_dictionary[user2]):
                 # For each item in the dictionary
                 for i in u2_item_list:
-                    # If the item was not predicted yet for the user, add it
-                    if not (users_prediction_dictionary_num[user].has_key(i)):
-                        users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
-                    # Else Evaluate its contribution
-                    else:
-                        users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
+                    if (i in recent_items_dictionary):
+                        # If the item was not predicted yet for the user, add it
+                        if not (users_prediction_dictionary_num[user].has_key(i)):
+                            users_prediction_dictionary_num[user][i] = uus_list[user2] * u2_item_list[i]
+                        # Else Evaluate its contribution
+                        else:
+                            users_prediction_dictionary_num[user][i] += uus_list[user2] * u2_item_list[i]
 
     # For each user in the dictionary
     for user in user_user_similarity_dictionary:
@@ -825,7 +826,7 @@ def CBItemBasedPredictRecommendation(active_items_dictionary, item_item_similari
 
 # Function to create the recommendations for Item_Based
 def CBItemBasedPredictNormalizedRecommendation(active_items_dictionary, item_item_similarity_dictionary, user_items_dictionary,
-                                               user_recent_items_dictionary, target_users_dictionary, prediction_shrink, CF_IDF):
+                                               recent_items_dictionary, target_users_dictionary, prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -837,9 +838,9 @@ def CBItemBasedPredictNormalizedRecommendation(active_items_dictionary, item_ite
         users_prediction_dictionary_num[uu] = {}
         users_prediction_dictionary_den[uu] = {}
         # If user has interact with at least one item
-        if (user_recent_items_dictionary.has_key(uu)):
+        if (user_items_dictionary.has_key(uu)):
             # Get dictionary of items with which the user has interact
-            i_r_dict = user_recent_items_dictionary[uu]
+            i_r_dict = user_items_dictionary[uu]
             # For each item in this dictionary
             for ij in i_r_dict:
                 # Get the dictionary of similar items and the value of similarity
@@ -849,14 +850,15 @@ def CBItemBasedPredictNormalizedRecommendation(active_items_dictionary, item_ite
                 for ii in ij_s_dict:
                     if (i_r_dict.has_key(ii)):
                         continue
-                    # If the item was not predicted yet for the user, add it
-                    if not (users_prediction_dictionary_num[uu].has_key(ii)):
-                        users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
-                        users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
-                    # Else Evaluate its contribution
-                    else:
-                        users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
-                        users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
+                    if (ii in recent_items_dictionary):
+                        # If the item was not predicted yet for the user, add it
+                        if not (users_prediction_dictionary_num[uu].has_key(ii)):
+                            users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
+                        # Else Evaluate its contribution
+                        else:
+                            users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                            users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate and Normalization:")
     # For each target user (users_prediction_dictionary_num contains all target users)
@@ -884,7 +886,7 @@ def CBItemBasedPredictNormalizedRecommendation(active_items_dictionary, item_ite
 
 # Function to create the recommendations for Item_Based
 def CBItemKNNAttributesBasedPredictNormalizedRecommendation(active_items_dictionary, item_item_similarity_dictionary, user_items_dictionary,
-                                                            user_recent_items_dictionary, target_users_dictionary, prediction_shrink, CF_IDF):
+                                                            recent_items_dictionary, target_users_dictionary, prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -896,9 +898,9 @@ def CBItemKNNAttributesBasedPredictNormalizedRecommendation(active_items_diction
         users_prediction_dictionary_num[uu] = {}
         users_prediction_dictionary_den[uu] = {}
         # If user has interact with at least one item
-        if (user_recent_items_dictionary.has_key(uu)):
+        if (user_items_dictionary.has_key(uu)):
             # Get dictionary of items with which the user has interact
-            i_r_dict = user_recent_items_dictionary[uu]
+            i_r_dict = user_items_dictionary[uu]
             # For each item in this dictionary
             for ij in i_r_dict:
                 # Get the dictionary of similar items and the value of similarity
@@ -908,14 +910,15 @@ def CBItemKNNAttributesBasedPredictNormalizedRecommendation(active_items_diction
                     for ii in ij_s_dict:
                         if (i_r_dict.has_key(ii)):
                             continue
-                        # If the item was not predicted yet for the user, add it
-                        if not (users_prediction_dictionary_num[uu].has_key(ii)):
-                            users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
-                            users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
-                        # Else Evaluate its contribution
-                        else:
-                            users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
-                            users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
+                        if (ii in recent_items_dictionary):
+                            # If the item was not predicted yet for the user, add it
+                            if not (users_prediction_dictionary_num[uu].has_key(ii)):
+                                users_prediction_dictionary_num[uu][ii] = CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                                users_prediction_dictionary_den[uu][ii] = ij_s_dict[ii]
+                            # Else Evaluate its contribution
+                            else:
+                                users_prediction_dictionary_num[uu][ii] += CF_IDF[ij] * ij_s_dict[ii] #i_r_dict[ij] * ij_s_dict[ii]
+                                users_prediction_dictionary_den[uu][ii] += ij_s_dict[ii]
 
     print ("Ratings estimate and Normalization:")
     # For each target user (users_prediction_dictionary_num contains all target users)

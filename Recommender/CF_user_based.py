@@ -48,11 +48,12 @@ CF_UB_KNN = 130
 timestamp_last_five_days = 1446508800
 timestamp_last_seven_days = 1446336000
 timestamp_last_ten_days = 1446076800
+timestamp_last_nine_days = 1446163200
 
 # Dictionaries for Collaborative Filtering Algorithms
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
-user_recent_items_dictionary = {}
+recent_items_dictionary = {}
 
 
 # Dictionary for the target users
@@ -67,8 +68,8 @@ for user in target_users['user_id']:
 print ("Create dictionaries for users and items")
 for user, item, interaction, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
-    if created >= timestamp_last_seven_days:
-        user_recent_items_dictionary.setdefault(user, {})[item] = 1
+    if (created >= timestamp_last_nine_days and not recent_items_dictionary.has_key(item)):
+        recent_items_dictionary[item] = 1
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, int, created in interactions.values:
@@ -88,7 +89,7 @@ CF_user_user_similarity_dictionary = CFAlgorithms.CFHybridUserUserSimilarity(CF_
 
 # Compute the Prediction for Collaborative Filtering User Based
 CF_UB_users_prediction_dictionary = CFAlgorithms.CFUserBasedPredictNormalizedRecommendation(target_users, CF_user_user_similarity_dictionary,
-                                                                                            CF_user_items_dictionary, user_recent_items_dictionary,
+                                                                                            CF_user_items_dictionary, recent_items_dictionary,
                                                                                             active_items_to_recommend,CF_UB_prediction_shrink)
 
 
