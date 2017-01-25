@@ -32,7 +32,8 @@ CB_IB_similarity_shrink = 5
 CB_IB_prediction_shrink = 10
 
 # Values of KNN for CB Similarities, KNN = 0 means to not use the KNN technique
-CB_IB_KNN = 0
+CB_IB_KNN = 200
+CB_IB_attributes_KNN = 7
 
 # timestamp of the fifth day before the last interaction
 timestamp_last_five_days = 1446508800
@@ -79,18 +80,20 @@ CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.Init
 
 # Compute TF and IDF
 print ("Computing TF and IDF")
-CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.ComputeTF_IDF(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
+CB_item_attributes_dictionary, CB_attribute_items_dictionary, item_interacted_by_target_users_KNN_attributes_dictionary = CBAlgorithms.ComputeTF_IDF_CB_IB(CB_item_attributes_dictionary, CB_attribute_items_dictionary,
+                                                                                                                                                           active_items_to_recommend, item_at_least_one_interaction_by_target_users,
+                                                                                                                                                           CB_IB_attributes_KNN)
 
 # Compute the Item-Item Similarity for Content Item Based
-CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarity(item_at_least_one_interaction_by_target_users, active_items_to_recommend,
-                                                                       CB_item_attributes_dictionary, CB_attribute_items_dictionary)
+CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityKNNAttributes(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
 
-CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimate(CB_item_item_similarity_dictionary, CB_item_attributes_dictionary,
-                                                                               CB_IB_similarity_shrink, CB_IB_KNN)
+CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityEstimateKNNAttributes(CB_item_item_similarity_dictionary, CB_item_attributes_dictionary,
+                                                                                            item_interacted_by_target_users_KNN_attributes_dictionary,
+                                                                                            CB_IB_similarity_shrink, CB_IB_KNN)
 
 # Compute the Prediction for Content Item Based
-CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemBasedPredictNormalizedRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
-                                                                                            CF_user_items_dictionary, recent_items_dictionary,
-                                                                                            target_users_dictionary, CB_IB_prediction_shrink, CF_IDF)
+CB_IB_users_prediction_dictionary = CBAlgorithms.CBItemKNNAttributesBasedPredictNormalizedRecommendation(active_items_to_recommend, CB_item_item_similarity_dictionary,
+                                                                                                         CF_user_items_dictionary, recent_items_dictionary,
+                                                                                                         target_users_dictionary, CB_IB_prediction_shrink, CF_IDF)
 
 CBAlgorithms.CBWrite_Top_Predictions(CB_IB_predictions_output, CB_IB_users_prediction_dictionary)

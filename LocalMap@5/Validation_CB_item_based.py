@@ -30,7 +30,7 @@ CB_IB_prediction_shrink = 10
 
 # Values of KNN for CB Similarities, KNN = 0 means to not use the KNN technique
 CB_IB_KNN = 200
-CB_IB_attributes_KNN = 7
+CB_IB_attributes_KNN = 10
 
 # timestamp of the fifth day before the last interaction
 timestamp_last_five_days = 1446508800
@@ -78,8 +78,8 @@ CB_item_attributes_dictionary, CB_attribute_items_dictionary = CBAlgorithms.Init
 # Compute TF and IDF
 print ("Computing TF and IDF")
 CB_item_attributes_dictionary, CB_attribute_items_dictionary, item_interacted_by_target_users_KNN_attributes_dictionary = CBAlgorithms.ComputeTF_IDF_CB_IB(CB_item_attributes_dictionary, CB_attribute_items_dictionary,
-                                                                                                active_items_to_recommend, item_at_least_one_interaction_by_target_users,
-                                                                                                CB_IB_KNN)
+                                                                                                                                                           active_items_to_recommend, item_at_least_one_interaction_by_target_users,
+                                                                                                                                                           CB_IB_attributes_KNN)
 
 # Compute the Item-Item Similarity for Content Item Based
 CB_item_item_similarity_dictionary = CBAlgorithms.CBItemItemSimilarityKNNAttributes(CB_item_attributes_dictionary, CB_attribute_items_dictionary)
