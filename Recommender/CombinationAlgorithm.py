@@ -1,5 +1,9 @@
 import CBAlgorithms
 import CFAlgorithms
+import pandas as pd
+
+cols = ['user_id', 'item_id', 'interaction', 'create_at']
+interactions = pd.read_csv('../DataSet/interactions.csv', sep='\t', names=cols, header=0)
 
 # Filename for the output result
 CB_UB_predictions_output = "../Predictions/CB_User_Based.csv"

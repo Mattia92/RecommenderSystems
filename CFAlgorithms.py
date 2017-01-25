@@ -823,8 +823,11 @@ def CF_Popularity_Rank_Predictions(users_prediction_dictionary, item_number_clic
     for user in users_prediction_dictionary:
         for item in users_prediction_dictionary[user]:
             rank = users_prediction_dictionary[user][item]
-            pop = item_number_click_dictionary[item] / max_n_click
-            users_prediction_dictionary[user][item] = rank * (1.5 + pop)
+            if item_number_click_dictionary.has_key(int(item)):
+                pop = item_number_click_dictionary[int(item)] / max_n_click
+            else:
+                pop = 0
+            users_prediction_dictionary[user][item] = rank * (1 + pop)
 
     return users_prediction_dictionary
 

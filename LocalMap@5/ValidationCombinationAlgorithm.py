@@ -15,7 +15,7 @@ CB_UB_predictions_output = "../ValidationPredictions/Validation_CB_User_Based.cs
 CB_IB_predictions_output = "../ValidationPredictions/Validation_CB_Item_Based.csv"
 CF_UB_predictions_output = "../ValidationPredictions/Validation_CF_User_Based.csv"
 CF_IB_predictions_output = "../ValidationPredictions/Validation_CF_Item_Based.csv"
-ML_SVD_predictions_output = "../ValidationPredictions/Validation_Funk_SVD.csv"
+ML_SVD_predictions_output = "../ValidationPredictions/Validation_Funk_SVD_2.csv"
 
 # Filename for the output result
 CB_UB_MAP_Output = "../TestDataSet/CB_MAP_User_Based.csv"
@@ -34,7 +34,7 @@ CB_User_Rank_Weight = 0.5
 CB_Item_Rank_Weight = 1
 CB_CF_IB_Hybrid_Rank_Weight = 1
 CB_IB_CF_IB_UB_Hybrid_Rank_Weight = 4
-ML_SVD_Rank_Weight = 0.1
+ML_SVD_Rank_Weight = 0
 
 #timestamp of the fifth day before the last interaction
 timestamp_last_five_day = 1446508800
@@ -67,7 +67,7 @@ ML_SVD_user_prediction_dictionary = MLAlgorithms.MLRead_Predictions(ML_SVD_predi
 #CFAlgorithms.CFWriteResult(CF_HB_IB_MAP_Output, CF_HB_IB_users_prediction_dictionary_normalized)
 #MLAlgorithms.MLWriteResult(ML_SVD_MAP_Output, ML_SVD_user_prediction_dictionary)
 
-# Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBIB-CFIB)
+#Compute the Prediction for Normalized Collaborative Filtering and Content Based Hybrid Rank (CBIB-CFIB)
 CF_Normalized_HB_Ranked_users_prediction_dictionary = CFAlgorithms.CFHybridRankPredictNormalizedRecommendation(CF_HB_UB_users_prediction_dictionary_normalized,
                                                                                                                CF_HB_IB_users_prediction_dictionary_normalized,
                                                                                                                CF_User_Rank_Weight, CF_Item_Rank_Weight)
@@ -95,7 +95,7 @@ HB_CF_CB_ML_users_prediction_dictionary = MLAlgorithms.MLHybridPredictNormalized
 final_users_prediction_dictionary = CFAlgorithms.CF_Popularity_Rank_Predictions(HB_CF_CB_ML_users_prediction_dictionary,
                                                                                 item_number_click_dictionary, max_click)
 # Write the final Result for Collaborative Filtering Hybrid Rank
-CFAlgorithms.CFWriteResult(CF_CB_ML_Hybrid_MAP_Output, HB_CF_CB_ML_users_prediction_dictionary)
+CFAlgorithms.CFWriteResult(CF_CB_ML_Hybrid_MAP_Output, final_users_prediction_dictionary)
 
 # Compute the LocalMAP@5
 #va.MAP(target_users, validation, CB_UB_MAP_Output)
