@@ -33,7 +33,7 @@ CB_IB_prediction_shrink = 10
 
 # Values of KNN for CB Similarities, KNN = 0 means to not use the KNN technique
 CB_IB_KNN = 200
-CB_IB_attributes_KNN = 7
+CB_IB_attributes_KNN = 10
 
 # timestamp of the fifth day before the last interaction
 timestamp_last_five_days = 1446508800

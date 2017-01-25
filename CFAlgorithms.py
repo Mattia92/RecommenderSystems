@@ -8,11 +8,11 @@ def CF_IDF(interactions):
     print ("Create dictionary for CF_IDF")
     CF_IB_IDF = {}
     item_num_interactions = {}
-    for user, item, created in interactions.values:
+    for user, item, interaction, created in interactions.values:
         item_num_interactions[item] = 0
-    for user, item, created in interactions.values:
+    for user, item, interaction, created in interactions.values:
         item_num_interactions[item] += 1
-    for user, item, created in interactions.values:
+    for user, item, interaction, created in interactions.values:
         CF_IB_IDF[item] = math.log10(len(interactions) / item_num_interactions[item])
 
     return CF_IB_IDF
