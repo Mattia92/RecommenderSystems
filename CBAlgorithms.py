@@ -366,7 +366,7 @@ def CBUserUserSimilarity(target_users_dictionary, user_at_least_one_interaction,
         user_user_similarity_dictionary_num[user] = {}
         # For each attribute of the user
         for att in user_att:
-            user_list = attributes_users_dictionary[att] #list of users that has this attribute
+            user_list = attributes_users_dictionary[att].keys() #list of users that has this attribute
             for u in user_list[:2500]:
                 # Don't consider the similarity between the same users
                 if u == user:
