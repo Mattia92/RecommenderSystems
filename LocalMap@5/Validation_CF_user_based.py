@@ -22,7 +22,7 @@ for item, state in active_items_idx.values:
     active_items_to_recommend[item] = state
 
 # Filename for the output result
-CF_UB_predictions_output = "../ValidationPredictions/Validation_CF_User_Based_Time.csv"
+CF_UB_predictions_output = "../ValidationPredictions/Validation_CF_User_Based.csv"
 
 # Shrink values for Collaborative Filtering User Based
 CF_UB_similarity_shrink = 10
