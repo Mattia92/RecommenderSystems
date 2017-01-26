@@ -48,7 +48,7 @@ item_number_click_dictionary = {}
 
 #Creating the dictionary which collect for each item the number of times it has been clicked by the users
 for user, item, interaction, created in interactions.values:
-    if (created >= timestamp_last_nine_days):
+    if (created >= timestamp_last_seven_days):
         if item_number_click_dictionary.has_key(item):
             item_number_click_dictionary[item] += 1
         else:
