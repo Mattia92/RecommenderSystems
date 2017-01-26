@@ -36,9 +36,11 @@ timestamp_last_five_days = 1446508800
 timestamp_last_seven_days = 1446336000
 timestamp_last_ten_days = 1446076800
 timestamp_last_nine_days = 1446163200
+timestamp_last_two_weeks = 1445731200
 
 CF_user_items_dictionary = {}
 recent_items_dictionary = {}
+user_recent_items_dictionary = {}
 
 # Dictionary for the target users
 target_users_dictionary = {}
@@ -54,6 +56,10 @@ for user, item, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
     if (created >= timestamp_last_nine_days):
         recent_items_dictionary[item] = 1
+    if(created >= timestamp_last_two_weeks):
+        if not(user_recent_items_dictionary.has_key(user)):
+            user_recent_items_dictionary[user] = {}
+        user_recent_items_dictionary[user][item] = 1
 
 # Dictionaries for Content User Based Algorithms
 # Create the dictionary needed to compute the similarity between users
@@ -74,7 +80,8 @@ CB_user_user_similarity_dictionary = CBAlgorithms.CBUserUserSimilarity(target_us
                                                                        CB_attribute_users_dictionary, CB_UB_similarity_shrink, CB_UB_KNN)
 
 CB_UB_users_prediction_dictionary_normalized = CBAlgorithms.CBUserBasedPredictNormalizedRecommendation(target_users_dictionary, CB_user_user_similarity_dictionary,
-                                                                                                       CF_user_items_dictionary, recent_items_dictionary,
+                                                                                                       CF_user_items_dictionary, user_recent_items_dictionary,
+                                                                                                       recent_items_dictionary,
                                                                                                        active_items_to_recommend, CB_UB_prediction_shrink)
 
 # Write the final Result for Content User Based

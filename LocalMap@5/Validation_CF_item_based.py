@@ -42,11 +42,13 @@ timestamp_last_five_days = 1446508800
 timestamp_last_seven_days = 1446336000
 timestamp_last_nine_days = 1446163200
 timestamp_last_ten_days = 1446076800
+timestamp_last_two_weeks = 1445731200
 
 # Dictionaries for Collaborative Filtering Algorithms
 CF_user_items_dictionary = {}
 CF_item_users_dictionary = {}
 recent_items_dictionary = {}
+user_recent_items_dictionary = {}
 
 # Dictionary for using IDF in Collaborative Filtering Item Based
 CF_IB_IDF = CFAlgorithms.CF_IDF(interactions)
@@ -60,6 +62,10 @@ for user, item, created in interactions.values:
     CF_user_items_dictionary.setdefault(user, {})[item] = 1 #int(interaction)
     if (created >= timestamp_last_nine_days):
         recent_items_dictionary[item] = 1
+    if(created >= timestamp_last_two_weeks):
+        if not(user_recent_items_dictionary.has_key(user)):
+            user_recent_items_dictionary[user] = {}
+        user_recent_items_dictionary[user][item] = 1
 
 # dict {item -> (list of {user -> interaction})}
 for user, item, interaction in interactions.values:
@@ -79,7 +85,8 @@ CF_item_item_similarity_dictionary = CFAlgorithms.CFHybridItemItemSimilarity(CF_
 
 # Compute the Prediction for Collaborative Filtering Item Based
 CF_IB_users_prediction_dictionary = CFAlgorithms.CFItemBasedPredictNormalizedRecommendation(target_users, CF_item_item_similarity_dictionary,
-                                                                                            CF_user_items_dictionary, recent_items_dictionary,
+                                                                                            CF_user_items_dictionary, user_recent_items_dictionary,
+                                                                                            recent_items_dictionary,
                                                                                             active_items_to_recommend, CF_IB_prediction_shrink, CF_IB_IDF)
 
 

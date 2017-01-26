@@ -427,8 +427,8 @@ def CFUserBasedPredictRecommendation(target_users, user_user_similarity_dictiona
     return users_prediction_dictionary
 
 # Function to create the normalized recommendations for User_Based
-def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, recent_items_dictionary,
-                                               active_items_to_recommend, prediction_shrink):
+def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarity_dictionary, user_items_dictionary, user_recent_items_dictionary,
+                                               recent_items_dictionary, active_items_to_recommend, prediction_shrink):
     print ("Create dictionaries for CF User Based user predictions")
     # Create the dictionary for users prediction
     # dict {user -> (list of {item -> prediction})}
@@ -476,7 +476,7 @@ def CFUserBasedPredictNormalizedRecommendation(target_users, user_user_similarit
         # For each item predicted for the user
         for item in users_prediction_dictionary_num[user]:
             # Evaluate the prediction of that item for that user
-            if not (item in user_items_dictionary[user]):
+            if not (user_recent_items_dictionary[user].has_key(item)):
                 if (active_items_to_recommend.has_key(item)):
                     users_prediction_dictionary[user][item] = users_prediction_dictionary_num[user][item] / \
                                                               (users_prediction_dictionary_norm[user] + prediction_shrink)
@@ -602,7 +602,7 @@ def CFItemBasedPredictRecommendation(target_users, item_item_similarity_dictiona
     return users_prediction_dictionary
 
 # Function to create the normalized recommendations for Item_Based
-def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary,
+def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarity_dictionary, user_items_dictionary, user_recent_items_dictionary,
                                                recent_items_dictionary, active_items_to_recommend, prediction_shrink, CF_IDF):
     print ("Create dictionaries for CF Item Based user predictions")
     # Create the dictionary for users prediction
@@ -644,7 +644,7 @@ def CFItemBasedPredictNormalizedRecommendation(target_users, item_item_similarit
         # For each item predicted for the user
         for ii in users_prediction_dictionary_num[uu]:
             # Evaluate the prediction of that item for that user
-            if (active_items_to_recommend.has_key(ii) and not ii in user_items_dictionary[uu]):
+            if (active_items_to_recommend.has_key(ii) and not user_recent_items_dictionary[uu].has_key(ii)):
                 users_prediction_dictionary[uu][ii] = users_prediction_dictionary_num[uu][ii] / \
                                                       (users_prediction_dictionary_den[uu][ii] + prediction_shrink)
                 max_prediction = max(max_prediction, users_prediction_dictionary[uu][ii])
